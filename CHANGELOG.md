@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.1](https://github.com/drumandbytes/delistd/compare/v2.5.0...v2.5.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* **site:** only guides and docs are articles, fuller Organization schema, shorter compare description ([#299](https://github.com/drumandbytes/delistd/issues/299)) ([efb5e7f](https://github.com/drumandbytes/delistd/commit/efb5e7f49b7281d1b54a9d37e503fc794f00ed63))
+
 ## [2.5.0](https://github.com/drumandbytes/delistd/compare/v2.4.1...v2.5.0) (2026-11-14)
 
 
