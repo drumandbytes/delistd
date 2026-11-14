@@ -34,6 +34,9 @@ Check it works with `delistd monitor` (signs in to the inbox) and a test send fr
 
 ## What to expect
 
+- **Primary address.** Right after you approve the code, Delistd logs in to the inbox and to SMTP to check the sign-in. Outlook's SMTP server only lets the account's *primary* address log in. That's normally your Outlook address. If your Microsoft account signs in with another address (say a Gmail address with an Outlook alias added), enter that primary address under **Server settings → Login username** (or `username:` under `email.smtp` and `email:` under `inbox`) and keep the Outlook address as the From address; Delistd says so if the check fails. A Microsoft account that only has a Gmail address and no Outlook mailbox can't be used: there is no inbox to read or send from.
+- **Spam folder.** A brand-new Outlook account that sends short messages with no history can land in the recipient's junk folder at first. Delivery to brokers is the same as from any new account; sending from an address with some history helps.
+
 - The sign-in is refreshed automatically on every run and saved back to the config. It stops working if you don't use it for about 90 days, change your Microsoft password, or revoke it; Delistd then says to run `delistd oauth login` again.
 - Unattended runs (`delistd schedule install`, `delistd auto`) work, with the usual limit that a passphrase-protected config can't be unlocked by the OS scheduler.
 - The command line works in Docker too, if you prefer it: `docker exec -it <container> delistd oauth login --client-id ...`.
