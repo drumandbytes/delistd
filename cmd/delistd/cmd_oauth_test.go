@@ -130,8 +130,16 @@ func TestRotateHookRewritesTheStoredToken(t *testing.T) {
 		t.Fatal("config changed for an unknown token")
 	}
 	cfgFile = filepath.Join(t.TempDir(), "nope.yaml")
+	if err := oauth.RotateHook("a", "b"); err != nil {
+		t.Fatalf("a missing config (first-run setup) must be ignored: %v", err)
+	}
+	bad := filepath.Join(t.TempDir(), "bad.yaml")
+	if err := os.WriteFile(bad, []byte("profiles: [unclosed"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfgFile = bad
 	if err := oauth.RotateHook("a", "b"); err == nil {
-		t.Fatal("expected load error")
+		t.Fatal("an unreadable config should still report an error")
 	}
 }
 

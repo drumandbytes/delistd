@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -19,6 +20,9 @@ func init() {
 	// long-running process keeps working past the old token's expiry.
 	oauth.RotateHook = func(oldRefresh, newRefresh string) error {
 		path := resolveConfigPath()
+		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+			return nil // first-run setup: the account isn't saved yet, so there is nothing to update
+		}
 		cfg, err := config.Load(path)
 		if err != nil {
 			return err

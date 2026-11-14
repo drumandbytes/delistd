@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -273,8 +274,10 @@ func (s *Source) Access(ctx context.Context) (string, error) {
 	if t.Refresh != s.refresh {
 		s.refresh = t.Refresh
 		if s.OnRotate != nil {
+			// The previous refresh token stays valid for a while, so a failed
+			// save must not fail a working sign-in.
 			if err := s.OnRotate(t.Refresh); err != nil {
-				return "", fmt.Errorf("signed in, but could not save the new token: %w", err)
+				log.Printf("WARNING: could not save the renewed Microsoft sign-in (%v); the previous one keeps working until it expires", err)
 			}
 		}
 	}

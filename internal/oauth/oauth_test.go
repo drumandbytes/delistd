@@ -123,13 +123,13 @@ func TestRefreshAndSource(t *testing.T) {
 	}
 }
 
-func TestSourceRotateSaveFails(t *testing.T) {
+func TestSourceKeepsWorkingWhenTheRotatedTokenCannotBeSaved(t *testing.T) {
 	c, _ := fake(t, func(*http.Request) (int, any) {
 		return 200, map[string]any{"access_token": "a", "refresh_token": "n", "expires_in": 3600}
 	})
 	s := NewSource(c, "o", func(string) error { return errors.New("disk full") })
-	if _, err := s.Access(context.Background()); err == nil || !strings.Contains(err.Error(), "disk full") {
-		t.Fatalf("got %v", err)
+	if got, err := s.Access(context.Background()); err != nil || got != "a" {
+		t.Fatalf("a failed save must not fail the sign-in: %q %v", got, err)
 	}
 }
 
