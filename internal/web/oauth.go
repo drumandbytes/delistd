@@ -3,12 +3,14 @@ package web
 import (
 	"context"
 	"crypto/rand"
+	"errors"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/drumandbytes/delistd/internal/config"
+	"github.com/drumandbytes/delistd/internal/email"
 	"github.com/drumandbytes/delistd/internal/inbox"
 	"github.com/drumandbytes/delistd/internal/oauth"
 )
@@ -76,16 +78,58 @@ func (st *signInStore) token(id, clientID, user string) (string, bool) {
 	return s.token, true
 }
 
-// verifySignIn logs in with the new sign-in exactly as a real run would, so a
-// wrong address or a mailbox without IMAP shows up now. Tests replace it.
-var verifySignIn = func(ctx context.Context, cfg config.InboxConfig) error {
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+// signInCheckError says which login failed: "inbox" (IMAP) or "sending" (SMTP).
+type signInCheckError struct {
+	Stage string
+	Err   error
+}
+
+func (e signInCheckError) Error() string { return e.Stage + ": " + e.Err.Error() }
+func (e signInCheckError) Unwrap() error { return e.Err }
+
+// Microsoft needs a few seconds to pass a fresh grant to its mail servers and
+// answers "authenticated but not connected" until then.
+var (
+	verifyRetries    = 6
+	verifyRetryDelay = 4 * time.Second
+)
+
+// verifySignIn logs in to the inbox and to SMTP exactly as a real run would,
+// so a wrong address, a mailbox without IMAP, or SMTP's stricter rule that
+// only the account's primary address may log in show up now. Tests replace it.
+var verifySignIn = func(ctx context.Context, in config.InboxConfig, out config.SMTPConfig) error {
+	ctx, cancel := context.WithTimeout(ctx, 90*time.Second)
 	defer cancel()
-	m := inbox.NewMonitor(cfg, nil)
-	if err := m.Connect(ctx); err != nil {
-		return err
+	var err error
+	for attempt := 0; attempt < verifyRetries; attempt++ {
+		m := inbox.NewMonitor(in, nil)
+		if err = m.Connect(ctx); err == nil {
+			_ = m.Disconnect()
+			break
+		}
+		if !strings.Contains(err.Error(), "not connected") {
+			break
+		}
+		select {
+		case <-ctx.Done():
+		case <-time.After(verifyRetryDelay):
+		}
 	}
-	return m.Disconnect()
+	if err != nil {
+		return signInCheckError{"inbox", err}
+	}
+	if err := email.NewSMTPSender(out, "").VerifyLogin(ctx); err != nil {
+		return signInCheckError{"sending", err}
+	}
+	return nil
+}
+
+func signInFailureMessage(user string, err error) string {
+	var ce signInCheckError
+	if errors.As(err, &ce) && ce.Stage == "sending" {
+		return "Microsoft signed you in and the inbox works, but sending as " + user + " was refused (" + ce.Err.Error() + "). Outlook only lets the account's primary address log in to send. If that differs from " + user + " (for example a Gmail-based Microsoft account with an Outlook alias), open Server settings below, enter the primary address as the login username, keep " + user + " as the email address, and sign in again."
+	}
+	return "Microsoft signed you in, but " + user + " could not log in to its inbox with it (" + err.Error() + "). Check that you approved the sign-in with exactly that account and that its mailbox allows IMAP, or change the address above."
 }
 
 // oauthView is partials/oauth-status.html's data.
@@ -134,11 +178,12 @@ func (s *Server) handleOAuthStart(w http.ResponseWriter, r *http.Request) {
 		case tok.Refresh == "":
 			signIns.finish(id, "", "Microsoft returned no refresh token; check the app allows offline_access (see the guide).")
 		default:
-			if err := verifySignIn(pctx, config.InboxConfig{
-				Server: config.OutlookOAuth.IMAPHost, Port: config.OutlookOAuth.IMAPPort, Email: user,
-				Password: tok.Refresh, Auth: config.AuthOAuth2, ClientID: clientID,
-			}); err != nil {
-				signIns.finish(id, "", "Microsoft signed you in, but "+user+" could not log in with it ("+err.Error()+"). Check that you approved the sign-in with exactly that account and that its mailbox allows IMAP, or change the address above.")
+			p := config.OutlookOAuth
+			if err := verifySignIn(pctx,
+				config.InboxConfig{Server: p.IMAPHost, Port: p.IMAPPort, Email: user, Password: tok.Refresh, Auth: config.AuthOAuth2, ClientID: clientID},
+				config.SMTPConfig{Host: p.SMTPHost, Port: p.SMTPPort, Username: user, Password: tok.Refresh, Auth: config.AuthOAuth2, ClientID: clientID},
+			); err != nil {
+				signIns.finish(id, "", signInFailureMessage(user, err))
 				return
 			}
 			signIns.finish(id, tok.Refresh, "")

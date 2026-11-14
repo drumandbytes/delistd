@@ -20,7 +20,7 @@ import (
 func stubVerify(t *testing.T, err error) {
 	t.Helper()
 	old := verifySignIn
-	verifySignIn = func(context.Context, config.InboxConfig) error { return err }
+	verifySignIn = func(context.Context, config.InboxConfig, config.SMTPConfig) error { return err }
 	t.Cleanup(func() { verifySignIn = old })
 }
 
@@ -399,8 +399,43 @@ func TestVerifiedSignInIsBoundToItsAddress(t *testing.T) {
 }
 
 func TestDefaultVerifyReportsAnUnreachableServer(t *testing.T) {
-	err := verifySignIn(context.Background(), config.InboxConfig{Server: "127.0.0.1", Port: 1, Email: "a@outlook.com", Password: "r", Auth: config.AuthOAuth2, ClientID: "c"})
+	err := verifySignIn(context.Background(), config.InboxConfig{Server: "127.0.0.1", Port: 1, Email: "a@outlook.com", Password: "r", Auth: config.AuthOAuth2, ClientID: "c"}, config.SMTPConfig{})
 	if err == nil {
 		t.Fatal("expected a connection error")
+	}
+}
+
+func TestSendingRefusalExplainsThePrimaryAddress(t *testing.T) {
+	fakeMicrosoft(t, "")
+	stubVerify(t, signInCheckError{"sending", errors.New("535 5.7.3 Authentication unsuccessful")})
+	c, _ := newWizardClient(t)
+	c.get("/setup/profile")
+	id := pollRe.FindStringSubmatch(c.postHTMX("/oauth/start", url.Values{"oauth_client_id": {"cid"}, "mail_address": {"me@outlook.com"}}))[1]
+	var got string
+	for deadline := time.Now().Add(10 * time.Second); time.Now().Before(deadline); time.Sleep(200 * time.Millisecond) {
+		if got = c.get("/oauth/status?id=" + id); strings.Contains(got, "primary address") {
+			break
+		}
+	}
+	for _, want := range []string{"the inbox works", "sending as me@outlook.com was refused", "login username", "535"} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("missing %q in: %s", want, got)
+		}
+	}
+	if strings.Contains(got, `name="oauth_id"`) {
+		t.Fatal("a sign-in that cannot send must not be accepted")
+	}
+}
+
+func TestVerifyRetriesWhileMicrosoftCatchesUp(t *testing.T) {
+	oldN, oldD := verifyRetries, verifyRetryDelay
+	verifyRetries, verifyRetryDelay = 3, time.Millisecond
+	t.Cleanup(func() { verifyRetries, verifyRetryDelay = oldN, oldD })
+	// unreachable server: not a "not connected" reply, so it must not be retried
+	start := time.Now()
+	err := verifySignIn(context.Background(), config.InboxConfig{Server: "127.0.0.1", Port: 1, Email: "a@b", Password: "r", Auth: config.AuthOAuth2, ClientID: "c"}, config.SMTPConfig{})
+	var ce signInCheckError
+	if !errors.As(err, &ce) || ce.Stage != "inbox" || time.Since(start) > 5*time.Second {
+		t.Fatalf("%v", err)
 	}
 }

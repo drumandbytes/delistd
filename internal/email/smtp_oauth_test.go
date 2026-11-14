@@ -28,7 +28,11 @@ func fakeTokenServer(t *testing.T, status int, body map[string]any) {
 }
 
 // xoauth2SMTPServer accepts STARTTLS then AUTH XOAUTH2 and reports the AUTH line.
-func xoauth2SMTPServer(t *testing.T, cert tls.Certificate) (addr string, authLine <-chan string) {
+func xoauth2SMTPServer(t *testing.T, cert tls.Certificate, authReply ...string) (addr string, authLine <-chan string) {
+	reply235 := "235 ok"
+	if len(authReply) > 0 {
+		reply235 = authReply[0]
+	}
 	t.Helper()
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
@@ -64,7 +68,7 @@ func xoauth2SMTPServer(t *testing.T, cert tls.Certificate) (addr string, authLin
 				inTLS = true
 			case strings.HasPrefix(up, "AUTH"):
 				out <- cmd
-				reply("235 ok")
+				reply(reply235)
 			case strings.HasPrefix(up, "DATA"):
 				reply("354 go")
 				for {
@@ -113,5 +117,66 @@ func TestSendWithOAuth2NeedsFreshSignIn(t *testing.T) {
 	res := s.Send(context.Background(), Message{To: "privacy@acme.example", From: "jane@outlook.com", Subject: "x", Body: "y"})
 	if res.Success || res.Error == nil || !strings.Contains(res.Error.Error(), "oauth login") {
 		t.Fatalf("got %+v", res)
+	}
+}
+
+func TestVerifyLoginOAuth2(t *testing.T) {
+	fakeTokenServer(t, 200, map[string]any{"access_token": "ACCESS", "expires_in": 3600})
+	ts := httptest.NewTLSServer(http.NotFoundHandler())
+	t.Cleanup(ts.Close)
+	addr, authLine := xoauth2SMTPServer(t, ts.TLS.Certificates[0])
+	host, port := splitHostPortForTest(t, addr)
+	s := NewSMTPSender(config.SMTPConfig{Host: host, Port: port, Username: "primary@gmail.com", Password: "refresh-v1", Auth: config.AuthOAuth2, ClientID: "cid-verify"}, "")
+	if err := s.VerifyLogin(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	f := strings.Fields(<-authLine)
+	raw, _ := base64.StdEncoding.DecodeString(f[2])
+	if f[1] != "XOAUTH2" || !strings.HasPrefix(string(raw), "user=primary@gmail.com\x01") {
+		t.Fatalf("AUTH = %v %q", f, raw)
+	}
+}
+
+func TestVerifyLoginReportsTheServersRefusal(t *testing.T) {
+	fakeTokenServer(t, 200, map[string]any{"access_token": "ACCESS", "expires_in": 3600})
+	ts := httptest.NewTLSServer(http.NotFoundHandler())
+	t.Cleanup(ts.Close)
+	addr, _ := xoauth2SMTPServer(t, ts.TLS.Certificates[0], "535 5.7.3 Authentication unsuccessful")
+	host, port := splitHostPortForTest(t, addr)
+	s := NewSMTPSender(config.SMTPConfig{Host: host, Port: port, Username: "alias@outlook.com", Password: "refresh-v2", Auth: config.AuthOAuth2, ClientID: "cid-refused"}, "")
+	if err := s.VerifyLogin(context.Background()); err == nil || !strings.Contains(err.Error(), "535") || !strings.Contains(err.Error(), "Authentication unsuccessful") {
+		t.Fatalf("the server's own words must reach the caller: %v", err)
+	}
+}
+
+func TestVerifyLoginPassword(t *testing.T) {
+	ts := httptest.NewTLSServer(http.NotFoundHandler())
+	t.Cleanup(ts.Close)
+	cert := ts.TLS.Certificates[0]
+	addr, _, auth := startTLSSMTPServer(t, &cert)
+	host, port := splitHostPortForTest(t, addr)
+	s := NewSMTPSender(config.SMTPConfig{Host: host, Port: port, Username: "jane", Password: "pw"}, "")
+	if err := s.VerifyLogin(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if !<-auth {
+		t.Fatal("AUTH went out before STARTTLS")
+	}
+}
+
+func TestVerifyLoginFailureModes(t *testing.T) {
+	off := false
+	if err := NewSMTPSender(config.SMTPConfig{Host: "h", Port: 587, UseTLS: &off}, "").VerifyLogin(context.Background()); err == nil || !strings.Contains(err.Error(), "TLS") {
+		t.Fatalf("plaintext: %v", err)
+	}
+	if err := NewSMTPSender(config.SMTPConfig{Host: "127.0.0.1", Port: 1, Username: "u", Password: "p"}, "").VerifyLogin(context.Background()); err == nil || !strings.Contains(err.Error(), "connection failed") {
+		t.Fatalf("unreachable: %v", err)
+	}
+	if err := NewSMTPSender(config.SMTPConfig{Host: "h", Port: 587, Username: "u", Password: "enc:v2:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="}, "").VerifyLogin(context.Background()); err == nil {
+		t.Fatal("a locked password must not verify")
+	}
+	fakeTokenServer(t, 400, map[string]any{"error": "invalid_grant"})
+	if err := NewSMTPSender(config.SMTPConfig{Host: "h", Port: 587, Username: "u", Password: "dead", Auth: config.AuthOAuth2, ClientID: "cid-dead"}, "").VerifyLogin(context.Background()); err == nil || !strings.Contains(err.Error(), "oauth login") {
+		t.Fatalf("revoked sign-in: %v", err)
 	}
 }
