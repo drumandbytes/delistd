@@ -30,7 +30,8 @@
         <p class="text-sm text-muted">Microsoft no longer accepts passwords for Outlook.com, Hotmail and Live. Sign in with a short code instead. Personal accounts only, not Microsoft 365 work accounts.</p>
         <div>
             <button type="button" class="btn btn-secondary" hx-post="/oauth/start" hx-include="#oauth_client_id" hx-target="#oauth_status" hx-swap="outerHTML">Sign in with Microsoft</button>
-            {{if .SignedIn}}<span class="ml-2 text-sm text-success">Signed in already. Sign in again only to replace it.</span>{{end}}
+            {{if .SignedIn}}<span id="oauth_signed_in" data-address="{{.Address}}" class="ml-2 text-sm text-success">Signed in already as {{.Address}}. Sign in again only to replace it.</span>{{end}}
+            <span id="oauth_other_address" hidden class="ml-2 text-sm text-muted">This is a different address from the saved sign-in: sign in again for it.</span>
         </div>
         <div id="oauth_status"></div>
         {{if .Errors.oauth}}<p class="text-sm text-error">{{.Errors.oauth}}</p>{{end}}
@@ -118,6 +119,14 @@
         help.href = o.help; help.hidden = !o.help;
         if (sel.value === 'custom' || sel.value === 'ses') document.getElementById('mail_server').open = true;
     });
+    const addr = document.getElementById('mail_address'), saved = document.getElementById('oauth_signed_in');
+    if (addr && saved) {
+        const same = () => addr.value.trim().toLowerCase() === saved.dataset.address.trim().toLowerCase();
+        addr.addEventListener('input', () => {
+            saved.hidden = !same();
+            document.getElementById('oauth_other_address').hidden = same();
+        });
+    }
     document.getElementById('mail_provider_help').hidden = !document.getElementById('mail_provider_help').getAttribute('href');
 })();
 </script>

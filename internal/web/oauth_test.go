@@ -338,3 +338,14 @@ func mustGet(t *testing.T, c *wizardClient, path string) *http.Response {
 	}
 	return resp
 }
+
+func TestSavedSignInNoticeNamesTheAddress(t *testing.T) {
+	e := config.EmailConfig{From: "a@outlook.com", SMTP: config.SMTPConfig{Host: "smtp-mail.outlook.com", Port: 587, Username: "a@outlook.com", Password: "tok", Auth: config.AuthOAuth2}}
+	s := newTestServer(t, nil)
+	rec := httptest.NewRecorder()
+	s.renderPartial(rec, "partials/mail-account.html", newMailFormView("smtp", mailFormFromConfig(e, nil), nil))
+	body := rec.Body.String()
+	if !strings.Contains(body, `data-address="a@outlook.com"`) || !strings.Contains(body, "Signed in already as a@outlook.com") || !strings.Contains(body, `id="oauth_other_address"`) {
+		t.Fatalf("saved sign-in notice missing its address:\n%s", body)
+	}
+}
