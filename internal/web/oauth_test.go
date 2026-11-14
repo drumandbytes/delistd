@@ -1,7 +1,9 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -13,6 +15,14 @@ import (
 	"github.com/drumandbytes/delistd/internal/config"
 	"github.com/drumandbytes/delistd/internal/oauth"
 )
+
+// stubVerify replaces the IMAP login check that follows a sign-in.
+func stubVerify(t *testing.T, err error) {
+	t.Helper()
+	old := verifySignIn
+	verifySignIn = func(context.Context, config.InboxConfig) error { return err }
+	t.Cleanup(func() { verifySignIn = old })
+}
 
 func fakeMicrosoft(t *testing.T, tokenErr string) {
 	t.Helper()
@@ -44,6 +54,7 @@ func (c *wizardClient) postHTMX(path string, form url.Values) string {
 
 func TestSetupWizardOutlookOAuth(t *testing.T) {
 	fakeMicrosoft(t, "")
+	stubVerify(t, nil)
 	c, s := newWizardClient(t)
 	c.get("/setup/profile")
 	c.post("/setup/profile", url.Values{"first_name": {"Ada"}, "last_name": {"Lovelace"}, "email": {"ada@outlook.com"}, "country": {"United Kingdom"}})
@@ -60,7 +71,7 @@ func TestSetupWizardOutlookOAuth(t *testing.T) {
 		t.Fatalf("missing client id not explained: %s", body)
 	}
 
-	body := c.postHTMX("/oauth/start", url.Values{"oauth_client_id": {"cid-web"}})
+	body := c.postHTMX("/oauth/start", url.Values{"oauth_client_id": {"cid-web"}, "mail_address": {"ada@outlook.com"}})
 	if !strings.Contains(body, "WXYZ") || !strings.Contains(body, "example.test/device") {
 		t.Fatalf("code not shown: %s", body)
 	}
@@ -121,7 +132,7 @@ func TestOAuthStatusFailuresAndExpiry(t *testing.T) {
 	fakeMicrosoft(t, "authorization_declined")
 	c, _ := newWizardClient(t)
 	c.get("/setup/profile")
-	body := c.postHTMX("/oauth/start", url.Values{"oauth_client_id": {"cid"}})
+	body := c.postHTMX("/oauth/start", url.Values{"oauth_client_id": {"cid"}, "mail_address": {"a@outlook.com"}})
 	id := pollRe.FindStringSubmatch(body)[1]
 	var got string
 	for deadline := time.Now().Add(10 * time.Second); time.Now().Before(deadline); time.Sleep(200 * time.Millisecond) {
@@ -148,7 +159,7 @@ func TestOAuthStartRejectedByMicrosoft(t *testing.T) {
 	t.Cleanup(func() { oauth.MicrosoftConsumers = old })
 	c, _ := newWizardClient(t)
 	c.get("/setup/profile")
-	if body := c.postHTMX("/oauth/start", url.Values{"oauth_client_id": {"bad"}}); !strings.Contains(body, "unauthorized_client") {
+	if body := c.postHTMX("/oauth/start", url.Values{"oauth_client_id": {"bad"}, "mail_address": {"a@outlook.com"}}); !strings.Contains(body, "unauthorized_client") {
 		t.Fatalf("Microsoft's reason not shown: %s", body)
 	}
 }
@@ -231,7 +242,7 @@ func TestSignInStoreExpiresOldEntries(t *testing.T) {
 	if _, ok := st.get(old); ok {
 		t.Fatal("expired sign-in kept")
 	}
-	if _, ok := st.token("missing", "c"); ok {
+	if _, ok := st.token("missing", "c", "a@b"); ok {
 		t.Fatal("token for unknown id")
 	}
 }
@@ -251,7 +262,7 @@ func TestOAuthSignInWithoutRefreshToken(t *testing.T) {
 
 	c, _ := newWizardClient(t)
 	c.get("/setup/profile")
-	id := pollRe.FindStringSubmatch(c.postHTMX("/oauth/start", url.Values{"oauth_client_id": {"cid"}}))[1]
+	id := pollRe.FindStringSubmatch(c.postHTMX("/oauth/start", url.Values{"oauth_client_id": {"cid"}, "mail_address": {"a@outlook.com"}}))[1]
 	var got string
 	for deadline := time.Now().Add(10 * time.Second); time.Now().Before(deadline); time.Sleep(200 * time.Millisecond) {
 		if got = c.get("/oauth/status?id=" + id); strings.Contains(got, "no refresh token") {
@@ -280,6 +291,7 @@ func TestSharedAppNeedsNoClientID(t *testing.T) {
 	config.DefaultOAuthClientID = "shared-app"
 	t.Cleanup(func() { config.DefaultOAuthClientID = old })
 
+	stubVerify(t, nil)
 	var seen string
 	mux := http.NewServeMux()
 	mux.HandleFunc("/devicecode", func(w http.ResponseWriter, r *http.Request) {
@@ -302,7 +314,7 @@ func TestSharedAppNeedsNoClientID(t *testing.T) {
 	if !strings.Contains(page, "Use my own Microsoft app instead (advanced)") {
 		t.Fatal("with a shared app the guide should sit under an advanced option")
 	}
-	id := pollRe.FindStringSubmatch(c.postHTMX("/oauth/start", url.Values{}))[1]
+	id := pollRe.FindStringSubmatch(c.postHTMX("/oauth/start", url.Values{"mail_address": {"ada@outlook.com"}}))[1]
 	var done string
 	for deadline := time.Now().Add(10 * time.Second); time.Now().Before(deadline); time.Sleep(200 * time.Millisecond) {
 		if done = c.get("/oauth/status?id=" + id); strings.Contains(done, `name="oauth_id"`) {
@@ -347,5 +359,48 @@ func TestSavedSignInNoticeNamesTheAddress(t *testing.T) {
 	body := rec.Body.String()
 	if !strings.Contains(body, `data-address="a@outlook.com"`) || !strings.Contains(body, "Signed in already as a@outlook.com") || !strings.Contains(body, `id="oauth_other_address"`) {
 		t.Fatalf("saved sign-in notice missing its address:\n%s", body)
+	}
+}
+
+func TestSignInMustMatchTheAddress(t *testing.T) {
+	fakeMicrosoft(t, "")
+	stubVerify(t, errors.New("AUTHENTICATE failed"))
+	c, _ := newWizardClient(t)
+	c.get("/setup/profile")
+	id := pollRe.FindStringSubmatch(c.postHTMX("/oauth/start", url.Values{"oauth_client_id": {"cid"}, "mail_address": {"me@outlook.com"}}))[1]
+	var got string
+	for deadline := time.Now().Add(10 * time.Second); time.Now().Before(deadline); time.Sleep(200 * time.Millisecond) {
+		if got = c.get("/oauth/status?id=" + id); strings.Contains(got, "could not log in") {
+			break
+		}
+	}
+	if !strings.Contains(got, "me@outlook.com could not log in") || !strings.Contains(got, "AUTHENTICATE failed") || strings.Contains(got, `name="oauth_id"`) {
+		t.Fatalf("a mismatched sign-in must not be accepted: %s", got)
+	}
+}
+
+func TestStartNeedsAnAddress(t *testing.T) {
+	c, _ := newWizardClient(t)
+	c.get("/setup/profile")
+	if body := c.postHTMX("/oauth/start", url.Values{"oauth_client_id": {"cid"}}); !strings.Contains(body, "Enter your Outlook.com address") {
+		t.Fatalf("got %s", body)
+	}
+}
+
+func TestVerifiedSignInIsBoundToItsAddress(t *testing.T) {
+	st := &signInStore{m: map[string]*signIn{}}
+	id := st.add(&signIn{clientID: "c", user: "Me@Outlook.com", started: time.Now(), token: "t", done: true})
+	if _, ok := st.token(id, "c", "me@outlook.com"); !ok {
+		t.Fatal("same address in another case should match")
+	}
+	if _, ok := st.token(id, "c", "someone@outlook.com"); ok {
+		t.Fatal("a sign-in verified for one address must not be used for another")
+	}
+}
+
+func TestDefaultVerifyReportsAnUnreachableServer(t *testing.T) {
+	err := verifySignIn(context.Background(), config.InboxConfig{Server: "127.0.0.1", Port: 1, Email: "a@outlook.com", Password: "r", Auth: config.AuthOAuth2, ClientID: "c"})
+	if err == nil {
+		t.Fatal("expected a connection error")
 	}
 }

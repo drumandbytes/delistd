@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/drumandbytes/delistd/internal/config"
+	"github.com/drumandbytes/delistd/internal/inbox"
 	"github.com/drumandbytes/delistd/internal/oauth"
 )
 
@@ -16,6 +17,7 @@ import (
 // The refresh token never goes to the browser: the form posts only the id.
 type signIn struct {
 	clientID string
+	user     string // the login the sign-in was verified for
 	code     oauth.DeviceCode
 	token    string
 	err      string
@@ -66,12 +68,24 @@ func (st *signInStore) finish(id, token, errMsg string) {
 }
 
 // token is the refresh token of a finished sign-in started for clientID.
-func (st *signInStore) token(id, clientID string) (string, bool) {
+func (st *signInStore) token(id, clientID, user string) (string, bool) {
 	s, ok := st.get(id)
-	if !ok || !s.done || s.token == "" || s.clientID != clientID {
+	if !ok || !s.done || s.token == "" || s.clientID != clientID || !strings.EqualFold(s.user, user) {
 		return "", false
 	}
 	return s.token, true
+}
+
+// verifySignIn logs in with the new sign-in exactly as a real run would, so a
+// wrong address or a mailbox without IMAP shows up now. Tests replace it.
+var verifySignIn = func(ctx context.Context, cfg config.InboxConfig) error {
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	m := inbox.NewMonitor(cfg, nil)
+	if err := m.Connect(ctx); err != nil {
+		return err
+	}
+	return m.Disconnect()
 }
 
 // oauthView is partials/oauth-status.html's data.
@@ -79,6 +93,7 @@ type oauthView struct {
 	ID       string
 	Code     string
 	URL      string
+	User     string
 	Pending  bool
 	Done     bool
 	Error    string
@@ -92,6 +107,14 @@ func (s *Server) handleOAuthStart(w http.ResponseWriter, r *http.Request) {
 		s.renderPartial(w, "partials/oauth-status.html", oauthView{Error: "Paste your app's Application (client) ID first (step 5 above)."})
 		return
 	}
+	user := strings.TrimSpace(r.FormValue("mail_username"))
+	if user == "" {
+		user = strings.TrimSpace(r.FormValue("mail_address"))
+	}
+	if user == "" {
+		s.renderPartial(w, "partials/oauth-status.html", oauthView{Error: "Enter your Outlook.com address above first: Delistd checks that the sign-in belongs to it."})
+		return
+	}
 	c := oauth.NewClient(oauth.MicrosoftConsumers, config.OAuthClientID(clientID))
 	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
 	defer cancel()
@@ -100,7 +123,7 @@ func (s *Server) handleOAuthStart(w http.ResponseWriter, r *http.Request) {
 		s.renderPartial(w, "partials/oauth-status.html", oauthView{Error: err.Error()})
 		return
 	}
-	id := signIns.add(&signIn{clientID: clientID, code: dc, started: time.Now()})
+	id := signIns.add(&signIn{clientID: clientID, user: user, code: dc, started: time.Now()})
 	go func() {
 		pctx, stop := context.WithTimeout(context.Background(), time.Duration(dc.ExpiresIn)*time.Second+30*time.Second)
 		defer stop()
@@ -111,10 +134,17 @@ func (s *Server) handleOAuthStart(w http.ResponseWriter, r *http.Request) {
 		case tok.Refresh == "":
 			signIns.finish(id, "", "Microsoft returned no refresh token; check the app allows offline_access (see the guide).")
 		default:
+			if err := verifySignIn(pctx, config.InboxConfig{
+				Server: config.OutlookOAuth.IMAPHost, Port: config.OutlookOAuth.IMAPPort, Email: user,
+				Password: tok.Refresh, Auth: config.AuthOAuth2, ClientID: clientID,
+			}); err != nil {
+				signIns.finish(id, "", "Microsoft signed you in, but "+user+" could not log in with it ("+err.Error()+"). Check that you approved the sign-in with exactly that account and that its mailbox allows IMAP, or change the address above.")
+				return
+			}
 			signIns.finish(id, tok.Refresh, "")
 		}
 	}()
-	s.renderPartial(w, "partials/oauth-status.html", signInView(id, signIn{clientID: clientID, code: dc}))
+	s.renderPartial(w, "partials/oauth-status.html", signInView(id, signIn{clientID: clientID, user: user, code: dc}))
 }
 
 func (s *Server) handleOAuthStatus(w http.ResponseWriter, r *http.Request) {
@@ -128,7 +158,7 @@ func (s *Server) handleOAuthStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func signInView(id string, si signIn) oauthView {
-	v := oauthView{ID: id, Code: si.code.UserCode, URL: si.code.VerificationURI, ClientID: si.clientID}
+	v := oauthView{ID: id, Code: si.code.UserCode, URL: si.code.VerificationURI, ClientID: si.clientID, User: si.user}
 	switch {
 	case si.err != "":
 		v.ID, v.Error = "", si.err

@@ -46,7 +46,7 @@ func readMailForm(r *http.Request) mailForm {
 		f.OAuth = true
 		f.ClientID = strings.TrimSpace(r.FormValue("oauth_client_id"))
 		f.Password = "" // a password never applies here
-		if tok, ok := signIns.token(strings.TrimSpace(r.FormValue("oauth_id")), f.ClientID); ok {
+		if tok, ok := signIns.token(strings.TrimSpace(r.FormValue("oauth_id")), f.ClientID, f.Username); ok {
 			f.Password = tok
 		}
 		p := config.OutlookOAuth
