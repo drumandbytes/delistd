@@ -5,7 +5,7 @@
 {{ end }}
 
 {{ define "main" }}
-<article class="prose">
+<div class="prose">
   {{ if .Params.docs_version }}
   <p class="crumb"><a href="{{ "/" | relURL }}">Home</a> · <a href="{{ partial "docs-home.html" . }}">Docs</a></p>
   {{ partial "docs-nav.html" . }}
@@ -23,5 +23,5 @@
     {{ end }}
   </ul>
   {{ end }}
-</article>
+</div>
 {{ end }}

@@ -1,5 +1,5 @@
 {{ define "main" }}
-<article class="prose">
+<div class="prose">
   <h1>{{ .Title }}</h1>
   {{ .Content }}
   <ul class="linklist">
@@ -7,5 +7,5 @@
     <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
     {{ end }}
   </ul>
-</article>
+</div>
 {{ end }}

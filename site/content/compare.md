@@ -1,6 +1,6 @@
 ---
 title: "Delistd vs Incogni and DeleteMe"
-description: "How Delistd compares with the paid removal services Incogni and DeleteMe: price, where your details are held, who sends the requests, coverage, and when a paid service is the better choice."
+description: "Delistd vs Incogni and DeleteMe: price, where your details are held, who sends the requests, coverage, and when a paid service is the better choice."
 ---
 
 *Written by the maker of Delistd. Prices and features were checked on 10 November 2026 against the vendors' own pricing pages (sources at the bottom). They change, so confirm them before you decide.*
