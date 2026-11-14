@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/drumandbytes/delistd/internal/config"
+	"github.com/drumandbytes/delistd/internal/oauth"
 )
 
 type SMTPSender struct {
@@ -57,7 +58,15 @@ func (s *SMTPSender) Send(ctx context.Context, msg Message) Result {
 		if err != nil {
 			return Result{Success: false, Error: err}
 		}
-		auth = smtp.PlainAuth("", s.config.Username, password, s.config.Host)
+		if s.config.Auth == config.AuthOAuth2 {
+			token, err := oauth.AccessFor(ctx, config.OAuthClientID(s.config.ClientID), password)
+			if err != nil {
+				return Result{Success: false, Error: err}
+			}
+			auth = oauth.SMTPAuth(s.config.Username, token)
+		} else {
+			auth = smtp.PlainAuth("", s.config.Username, password, s.config.Host)
+		}
 	} else if s.config.Username != "" {
 		return Result{Success: false, Error: fmt.Errorf("SMTP auth requires TLS")}
 	}
@@ -96,21 +105,21 @@ func sanitizeSMTPError(err error) error {
 	return fmt.Errorf("SMTP error: check your configuration")
 }
 
-// send runs the SMTP transaction under ctx. net/smtp has no context support,
-// so a silent server would hang forever and ignore timeouts and Cancel;
-// closing the conn on ctx.Done unblocks its reads and writes.
-func (s *SMTPSender) send(ctx context.Context, addr string, auth smtp.Auth, from, to string, msg []byte, useTLS bool) error {
+// connect dials and secures the connection (TLS from the first byte on 465,
+// else mandatory STARTTLS). net/smtp has no context support, so a silent
+// server would hang forever and ignore timeouts and Cancel; closing the conn
+// on ctx.Done unblocks its reads and writes. stop must be called when done.
+func (s *SMTPSender) connect(ctx context.Context, addr string, useTLS bool) (client *smtp.Client, stop func(), err error) {
 	var d net.Dialer
 	conn, err := d.DialContext(ctx, "tcp", addr)
 	if err != nil {
-		return fmt.Errorf("connection failed: %w", err)
+		return nil, nil, fmt.Errorf("connection failed: %w", err)
 	}
 	if deadline, ok := ctx.Deadline(); ok {
 		_ = conn.SetDeadline(deadline)
 	}
 
 	done := make(chan struct{})
-	defer close(done)
 	go func() {
 		select {
 		case <-ctx.Done():
@@ -118,6 +127,7 @@ func (s *SMTPSender) send(ctx context.Context, addr string, auth smtp.Auth, from
 		case <-done:
 		}
 	}()
+	stop = func() { close(done) }
 
 	// 465 is TLS from the first byte; any other port upgrades with STARTTLS.
 	implicit := useTLS && config.ImplicitTLS(s.config.Port)
@@ -126,27 +136,77 @@ func (s *SMTPSender) send(ctx context.Context, addr string, auth smtp.Auth, from
 		tlsConn := tls.Client(conn, config.TLSFor(s.config.Host))
 		if err := tlsConn.HandshakeContext(ctx); err != nil {
 			_ = conn.Close()
-			return fmt.Errorf("TLS handshake failed: %w", err)
+			stop()
+			return nil, nil, fmt.Errorf("TLS handshake failed: %w", err)
 		}
 		smtpConn = tlsConn
 	}
 
-	client, err := smtp.NewClient(smtpConn, s.config.Host)
+	client, err = smtp.NewClient(smtpConn, s.config.Host)
 	if err != nil {
 		_ = smtpConn.Close()
-		return fmt.Errorf("SMTP client creation failed: %w", err)
+		stop()
+		return nil, nil, fmt.Errorf("SMTP client creation failed: %w", err)
 	}
-	defer func() { _ = client.Close() }()
 
 	if useTLS && !implicit {
 		// Required, never opportunistic: auth must not go out in plaintext.
 		if ok, _ := client.Extension("STARTTLS"); !ok {
-			return fmt.Errorf("server does not offer STARTTLS on port %d", s.config.Port)
+			_ = client.Close()
+			stop()
+			return nil, nil, fmt.Errorf("server does not offer STARTTLS on port %d", s.config.Port)
 		}
 		if err := client.StartTLS(config.TLSFor(s.config.Host)); err != nil {
-			return fmt.Errorf("STARTTLS failed: %w", err)
+			_ = client.Close()
+			stop()
+			return nil, nil, fmt.Errorf("STARTTLS failed: %w", err)
 		}
 	}
+	return client, stop, nil
+}
+
+// VerifyLogin connects and authenticates without sending anything, so setup
+// can tell a bad login from a working one. The error keeps the server's own
+// words (unlike Send's sanitized one) because the caller shows it to the
+// person who just set the account up.
+func (s *SMTPSender) VerifyLogin(ctx context.Context) error {
+	if !s.config.TLS() {
+		return fmt.Errorf("SMTP login needs TLS")
+	}
+	password, err := config.Reveal(s.config.Password)
+	if err != nil {
+		return err
+	}
+	var auth smtp.Auth
+	if s.config.Auth == config.AuthOAuth2 {
+		token, err := oauth.AccessFor(ctx, config.OAuthClientID(s.config.ClientID), password)
+		if err != nil {
+			return err
+		}
+		auth = oauth.SMTPAuth(s.config.Username, token)
+	} else {
+		auth = smtp.PlainAuth("", s.config.Username, password, s.config.Host)
+	}
+	client, stop, err := s.connect(ctx, fmt.Sprintf("%s:%d", s.config.Host, s.config.Port), true)
+	if err != nil {
+		return err
+	}
+	defer stop()
+	defer func() { _ = client.Close() }()
+	if err := client.Auth(auth); err != nil {
+		return err
+	}
+	return client.Quit()
+}
+
+// send runs the SMTP transaction under ctx.
+func (s *SMTPSender) send(ctx context.Context, addr string, auth smtp.Auth, from, to string, msg []byte, useTLS bool) error {
+	client, stop, err := s.connect(ctx, addr, useTLS)
+	if err != nil {
+		return err
+	}
+	defer stop()
+	defer func() { _ = client.Close() }()
 
 	if auth != nil {
 		if err := client.Auth(auth); err != nil {
