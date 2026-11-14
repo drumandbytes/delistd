@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0](https://github.com/drumandbytes/delistd/compare/v2.4.1...v2.5.0) (2026-11-14)
+
+
+### Features
+
+* **site:** host the Microsoft publisher-domain association file ([#296](https://github.com/drumandbytes/delistd/issues/296)) ([5465ea5](https://github.com/drumandbytes/delistd/commit/5465ea5e1da7f05c8afabf1e5cb6695afec8232c))
+
 ## [2.4.1](https://github.com/drumandbytes/delistd/compare/v2.4.0...v2.4.1) (2026-11-14)
 
 
