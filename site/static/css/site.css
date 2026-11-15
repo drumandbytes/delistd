@@ -140,7 +140,8 @@ a:hover { text-decoration-thickness: 2px; }
 .foot-note { margin-top: var(--space-lg); max-width: 42ch; color: var(--color-muted); font-size: var(--text-md); }
 .foot ul { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: var(--space-xl); }
 .foot li { break-inside: avoid; padding: var(--space-2xs) 0; }
-.foot a { display: inline-flex; min-height: 24px; align-items: center; }
+.foot a { display: inline-flex; min-height: 24px; align-items: center; gap: var(--space-xs); }
+.gh-icon { flex: none; }
 
 /* long reading pages: the text column with an "On this page" rail */
 .doc-layout { display: grid; grid-template-columns: minmax(0, 72ch) minmax(0, 1fr); gap: var(--space-3xl); align-items: start; }
