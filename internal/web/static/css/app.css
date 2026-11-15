@@ -121,6 +121,16 @@ summary { min-height: 24px; }
 .center-stage { min-height: 60vh; display: flex; align-items: center; justify-content: center; }
 #test-result:has(.alert-success) ~ button { display: none; }
 
+/* ---- Phones: thumb-sized targets, the theme switch lives in the menu ---- */
+@media (max-width: 40rem) {
+    .theme-switch.theme-switch-bar { display: none; }
+    .btn { min-height: 44px; }
+    .site-nav-inner > a, footer a, .quick-links a, main a.text-sm, main a.text-xs, main summary, button.text-xs, .figure-link { min-height: 44px; display: inline-flex; align-items: center; }
+    .figure-link { display: flex; align-items: flex-start; }
+    main summary { display: flex; }
+}
+@media (min-width: 40.0625rem) { .theme-switch.theme-switch-menu { display: none; } }
+
 /* ---- Small screens: rows that were built for width ---- */
 @media (max-width: 40rem) {
     .welcome-head.flex { flex-direction: column; align-items: flex-start; }
