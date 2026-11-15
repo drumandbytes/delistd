@@ -108,6 +108,9 @@ a:hover { text-decoration-thickness: 2px; }
 .compare td { padding: var(--space-lg) var(--space-lg) var(--space-lg) 0; border-top: var(--rule-hair) solid var(--color-rule); font-size: var(--text-lg); color: var(--color-ink); }
 .compare tbody tr:first-child th, .compare tbody tr:first-child td { border-top: 0; }
 .compare .num { font-family: var(--font-outlier); font-weight: 400; letter-spacing: -0.02em; }
+.compare th.is-us, .compare td.is-us { background: var(--color-cotton); }
+.compare th.is-us { box-shadow: inset 0 2px 0 var(--color-accent-2); color: var(--color-accent-2); padding-left: var(--space-md); }
+.compare td.is-us { padding-left: var(--space-md); }
 .after-table { margin-top: var(--space-xl); max-width: 62ch; color: var(--color-ink-2); }
 
 /* the product, as it is */
@@ -248,7 +251,13 @@ main:focus { outline: none; }
   .foot ul { columns: 1; }
   .sheet table { font-size: var(--text-sm); }
   .sheet th:nth-child(3), .sheet td:nth-child(3) { display: none; }
-  .compare th[scope="row"] { display: block; width: auto; padding-bottom: 0; }
-  .compare thead { display: none; }
-  .compare td { display: block; padding-block: var(--space-xs); border-top: 0; }
+  .compare, .compare tbody, .compare tr, .compare td, .compare th[scope="row"] { display: block; }
+  .compare thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .compare tr { display: flex; flex-direction: column; padding: var(--space-lg) 0; border-top: var(--rule-hair) solid var(--color-rule); }
+  .compare tbody tr:first-child { border-top: 0; }
+  .compare th[scope="row"] { order: -2; width: auto; padding: 0 0 var(--space-xs); font: 600 var(--text-lg)/1.3 var(--font-display); color: var(--color-ink); }
+  .compare td { border: 0; padding: var(--space-xs) 0; }
+  .compare td.is-us { order: -1; padding: var(--space-sm) var(--space-md); margin-bottom: var(--space-xs); border-radius: var(--radius-input); }
+  .compare td[data-label]::before { content: attr(data-label); display: block; font-size: var(--text-sm); color: var(--color-muted); }
+  .compare td.is-us::before { color: var(--color-accent-2); font-weight: 600; }
 }
