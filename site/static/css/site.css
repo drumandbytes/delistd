@@ -223,7 +223,9 @@ main:focus { outline: none; }
   .hero-grid, .split, .foot-grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-xl); }
   .sheet { padding: var(--space-md) var(--space-md); }
   .topbar .container { flex-wrap: wrap; gap: var(--space-sm) var(--space-lg); padding-block: var(--space-sm); }
-  .findbar { min-width: 0; flex: 1 1 200px; }
+  .findbar { display: none; }
+  .topbar .btn { order: 2; margin-left: auto; }
+  .topbar nav { order: 3; width: 100%; margin-right: 0; }
   .guide-links { columns: 1; }
   .ledger div { grid-template-columns: minmax(0, 1fr); gap: var(--space-xs); }
 }
