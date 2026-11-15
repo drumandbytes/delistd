@@ -24,13 +24,7 @@
             </div>
 
             <!-- Test Email Section -->
-            <div class="text-center space-y-4 mb-8">
-                <div class="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center" style="background: var(--accent-muted);">
-                    <svg class="w-10 h-10 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                </div>
-
+            <div class="space-y-4 mb-8">
                 <p class="text-secondary">
                     We'll send a test email to <strong class="text-primary">{{.Profile.Email}}</strong> to verify your setup.
                 </p>
@@ -55,7 +49,7 @@
             </div>
 
             <!-- Skip Option -->
-            <div class="pt-6 border-t border-[var(--border)] text-center">
+            <div class="pt-6 border-t border-[var(--border)]">
                 <p class="text-sm text-muted mb-3">Want to skip the test?</p>
                 <a href="/setup/complete" class="text-accent hover:underline font-medium">
                     Skip and Complete Setup

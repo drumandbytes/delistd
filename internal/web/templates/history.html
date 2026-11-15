@@ -123,21 +123,6 @@
             {{range .History}}
             <div class="p-4 hover:bg-elevated transition-colors">
                 <div class="flex items-start gap-4">
-                    <!-- Status Icon -->
-                    {{if eq .Status "sent"}}
-                    <div class="flex-shrink-0 w-10 h-10 rounded-full icon-box icon-box-success">
-                        <svg class="w-5 h-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                    </div>
-                    {{else}}
-                    <div class="flex-shrink-0 w-10 h-10 rounded-full icon-box icon-box-error">
-                        <svg class="w-5 h-5 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </div>
-                    {{end}}
-
                     <!-- Content -->
                     <div class="flex-1 min-w-0">
                         <div class="history-head flex items-start justify-between gap-4">

@@ -1,9 +1,11 @@
 {{define "content"}}
-<div class="max-w-md mx-auto fade-in-up">
-    <div class="card p-6 space-y-4">
+<div class="center-stage">
+<div class="max-w-md w-full fade-in-up">
+    <div class="card p-8 space-y-5">
         <div>
-            <h1 class="font-display text-xl font-semibold text-primary">Unlock Delistd</h1>
-            <p class="text-sm text-secondary mt-1">Your mail passwords are protected by a passphrase. Enter it once to start sending and checking your inbox.</p>
+            <img src="/static/favicon.svg" alt="" class="mb-4" width="48" height="48" style="border-radius: 12px;">
+            <h1 class="font-display text-2xl font-semibold text-primary">Unlock Delistd</h1>
+            <p class="text-secondary mt-2">Your mail passwords are protected by a passphrase. Enter it once to start sending and checking your inbox.</p>
         </div>
         <form method="POST" action="/unlock" class="space-y-4">
             {{.CSRFField}}
@@ -14,7 +16,8 @@
             {{if .Error}}<div class="alert alert-error">{{.Error}}</div>{{end}}
             <button type="submit" class="btn btn-primary">Unlock</button>
         </form>
-        <p class="text-xs text-muted">Forgot it? Re-enter your mail passwords with <code>delistd init</code>; there is no recovery.</p>
+        <p class="text-sm text-muted">Forgot it? Re-enter your mail passwords with <code>delistd init</code>; there is no recovery.</p>
     </div>
+</div>
 </div>
 {{end}}

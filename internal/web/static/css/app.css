@@ -114,6 +114,8 @@ summary { min-height: 24px; }
 .setup-step.done { color: var(--text-secondary); }
 .setup-step.done .setup-step-n { background: var(--bg-elevated); border-color: var(--border); color: var(--success); }
 @media (max-width: 40rem) { .setup-step:not(.current) .setup-step-l { display: none; } }
+.center-stage { min-height: 60vh; display: flex; align-items: center; justify-content: center; }
+#test-result:has(.alert-success) ~ button { display: none; }
 
 /* ---- Small screens: rows that were built for width ---- */
 @media (max-width: 40rem) {
