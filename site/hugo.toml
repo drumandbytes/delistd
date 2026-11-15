@@ -31,6 +31,10 @@ enableGitInfo = true
   pageRef = "/guides"
   weight = 20
 [[menu.main]]
+  name = "Compare"
+  pageRef = "/compare"
+  weight = 22
+[[menu.main]]
   name = "Docs"
   pageRef = "/docs"
   weight = 25
@@ -38,10 +42,6 @@ enableGitInfo = true
   name = "Authorities"
   pageRef = "/authorities"
   weight = 30
-[[menu.main]]
-  name = "GitHub"
-  url = "https://github.com/drumandbytes/delistd"
-  weight = 40
 
 [mediaTypes."text/x-redirects"]
   suffixes = [""]
