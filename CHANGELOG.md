@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.6.0](https://github.com/drumandbytes/delistd/compare/v2.5.1...v2.6.0) (2026-11-15)
+
+
+### Features
+
+* **oauth:** ship the shared Microsoft app client ID as the default ([#301](https://github.com/drumandbytes/delistd/issues/301)) ([11409bd](https://github.com/drumandbytes/delistd/commit/11409bd61e0d61039925a190b8253789723720e1))
+* **site:** redesign the site as a printed reference register ([#302](https://github.com/drumandbytes/delistd/issues/302)) ([1f8ba21](https://github.com/drumandbytes/delistd/commit/1f8ba21f9585b3bdc7ff0b9da230965d55536e04))
+* **web:** redesign the web UI in a warmer, friendlier system ([#304](https://github.com/drumandbytes/delistd/issues/304)) ([03870e7](https://github.com/drumandbytes/delistd/commit/03870e7c2ee98dde01d055f8eb49c136e6065a7c))
+
+
+### Bug Fixes
+
+* **site:** compare page and long reading pages get real layouts ([#305](https://github.com/drumandbytes/delistd/issues/305)) ([6ff7d6d](https://github.com/drumandbytes/delistd/commit/6ff7d6db35eb4fffe5c91e1eee4eb8f350141c42))
+
 ## [2.5.1](https://github.com/drumandbytes/delistd/compare/v2.5.0...v2.5.1) (2026-11-14)
 
 
