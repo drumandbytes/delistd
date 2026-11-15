@@ -106,15 +106,24 @@ summary { min-height: 24px; }
 .callout { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 16px; border: 1px solid color-mix(in oklab, var(--warning) 35%, transparent); background: color-mix(in oklab, var(--warning) 10%, transparent); border-radius: var(--radius-control); color: var(--warning); font-size: 14px; text-decoration: none; }
 
 /* ---- Setup flow: a labelled stepper ---- */
-.setup-steps { list-style: none; display: flex; gap: 8px; margin: 0 0 32px; padding: 0 0 20px; border-bottom: 1px solid var(--border); }
-.setup-step { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; font-size: 14px; color: var(--text-muted); }
+.setup-steps { list-style: none; display: flex; justify-content: space-between; gap: 8px; margin: 0 0 32px; padding: 0 0 20px; border-bottom: 1px solid var(--border); }
+.setup-step { flex: 0 1 auto; display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 14px; white-space: nowrap; color: var(--text-muted); }
 .setup-step-n { flex: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--text-muted); font-size: 13px; }
 .setup-step.current { color: var(--text-primary); font-weight: 600; }
 .setup-step.current .setup-step-n { background: var(--accent-solid); border-color: var(--accent-solid); color: var(--accent-ink); }
 .setup-step.done { color: var(--text-secondary); }
 .setup-step.done .setup-step-n { background: var(--bg-elevated); border-color: var(--border); color: var(--success); }
-.setup-step-l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 40rem) { .setup-step:not(.current) .setup-step-l { display: none; } }
+
+/* ---- Small screens: rows that were built for width ---- */
+@media (max-width: 40rem) {
+    .welcome-head { flex-direction: column; align-items: flex-start; }
+    .history-head { flex-wrap: wrap; }
+    .history-head > .text-right { text-align: left; }
+    .action-item > .flex { flex-wrap: wrap; }
+    .action-item .icon-box { display: none; }
+    .action-item > .flex > .flex-1 { flex: 1 1 100%; }
+}
 
 /* ---- Quick links ---- */
 .quick-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 24px; }
