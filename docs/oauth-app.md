@@ -1,6 +1,6 @@
 # The shared Microsoft app (maintainers)
 
-Outlook.com, Hotmail and Live accounts sign in through a Microsoft app registration. Delistd is meant to ship one shared registration so users only click "Sign in with Microsoft"; `config.DefaultOAuthClientID` holds its Application (client) ID. This page is what to know about it, how to register it, and what to do if it is abused. User-facing steps are in [outlook.md](outlook.md).
+Outlook.com, Hotmail and Live accounts sign in through a Microsoft app registration. Delistd ships one shared registration so users only click "Sign in with Microsoft"; `config.DefaultOAuthClientID` holds its Application (client) ID. This page is what to know about it, how to register it, and what to do if it is abused. User-facing steps are in [outlook.md](outlook.md).
 
 ## What the client ID is, and isn't
 
@@ -11,6 +11,10 @@ Anyone can use it in their own script. That cannot read anyone's mail (a token e
 - **Minimum scopes**: `IMAP.AccessAsUser.All`, `SMTP.Send`, `offline_access`, nothing else. `internal/oauth` has a test (`TestScopesStayMinimal`) that fails if the list changes; change the registration and this page with it.
 - **Our own UI never links elsewhere**: the sign-in link must be https on a Microsoft domain (`TrustedHosts`), and both the web form and the CLI warn never to enter a code someone else sent.
 - **Branding that identifies us** (below), so a fake prompt at least carries our homepage and privacy links.
+
+## Current state
+
+The shipped app is **not publisher-verified**, so Microsoft's consent screen labels it "unverified". It is registered in the Drumandbytes tenant (owned by `admin@drumandbytes.ee`), with sign-in limited to personal Microsoft accounts. Verification needs the company's Partner Center account (Partner ID 7197064, verification in progress) and then "Add Partner ID" in the app's Branding & properties. Whether Microsoft accepts publisher verification for an app whose audience is personal accounts only is unconfirmed; if it refuses, the options are a different audience or accepting the label. Changing the app means a new client ID, which is the replacement procedure below: a patch release, and everyone signed in with the old ID signs in once more. `https://delistd.dev/.well-known/microsoft-identity-association.json` lists the current app for the publisher domain; update it with the ID.
 
 ## Registration settings
 

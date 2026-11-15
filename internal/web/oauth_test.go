@@ -53,6 +53,9 @@ func (c *wizardClient) postHTMX(path string, form url.Values) string {
 }
 
 func TestSetupWizardOutlookOAuth(t *testing.T) {
+	old := config.DefaultOAuthClientID
+	config.DefaultOAuthClientID = ""
+	t.Cleanup(func() { config.DefaultOAuthClientID = old })
 	fakeMicrosoft(t, "")
 	stubVerify(t, nil)
 	c, s := newWizardClient(t)

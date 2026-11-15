@@ -62,7 +62,7 @@ you approve them, on the web UI's Automation page or with `mcp approve <id>` in 
 terminal; `mcp pending` lists what is waiting. `mcp` is experimental and outside
 the stability contract. See [mcp.md](mcp.md) for the tool reference.
 
-`delistd oauth login [--client-id ID] [--email ADDRESS]` signs in to Outlook.com / Hotmail / Live with a device code and stores the sign-in as both the sending and the inbox account ([outlook.md](outlook.md)). It needs an existing config (`delistd init`). `DELISTD_OAUTH_CLIENT_ID` supplies the client id when the flag and config have none.
+`delistd oauth login [--client-id ID] [--email ADDRESS]` signs in to Outlook.com / Hotmail / Live with a device code and stores the sign-in as both the sending and the inbox account ([outlook.md](outlook.md)). It needs an existing config (`delistd init`). With no `--client-id` or config value it uses Delistd's shared Microsoft app; `DELISTD_OAUTH_CLIENT_ID` overrides that.
 
 Which of these keys and commands are covered by the compatibility promise: [stability.md](stability.md).
 

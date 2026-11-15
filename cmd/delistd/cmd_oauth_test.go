@@ -80,6 +80,9 @@ func TestOAuthLoginStoresTheSignInForSendingAndInbox(t *testing.T) {
 func TestOAuthLoginErrors(t *testing.T) {
 	path := writeBaseConfig(t)
 	t.Setenv(config.OAuthClientIDEnv, "")
+	old := config.DefaultOAuthClientID
+	config.DefaultOAuthClientID = ""
+	t.Cleanup(func() { config.DefaultOAuthClientID = old })
 	if err := runOAuthLogin(context.Background(), &bytes.Buffer{}, path, "", ""); err == nil || !strings.Contains(err.Error(), "client id") {
 		t.Fatalf("no client id: %v", err)
 	}

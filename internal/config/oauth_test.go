@@ -10,6 +10,7 @@ func oauthSMTP() EmailConfig {
 }
 
 func TestValidateEmailOAuth(t *testing.T) {
+	withDefaultClientID(t, "")
 	if err := validateEmailConfig(oauthSMTP()); err != nil {
 		t.Fatalf("valid oauth config rejected: %v", err)
 	}
@@ -31,6 +32,7 @@ func TestValidateEmailOAuth(t *testing.T) {
 }
 
 func TestValidateInboxOAuth(t *testing.T) {
+	withDefaultClientID(t, "")
 	ok := InboxConfig{Enabled: true, Server: "outlook.office365.com", Port: 993, Email: "jane@outlook.com", Auth: AuthOAuth2, ClientID: "cid", Password: "refresh"}
 	if err := validateInboxConfig(ok); err != nil {
 		t.Fatalf("valid: %v", err)
@@ -92,6 +94,7 @@ func withDefaultClientID(t *testing.T, id string) {
 }
 
 func TestSharedClientIDIsTheFallback(t *testing.T) {
+	withDefaultClientID(t, "")
 	if OAuthClientID("") != "" || OAuthClientID("mine") != "mine" {
 		t.Fatal("with no default, an empty id stays empty")
 	}

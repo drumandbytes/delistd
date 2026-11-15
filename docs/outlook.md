@@ -2,13 +2,17 @@
 
 Microsoft no longer accepts passwords or app passwords for IMAP and SMTP on personal accounts ([Microsoft's settings page](https://support.microsoft.com/en-us/outlook/pop-imap-and-smtp-settings-for-outlook-com) says Outlook.com requires OAuth2). Delistd signs in the way Microsoft requires, with a short code you enter in a browser.
 
-This is new and only tested against a fake Microsoft server so far. If it works for you, or doesn't, please say so in [issue #293](https://github.com/drumandbytes/delistd/issues/293).
+A user has reported this working ([issue #293](https://github.com/drumandbytes/delistd/issues/293)). If it works for you, or doesn't, please say so there.
 
 It is for **personal** accounts (outlook.com, hotmail.com, live.com). Microsoft 365 work and school accounts are not covered. If you don't want to set this up, the simpler route is a separate Gmail or other app-password mailbox just for Delistd; see [getting-started.md](getting-started.md).
 
-## 1. Use your own Microsoft app (optional, and currently required)
+## 1. The Delistd app, or your own (optional)
 
-Microsoft only allows sign-in through a registered app. Delistd is meant to ship a shared one, so that you only click **Sign in with Microsoft**; builds that have it need no registration, and you can skip this step. A build without it (the sign-in form shows the registration steps first) needs your own app, which has no secret and costs nothing. You can also use your own app by choice, with `client_id:` in the config or `--client-id`. If the shared app ever has to change, `DELISTD_OAUTH_CLIENT_ID` overrides it for accounts without their own `client_id` (see [oauth-app.md](oauth-app.md)).
+Microsoft only allows sign-in through a registered app. Delistd ships a shared one, so you only click **Sign in with Microsoft** and can skip the rest of this section.
+
+Microsoft's approval page will call the app an **unverified** publisher. That is expected: Drumandbytes has not completed Microsoft's publisher verification yet. The app asks only for `IMAP.AccessAsUser.All`, `SMTP.Send` and `offline_access`: read and send mail for the account you approve, and stay signed in. It has no secret, and Delistd never sees your Microsoft password. You can see and revoke it any time in your Microsoft account's app permissions.
+
+If you would rather not depend on the shared app, or it ever stops working, register your own (free, no secret) and use it with `client_id:` in the config or `--client-id`. `DELISTD_OAUTH_CLIENT_ID` overrides the shared app for accounts without their own `client_id` (see [oauth-app.md](oauth-app.md)). Steps:
 
 1. Open [entra.microsoft.com](https://entra.microsoft.com) → **App registrations** → **New registration**, signed in with your Microsoft account.
 2. Name: anything (e.g. `Delistd`). Supported account types: **Personal Microsoft accounts only**. Leave the redirect URI empty. **Register**.
@@ -20,13 +24,15 @@ Microsoft only allows sign-in through a registered app. Delistd is meant to ship
 
 ## 2. Sign in
 
-**In the web UI:** pick **Outlook.com / Hotmail / Live (OAuth)** as the provider, in the setup wizard's email step, on Settings → Inbox, or in a profile's own mail account. The form shows these steps, asks for the client ID, and has a **Sign in with Microsoft** button: it shows a code and a link, you approve it at Microsoft, and the form then saves like any other account.
+**In the web UI:** pick **Outlook.com / Hotmail / Live (OAuth)** as the provider, in the setup wizard's email step, on Settings → Inbox, or in a profile's own mail account. Enter your address and click **Sign in with Microsoft**: it shows a code and a link, you approve it at Microsoft, and the form then saves like any other account. The collapsed "Use my own Microsoft app" option is where your own client ID goes.
 
 **From the command line:** run `delistd init` first if you haven't (any provider; the next step replaces the mail account). Then:
 
 ```bash
-delistd oauth login --client-id <your client id> --email you@outlook.com
+delistd oauth login --email you@outlook.com
 ```
+
+Add `--client-id <your client id>` to use your own Microsoft app.
 
 Delistd prints a link and a code. Open the link on any device, enter the code, and approve. Only enter a code you started yourself: a code someone else sends you would give them access to your mailbox. Delistd then stores the sign-in, encrypted like a password, as both your sending account and your inbox, with `smtp-mail.outlook.com:587` and `outlook.office365.com:993`. It writes `auth: oauth2` and your `client_id` next to them in `config.yaml`.
 
