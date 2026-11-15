@@ -63,8 +63,8 @@
     --bg-elevated: oklch(94.5% 0.007 55);
     --bg-glass: oklch(97% 0.006 55 / 0.92);
 
-    --accent: oklch(54% 0.165 29);
-    --accent-hover: oklch(46% 0.165 29);
+    --accent: oklch(49% 0.165 29);
+    --accent-hover: oklch(41% 0.165 29);
     --accent-solid: oklch(22% 0.011 40);
     --accent-solid-hover: oklch(32% 0.012 40);
     --accent-ink: oklch(96.5% 0.006 70);

@@ -59,28 +59,28 @@
     </div>
 
     <!-- Figures: one sheet, no icon tiles -->
-    <dl class="figures mb-8">
-        <a href="/brokers" class="figure-link">
-            <dt>Total Brokers</dt>
-            <dd class="num">{{.Stats.TotalBrokers}}</dd>
+    <ul class="figures mb-8">
+        <li><a href="/brokers" class="figure-link">
+            <span class="figure-label">Total Brokers</span>
+            <span class="figure-value num">{{.Stats.TotalBrokers}}</span>
             <span class="figure-hint">View all brokers</span>
-        </a>
-        <a href="/history?status=sent" class="figure-link">
-            <dt>Requests Sent</dt>
-            <dd class="num">{{.Stats.Sent}}</dd>
+        </a></li>
+        <li><a href="/history?status=sent" class="figure-link">
+            <span class="figure-label">Requests Sent</span>
+            <span class="figure-value num">{{.Stats.Sent}}</span>
             <span class="figure-hint">View sent requests</span>
-        </a>
-        <a href="/history?status=failed" class="figure-link">
-            <dt>Failed</dt>
-            <dd class="num{{if gt .Stats.Failed 0}} text-error{{end}}">{{.Stats.Failed}}</dd>
+        </a></li>
+        <li><a href="/history?status=failed" class="figure-link">
+            <span class="figure-label">Failed</span>
+            <span class="figure-value num{{if gt .Stats.Failed 0}} text-error{{end}}">{{.Stats.Failed}}</span>
             <span class="figure-hint">View failed requests</span>
-        </a>
-        <a href="/brokers?status=pending" class="figure-link">
-            <dt>Pending</dt>
-            <dd class="num">{{.Stats.Pending}}</dd>
+        </a></li>
+        <li><a href="/brokers?status=pending" class="figure-link">
+            <span class="figure-label">Pending</span>
+            <span class="figure-value num">{{.Stats.Pending}}</span>
             <span class="figure-hint">View pending brokers</span>
-        </a>
-    </dl>
+        </a></li>
+    </ul>
 
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
         <!-- The reply ledger -->
