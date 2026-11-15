@@ -16,7 +16,7 @@
 {{if .Email}}
 <a href="/brokers/{{.ID}}/email" class="btn btn-secondary flex-1 py-2">Email</a>
 <button
-    class="btn btn-primary flex-1 py-2"
+    class="btn btn-secondary py-2"
     hx-post="/api/brokers/{{.ID}}/mark-sent"
     hx-target="#status-mobile-{{.ID}}"
     hx-swap="innerHTML"
@@ -24,12 +24,12 @@
     Mark sent
 </button>
 {{else}}
-<button class="btn btn-primary flex-1 py-2" disabled title="No email on file">Email</button>
+<button class="btn btn-secondary py-2" disabled title="No email on file">Email</button>
 {{end}}
 {{else}}
 {{if .Email}}
 <button
-    class="btn btn-primary flex-1 py-2"
+    class="btn btn-secondary py-2"
     hx-post="/api/send/{{.ID}}"
     hx-target="#status-mobile-{{.ID}}"
     hx-swap="innerHTML"
@@ -37,7 +37,7 @@
     Send
 </button>
 {{else}}
-<button class="btn btn-primary flex-1 py-2" disabled title="No email on file">
+<button class="btn btn-secondary py-2" disabled title="No email on file">
     Send
 </button>
 {{end}}
@@ -50,7 +50,7 @@
 </a>
 {{end}}
 <button
-    class="btn btn-ghost py-2 text-error"
+    class="btn btn-ghost py-2 text-error ml-auto"
     hx-post="/api/brokers/{{.ID}}/exclude"
     hx-target="#actions-mobile-{{.ID}}"
     hx-swap="innerHTML"
