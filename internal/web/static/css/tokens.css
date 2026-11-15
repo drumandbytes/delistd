@@ -2,6 +2,7 @@
  * hero: none (app screens) · nav: top bar with a tab strip · footer: none · imagery: none, the product is the content · signature: the reply ledger on the dashboard
  * axes: light/grotesk-sans/warm · posture: restrained · contrast: pass · fold: n/a · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: dark mode is a warm dark derived from Coral, not a dealt theme, so its elevation steps are tuned by eye */
+/* Hallmark · dropped "Quick Actions" · it repeated the top navigation; its three links stay on the dashboard as plain links */
 /* ============================================
    DELISTD DESIGN TOKENS
    The single source of truth for colour, elevation and type.
@@ -14,6 +15,7 @@
 
 /* Dark theme (default): warm charcoal, never blue-black */
 :root {
+    color-scheme: dark;
     --bg-base: oklch(19% 0.010 50);
     --bg-surface: oklch(23% 0.010 50);
     --bg-elevated: oklch(27% 0.010 50);
@@ -55,6 +57,7 @@
 
 /* Light theme: warm paper, cotton cards, ink buttons, one deep coral */
 .light {
+    color-scheme: light;
     --bg-base: oklch(97% 0.006 55);
     --bg-surface: oklch(98.8% 0.0045 80);
     --bg-elevated: oklch(94.5% 0.007 55);
