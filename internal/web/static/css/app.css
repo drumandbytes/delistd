@@ -124,9 +124,9 @@ summary { min-height: 24px; }
 /* ---- Phones: thumb-sized targets, the theme switch lives in the menu ---- */
 @media (max-width: 40rem) {
     .btn { min-height: 44px; }
-    .site-nav-inner > a, footer a, .quick-links a, main a.text-sm, main a.text-xs, main summary, button.text-xs, .figure-link { min-height: 44px; display: inline-flex; align-items: center; }
+    .site-nav-inner > a, footer a, .quick-links a, main a.text-sm, main a.text-xs, button.text-xs, .figure-link { min-height: 44px; display: inline-flex; align-items: center; }
     .figure-link { display: flex; align-items: flex-start; }
-    main summary { display: flex; }
+    main summary { min-height: 44px; padding-block: 0.6rem; }
 }
 /* the menu button shows below 640px (the utilities' sm breakpoint), so the switch moves exactly there */
 @media (max-width: 39.9375rem) { .theme-switch.theme-switch-bar { display: none; } }
