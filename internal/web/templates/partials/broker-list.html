@@ -61,18 +61,18 @@
 <div class="md:hidden divide-y divide-[var(--border-subtle)]">
     {{range .Brokers}}
     <div class="p-4">
-        <div class="flex items-start justify-between mb-3">
-            <div>
+        <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="min-w-0">
                 <h3 class="font-medium text-primary">{{.Name}}</h3>
                 {{if .Email}}
-                <p class="text-sm text-muted">{{.Email}}</p>
+                <p class="text-sm text-muted break-all">{{.Email}}</p>
                 {{else}}
                 <p class="text-sm text-warning">No email on file</p>
                 {{end}}
             </div>
             <div id="status-mobile-{{.ID}}">{{template "partials/broker-status.html" .}}</div>
         </div>
-        <div class="flex items-center gap-2 mb-3 text-sm">
+        <div class="flex flex-wrap items-center gap-2 mb-3 text-sm">
             {{if .Category}}
             <span class="badge badge-neutral">{{.Category}}</span>
             {{end}}
