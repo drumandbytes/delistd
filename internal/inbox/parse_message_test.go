@@ -67,3 +67,31 @@ func TestParseMessageToleratesMissingOrBrokenBodies(t *testing.T) {
 		t.Fatalf("garbage: %+v %v", email, err)
 	}
 }
+
+// Brokers in Europe still send ISO-8859-1 and windows-125x mail. Without a
+// charset reader the body failed to decode and arrived empty, so the reply was
+// classified blind and its links were lost.
+func TestParseMessageDecodesLegacyCharsets(t *testing.T) {
+	m := &Monitor{brokers: map[string]broker.Broker{}}
+	for _, c := range []struct{ name, charset, raw, want string }{
+		{"latin1 plain", "iso-8859-1", "Wir haben Ihre Daten gel\xf6scht (K\xfcndigung).", "gelöscht (Kündigung)"},
+		{"windows-1257 plain", "windows-1257", "Dati ir dz\xe7sti, \xebkums.", "dzēsti"},
+		{"latin1 html", "iso-8859-1", "<p>Fran\xe7ais: supprim\xe9</p>", "supprimé"},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			ct := "text/plain"
+			if strings.HasPrefix(c.raw, "<p>") {
+				ct = "text/html"
+			}
+			raw := "From: privacy@broker.example\r\nMIME-Version: 1.0\r\nContent-Type: " + ct + "; charset=" + c.charset + "\r\nContent-Transfer-Encoding: 8bit\r\n\r\n" + c.raw + "\r\n"
+			msg, section := messageWith(raw)
+			email, err := m.parseMessage(msg, section)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := email.Body + email.HTMLBody; !strings.Contains(got, c.want) {
+				t.Errorf("body = %q, want it to contain %q", got, c.want)
+			}
+		})
+	}
+}

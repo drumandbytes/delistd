@@ -13,6 +13,9 @@ import (
 	"github.com/drumandbytes/delistd/internal/oauth"
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
+	// registers the readers for ISO-8859-x, windows-125x and the like; without
+	// it a body in anything but UTF-8 or ASCII fails to decode and arrives empty
+	_ "github.com/emersion/go-message/charset"
 	"github.com/emersion/go-message/mail"
 )
 
