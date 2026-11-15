@@ -28,9 +28,8 @@ const AuthOAuth2 = "oauth2"
 // Drumandbytes registers with Microsoft, used when an account sets no client_id
 // of its own. A client id is public by design (it is sent in every sign-in
 // request, and the device-code flow has no secret), so it is plain source, not
-// something to hide. Empty until the app is registered: accounts then need
-// their own (docs/outlook.md).
-var DefaultOAuthClientID = ""
+// something to hide. Accounts can still bring their own (docs/outlook.md).
+var DefaultOAuthClientID = "c18deee7-72c5-4ef1-9402-f6a62aa8c75f"
 
 // OAuthClientIDEnv overrides the shared default for every account that sets no
 // client_id, so a user can swap the app without waiting for a release (see
