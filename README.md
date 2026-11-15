@@ -173,7 +173,7 @@ Delistd sends removal requests from your own email account over SMTP, and can re
 
 **TLS:** ports 465 (SMTP) and 993 (IMAP) use TLS from the start. Any other port must support STARTTLS. Delistd never sends your password without encryption.
 
-**Outlook.com / Hotmail / Live** needs OAuth: Microsoft turned off app-password (basic) authentication for personal accounts. Pick "Outlook.com / Hotmail / Live (OAuth)" in setup (it walks you through registering a free Microsoft app once and signing in), or use `delistd oauth login`: see [docs/outlook.md](docs/outlook.md). It's new and not yet confirmed by users. Microsoft 365 work accounts aren't covered.
+**Outlook.com / Hotmail / Live** needs OAuth: Microsoft turned off app-password (basic) authentication for personal accounts. Pick "Outlook.com / Hotmail / Live (OAuth)" in setup and click **Sign in with Microsoft**, or use `delistd oauth login`: see [docs/outlook.md](docs/outlook.md). Microsoft shows Delistd's app as an "unverified" publisher on its approval page (verification is pending), which is expected. A user has reported it working ([#293](https://github.com/drumandbytes/delistd/issues/293)). Microsoft 365 work accounts aren't covered.
 
 Your provider isn't listed or doesn't work? [Open a mail provider issue](https://github.com/drumandbytes/delistd/issues/new?template=mail_provider.yml), or add it yourself (see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-mail-provider)).
 

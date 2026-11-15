@@ -27,7 +27,7 @@
     </div>
 
     <div id="oauth_block" class="space-y-3" {{if not .OAuth}}hidden{{end}}>
-        <p class="text-sm text-muted">Microsoft no longer accepts passwords for Outlook.com, Hotmail and Live. Sign in with a short code instead. Personal accounts only, not Microsoft 365 work accounts.</p>
+        <p class="text-sm text-muted">Microsoft no longer accepts passwords for Outlook.com, Hotmail and Live. Sign in with a short code instead. Personal accounts only, not Microsoft 365 work accounts. Microsoft will call the Delistd app an "unverified" publisher on its approval page; that is expected.</p>
         <div>
             <button type="button" class="btn btn-secondary" hx-post="/oauth/start" hx-include="#oauth_client_id, #mail_address, #mail_username" hx-target="#oauth_status" hx-swap="outerHTML">Sign in with Microsoft</button>
             {{if .SignedIn}}<span id="oauth_signed_in" data-address="{{.Address}}" class="ml-2 text-sm text-success">Signed in already as {{.Address}}. Sign in again only to replace it.</span>{{end}}
@@ -50,7 +50,7 @@
                     <label for="oauth_client_id" class="label">Application (client) ID{{if .SharedApp}} (leave empty to use the shared app){{end}}</label>
                     <input type="text" name="oauth_client_id" id="oauth_client_id" value="{{.ClientID}}" class="input font-mono" autocomplete="off" placeholder="00000000-0000-0000-0000-000000000000">
                 </div>
-                <p class="text-xs text-muted">Full guide: <a href="https://github.com/drumandbytes/delistd/blob/main/docs/outlook.md" target="_blank" rel="noopener" class="text-accent hover:underline">docs/outlook.md</a>. New and not yet confirmed by users; tell us how it goes in <a href="https://github.com/drumandbytes/delistd/issues/293" target="_blank" rel="noopener" class="text-accent hover:underline">#293</a>.</p>
+                <p class="text-xs text-muted">Full guide: <a href="https://github.com/drumandbytes/delistd/blob/main/docs/outlook.md" target="_blank" rel="noopener" class="text-accent hover:underline">docs/outlook.md</a>. A user has reported it working; tell us how it goes in <a href="https://github.com/drumandbytes/delistd/issues/293" target="_blank" rel="noopener" class="text-accent hover:underline">#293</a>.</p>
             </div>
         </details>
     </div>
