@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.1](https://github.com/drumandbytes/delistd/compare/v2.6.0...v2.6.1) (2026-11-15)
+
+
+### Bug Fixes
+
+* **site:** the homepage comparison reads on a phone, Compare joins the main menu ([#306](https://github.com/drumandbytes/delistd/issues/306)) ([6a132a7](https://github.com/drumandbytes/delistd/commit/6a132a783f9779464f9b616780a35d3474c4bb28))
+
 ## [2.6.0](https://github.com/drumandbytes/delistd/compare/v2.5.1...v2.6.0) (2026-11-15)
 
 
