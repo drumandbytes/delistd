@@ -80,7 +80,7 @@ summary { min-height: 24px; }
 .alert-success { background: color-mix(in oklab, var(--success) 10%, transparent); color: var(--success); border-color: color-mix(in oklab, var(--success) 28%, transparent); }
 .alert-error { background: color-mix(in oklab, var(--error) 10%, transparent); color: var(--error); border-color: color-mix(in oklab, var(--error) 28%, transparent); }
 .alert-warning { background: color-mix(in oklab, var(--warning) 12%, transparent); color: var(--warning); border-color: color-mix(in oklab, var(--warning) 30%, transparent); }
-.alert-info { background: var(--accent-muted); color: var(--accent); border-color: color-mix(in oklab, var(--accent) 28%, transparent); }
+.alert-info { background: var(--bg-elevated); color: var(--text-secondary); border-color: var(--border); }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
 .status-dot-success { background: var(--success); }
 .status-dot-warning { background: var(--warning); }

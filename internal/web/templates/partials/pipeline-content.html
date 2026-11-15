@@ -5,9 +5,9 @@
     <nav class="pipeline-stats" aria-label="Pipeline status filters">
         {{range .Cards}}
         <a href="{{.URL}}" hx-get="{{.URL}}" hx-target="#pipeline-content" hx-swap="outerHTML" hx-push-url="true"
-           hx-sync="#pipeline-content:replace" class="card pipeline-stat {{if .Active}}selected{{end}}" {{if .Active}}aria-current="true"{{end}}>
+           hx-sync="#pipeline-content:replace" class="pipeline-stat {{if .Active}}selected{{end}}" {{if .Active}}aria-current="true"{{end}}>
             <span class="text-xs text-muted">{{.Label}}</span>
-            <span class="font-display text-2xl font-bold text-primary">{{.Count}}</span>
+            <span class="num text-2xl text-primary">{{.Count}}</span>
         </a>
         {{end}}
     </nav>
