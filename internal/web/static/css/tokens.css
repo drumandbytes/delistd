@@ -1,68 +1,85 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Coral (deal 1/3, seed warm-friendly-approachable-privacy-56c0·a637ac34·2026-11-15·r0) · redesign: full
+ * hero: none (app screens) · nav: top bar with a tab strip · footer: none · imagery: none, the product is the content · signature: the reply ledger on the dashboard
+ * axes: light/grotesk-sans/warm · posture: restrained · contrast: pass · fold: n/a · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: dark mode is a warm dark derived from Coral, not a dealt theme, so its elevation steps are tuned by eye */
 /* ============================================
    DELISTD DESIGN TOKENS
    The single source of truth for colour, elevation and type.
-   Nothing else in the codebase should name a raw hex value.
+   Nothing else in the codebase should name a raw colour value.
    Both themes redefine the same custom-property names; the
    `.light` class on <html> (set by the theme script in layout.html)
-   selects the light values.
+   selects the light values. The old names (--bg-base, --accent, ...)
+   stay, so templates keep working.
    ============================================ */
 
-/* Dark theme (default) */
+/* Dark theme (default): warm charcoal, never blue-black */
 :root {
-    --bg-base: #0a0a0b;
-    --bg-surface: #131315;
-    --bg-elevated: #1a1a1d;
-    --bg-glass: rgba(19, 19, 21, 0.9);
+    --bg-base: oklch(19% 0.010 50);
+    --bg-surface: oklch(23% 0.010 50);
+    --bg-elevated: oklch(27% 0.010 50);
+    --bg-glass: oklch(19% 0.010 50 / 0.92);
 
-    --accent: #818cf8;
-    --accent-hover: #a5b4fc;
-    --accent-solid: #4f46e5;
-    --accent-solid-hover: #4338ca;
-    --accent-muted: rgba(99, 102, 241, 0.12);
-    --accent-glow: rgba(99, 102, 241, 0.3);
+    --accent: oklch(78% 0.130 30);
+    --accent-hover: oklch(84% 0.120 30);
+    --accent-solid: oklch(95% 0.006 70);
+    --accent-solid-hover: oklch(88% 0.008 70);
+    --accent-ink: oklch(20% 0.012 38);
+    --accent-muted: oklch(78% 0.130 30 / 0.14);
+    --accent-glow: oklch(78% 0.130 30 / 0.28);
 
-    --success: #22c55e;
-    --warning: #eab308;
-    --error: #f87171;
+    --success: oklch(74% 0.130 150);
+    --warning: oklch(80% 0.120 80);
+    --error: oklch(74% 0.150 27);
 
-    --text-primary: #e4e4e7;
-    --text-secondary: #a1a1aa;
-    --text-muted: #8b8b93;
+    --text-primary: oklch(95% 0.006 70);
+    --text-secondary: oklch(80% 0.008 65);
+    --text-muted: oklch(68% 0.010 60);
 
-    --border: #232326;
-    --border-subtle: #1a1a1d;
+    --border: oklch(33% 0.010 50);
+    --border-subtle: oklch(28% 0.010 50);
+    --focus: oklch(80% 0.130 30);
 
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 4px 10px -2px rgba(0, 0, 0, 0.5);
+    --shadow: 0 1px 2px oklch(8% 0.01 40 / 0.4);
+    --shadow-lg: 0 6px 14px -4px oklch(8% 0.01 40 / 0.5);
 
-    --font-mono: "SF Mono", "JetBrains Mono", "Menlo", "Consolas", monospace;
+    --font-display: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-body: var(--font-display);
+    --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    --radius-card: 12px;
+    --radius-control: 8px;
+    --dur-micro: 120ms;
+    --dur-short: 200ms;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Light theme */
+/* Light theme: warm paper, cotton cards, ink buttons, one deep coral */
 .light {
-    --bg-base: #fafafa;
-    --bg-surface: #ffffff;
-    --bg-elevated: #f4f4f5;
-    --bg-glass: rgba(255, 255, 255, 0.9);
+    --bg-base: oklch(97% 0.006 55);
+    --bg-surface: oklch(98.8% 0.0045 80);
+    --bg-elevated: oklch(94.5% 0.007 55);
+    --bg-glass: oklch(97% 0.006 55 / 0.92);
 
-    --accent: #4f46e5;
-    --accent-hover: #4338ca;
-    --accent-solid: #4f46e5;
-    --accent-solid-hover: #4338ca;
-    --accent-muted: rgba(79, 70, 229, 0.08);
-    --accent-glow: rgba(79, 70, 229, 0.25);
+    --accent: oklch(54% 0.165 29);
+    --accent-hover: oklch(46% 0.165 29);
+    --accent-solid: oklch(22% 0.011 40);
+    --accent-solid-hover: oklch(32% 0.012 40);
+    --accent-ink: oklch(96.5% 0.006 70);
+    --accent-muted: oklch(54% 0.165 29 / 0.09);
+    --accent-glow: oklch(54% 0.165 29 / 0.22);
 
-    --success: #16a34a;
-    --warning: #92400e;
-    --error: #b91c1c;
+    --success: oklch(46% 0.120 150);
+    --warning: oklch(47% 0.110 65);
+    --error: oklch(50% 0.170 27);
 
-    --text-primary: #18181b;
-    --text-secondary: #52525b;
-    --text-muted: #666670;
+    --text-primary: oklch(21% 0.012 38);
+    --text-secondary: oklch(33% 0.013 40);
+    --text-muted: oklch(47% 0.013 45);
 
-    --border: #e4e4e7;
-    --border-subtle: #f4f4f5;
+    --border: oklch(87% 0.009 55);
+    --border-subtle: oklch(92% 0.008 55);
+    --focus: oklch(54% 0.170 30);
 
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 4px 10px -2px rgba(0, 0, 0, 0.08);
+    --shadow: 0 1px 2px oklch(32% 0.03 50 / 0.06);
+    --shadow-lg: 0 6px 14px -4px oklch(32% 0.03 50 / 0.14);
 }

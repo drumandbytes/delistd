@@ -12,7 +12,11 @@ func TestJobPillStaysHiddenWithoutAJob(t *testing.T) {
 	if !strings.Contains(body, `id="global-job-indicator" href="/brokers" class="hidden`) {
 		t.Fatal("job indicator should render hidden")
 	}
-	if !strings.Contains(body, ".site-nav-inner a.hidden { display: none; }") {
+	css, err := staticFS.ReadFile("static/css/app.css")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(css), ".site-nav-inner a.hidden { display: none; }") {
 		t.Error("the hidden override for nav links is missing: the pill would show with no job running")
 	}
 }
