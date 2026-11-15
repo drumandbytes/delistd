@@ -14,7 +14,7 @@ Anyone can use it in their own script. That cannot read anyone's mail (a token e
 
 ## Current state
 
-The shipped app is **not publisher-verified**, so Microsoft's consent screen labels it "unverified". It was registered under a personal Microsoft account, and an app owned by a personal account cannot be publisher-verified. Verification needs the app in a Drumandbytes-owned tenant plus the company's Partner Center account (Partner ID 7197064, verification in progress). Moving there means a new client ID, which is the replacement procedure below: a patch release, and everyone signed in with the old ID signs in once more. `https://delistd.dev/.well-known/microsoft-identity-association.json` already lists the current app for the publisher domain; update it with the ID.
+The shipped app is **not publisher-verified**, so Microsoft's consent screen labels it "unverified". It is registered in the Drumandbytes tenant (owned by `admin@drumandbytes.ee`), with sign-in limited to personal Microsoft accounts. Verification needs the company's Partner Center account (Partner ID 7197064, verification in progress) and then "Add Partner ID" in the app's Branding & properties. Whether Microsoft accepts publisher verification for an app whose audience is personal accounts only is unconfirmed; if it refuses, the options are a different audience or accepting the label. Changing the app means a new client ID, which is the replacement procedure below: a patch release, and everyone signed in with the old ID signs in once more. `https://delistd.dev/.well-known/microsoft-identity-association.json` lists the current app for the publisher domain; update it with the ID.
 
 ## Registration settings
 
