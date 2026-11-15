@@ -7,7 +7,7 @@
 {{ define "main" }}
 <div class="prose">
   {{ if .Params.docs_version }}
-  <p class="crumb"><a href="{{ "/" | relURL }}">Home</a> · <a href="{{ partial "docs-home.html" . }}">Docs</a></p>
+  <p class="crumb"><a href="{{ "/" | relURL }}">Home</a> <span class="sep" aria-hidden="true">/</span> <a href="{{ partial "docs-home.html" . }}">Docs</a></p>
   {{ partial "docs-nav.html" . }}
   <h1>{{ .Title }}</h1>
   <ul class="linklist">
@@ -19,7 +19,7 @@
   {{ .Content }}
   <ul class="linklist">
     {{ range hugo.Data.docs_versions.versions }}
-    <li><a href="{{ printf "/docs/%s/" .slug | relURL }}">{{ .label }}</a>{{ if .latest }} · latest stable{{ else if eq .status "beta" }} · prerelease{{ else if eq .status "nightly" }} · from <code>main</code>{{ end }}</li>
+    <li><a href="{{ printf "/docs/%s/" .slug | relURL }}">{{ .label }}</a>{{ if .latest }} (latest stable){{ else if eq .status "beta" }} (prerelease){{ else if eq .status "nightly" }} (from <code>main</code>){{ end }}</li>
     {{ end }}
   </ul>
   {{ end }}

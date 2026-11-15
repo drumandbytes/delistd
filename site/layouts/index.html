@@ -1,63 +1,137 @@
 {{ define "main" }}
+{{ $all := .Site.Data.brokers.brokers }}
+{{ $docs := "" }}{{ with index (where hugo.Data.docs_versions.versions "latest" true) 0 }}{{ $docs = printf "/docs/%s/getting-started/" .slug | relURL }}{{ end }}
+
 <section class="hero">
-  <h1>Take back your privacy</h1>
-  <p>Delistd sends data removal requests to 700+ data brokers on your behalf — the
-  companies like Spokeo, BeenVerified and Whitepages that publish your address,
-  phone number and relatives. Open source, free, and it runs on your own machine:
-  requests go out from <em>your</em> mailbox, so no company ever holds your data.
-  Incogni and DeleteMe charge $100+/year to do the same thing.</p>
-  <p class="cta">
-    <a class="btn" href="https://github.com/drumandbytes/delistd/releases">Download</a>
-    <a class="btn ghost" href="{{ "/brokers/" | relURL }}">Broker directory</a>
-    {{ with index (where hugo.Data.docs_versions.versions "latest" true) 0 }}<a class="btn ghost" href="{{ printf "/docs/%s/getting-started/" .slug | relURL }}">Setup guide</a>{{ end }}
-  </p>
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <h1>Take back your privacy</h1>
+        <p class="lead">Removal requests to 700+ data brokers, sent from your own mailbox.</p>
+        <p class="actions">
+          <a class="btn btn--primary" href="https://github.com/drumandbytes/delistd/releases">Download</a>
+          {{ if $docs }}<a class="btn" href="{{ $docs }}">Setup guide</a>{{ end }}
+          <a class="textlink" href="{{ "/brokers/" | relURL }}">Broker directory</a>
+        </p>
+      </div>
+      <div class="sheet">
+        <div class="sheet-head"><p>Broker directory</p><span class="figure">{{ len $all }}</span></div>
+        <div class="table-scroll" role="region" aria-label="Sample of the broker directory" tabindex="0">
+        <table>
+          <caption class="visually-hidden">Six brokers from the directory and how each takes opt-out requests</caption>
+          <thead><tr><th scope="col">Broker</th><th scope="col">Region</th><th scope="col">Category</th><th scope="col">Opt out</th></tr></thead>
+          <tbody>
+          {{ range slice "spokeo" "beenverified" "whitepages" "intelius" "truthfinder" "acxiom" }}{{ with index (where $all "id" .) 0 }}
+            <tr><td><a href="{{ printf "/brokers/%s/" .id | relURL }}">{{ .name }}</a></td><td>{{ if eq .region "global" }}Global{{ else }}{{ upper .region }}{{ end }}</td><td>{{ replace .category "-" " " | humanize }}</td><td>{{ if .email }}Email{{ else if .opt_out_url }}Form{{ else }}Letter{{ end }}</td></tr>
+          {{ end }}{{ end }}
+          </tbody>
+        </table>
+        </div>
+        <dl class="sheet-foot">
+          <div><dt>United States</dt><dd>{{ len (where $all "region" "us") }}</dd></div>
+          <div><dt>Global</dt><dd>{{ len (where $all "region" "global") }}</dd></div>
+          <div><dt>EU and EEA</dt><dd>{{ len (where $all "region" "eu") }}</dd></div>
+        </dl>
+        <p class="sheet-note">Six of {{ len $all }} brokers in the directory.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section class="prose">
-  <h2>What it is</h2>
-  <p>Data brokers collect names, addresses, phone numbers, relatives and device IDs,
-  then sell or publish them. Privacy law gives you the right to make them stop:
-  GDPR Article 17 in the EU, UK and EEA, and the CCPA / CPRA in California. A removal
-  request is just a short, correctly worded email, but there are hundreds of brokers
-  and each one wants it sent to a different address or form, and again every few months.</p>
-  <p>Delistd keeps the broker list, writes the request in the right legal wording for
-  where you live, sends it through your own SMTP or mail account, and tracks each reply
-  over IMAP. Everything stays in a local SQLite file and config on your machine. There
-  is no account, no server of ours in the loop and no telemetry; this website counts
-  visits and nothing else (see the <a href="{{ "/privacy/" | relURL }}">privacy page</a>).</p>
-  <h2>How it compares</h2>
-  <p>Paid services such as Incogni and DeleteMe do the same job for $100+ a year and
-  hold your identity details on their servers. Delistd is MIT-licensed, free, and
-  the broker list and request letters are in the open
-  <a href="https://github.com/drumandbytes/delistd">source repository</a>, so you can
-  check exactly what gets sent and to whom. The trade-off: it runs on your computer,
-  and you stay in charge of the mailbox it sends from. See the
-  <a href="{{ "/compare/" | relURL }}">full comparison with Incogni and DeleteMe</a>.</p>
-  <p>The <a href="{{ "/brokers/" | relURL }}">broker directory</a> has step-by-step
-  opt-out guides for the biggest people-search, background-check and credit brokers,
-  and works without installing anything.</p>
+<section class="section" id="what-it-is">
+  <div class="container split">
+    <div>
+      <h2>What it is</h2>
+      <div class="prose-body">
+        <p>Data brokers collect names, addresses, phone numbers, relatives and device IDs,
+        then sell or publish them. Privacy law gives you the right to make them stop:
+        GDPR Article 17 in the EU, UK and EEA, and the CCPA / CPRA in California. A removal
+        request is just a short, correctly worded email, but there are hundreds of brokers
+        and each one wants it sent to a different address or form, and again every few months.</p>
+        <p>Delistd keeps the broker list, writes the request in the right legal wording for
+        where you live, sends it through your own SMTP or mail account, and tracks each reply
+        over IMAP. Everything stays in a local SQLite file and config on your machine. There
+        is no account, no server of ours in the loop and no telemetry; this website counts
+        visits and nothing else (see the <a href="{{ "/privacy/" | relURL }}">privacy page</a>).</p>
+      </div>
+    </div>
+    <dl class="ledger">
+      <div><dt>Your details</dt><dd>A local SQLite file and config, on your machine</dd></div>
+      <div><dt>Requests</dt><dd>Sent through your own SMTP or mail account</dd></div>
+      <div><dt>Replies</dt><dd>Tracked over IMAP, in your own inbox</dd></div>
+      <div><dt>Our servers</dt><dd>None in the loop, and no telemetry</dd></div>
+    </dl>
+  </div>
 </section>
 
-<section class="cols">
-  <div>
-    <h2>How it works</h2>
-    <ol>
+<section class="section section--well">
+  <div class="container">
+    <div class="section-head"><h2>How it works</h2></div>
+    <ol class="steps">
       <li>Enter your details once (locally).</li>
       <li>Delistd emails every broker a GDPR / CCPA removal request.</li>
       <li>It watches your inbox for replies and shows what still needs a click.</li>
       <li>Re-run every 60–90 days — brokers re-list you.</li>
     </ol>
-    <p>Won't hand any tool your email password? Manual mode renders the emails
+    <p class="after-steps">Won't hand any tool your email password? Manual mode renders the emails
     for you to send by hand and still tracks them.</p>
   </div>
-  <div>
-    <h2>Guides</h2>
-    <ul>
-      {{ range (where .Site.RegularPages "Section" "guides") }}
-      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-      {{ end }}
-      <li><a href="{{ "/authorities/" | relURL }}">EU/EEA data protection authorities</a></li>
-    </ul>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head"><h2>How it compares</h2></div>
+    <table class="compare">
+      <thead><tr><td></td><th scope="col">Delistd</th><th scope="col">Incogni and DeleteMe</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Price</th><td>Free, MIT-licensed</td><td><span class="num">$100+</span> a year</td></tr>
+        <tr><th scope="row">Your identity details</th><td>Stay on your computer</td><td>Held on their servers</td></tr>
+      </tbody>
+    </table>
+    <p class="after-table">The broker list and request letters are in the open
+    <a href="https://github.com/drumandbytes/delistd">source repository</a>, so you can
+    check exactly what gets sent and to whom. The trade-off: it runs on your computer,
+    and you stay in charge of the mailbox it sends from. See the
+    <a href="{{ "/compare/" | relURL }}">full comparison with Incogni and DeleteMe</a>.</p>
+  </div>
+</section>
+
+<section class="section section--well">
+  <div class="container">
+    <figure class="shot">
+      <img src="{{ "img/dashboard.png" | relURL }}" width="2560" height="1090" loading="lazy" alt="Delistd's local dashboard: counts of brokers, requests sent, failed and pending, and a pipeline of replies waiting, confirmed, rejected and needing action">
+      <figcaption>The local dashboard, with sample data.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container split">
+    <div>
+      <h2>Guides</h2>
+      <ul class="rows">
+        {{ range (where .Site.RegularPages "Section" "guides") }}
+        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+        {{ end }}
+        <li><a href="{{ "/authorities/" | relURL }}">EU/EEA data protection authorities</a></li>
+      </ul>
+    </div>
+    <div class="prose-body">
+      <h2>Broker directory</h2>
+      <p>The <a href="{{ "/brokers/" | relURL }}">broker directory</a> has step-by-step
+      opt-out guides for the biggest people-search, background-check and credit brokers,
+      and works without installing anything.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="container">
+    <h2>Open source, free, and it runs on your own machine</h2>
+    <p class="actions">
+      <a class="btn btn--primary" href="https://github.com/drumandbytes/delistd/releases">Download</a>
+      {{ if $docs }}<a class="btn" href="{{ $docs }}">Setup guide</a>{{ end }}
+    </p>
   </div>
 </section>
 {{ end }}
