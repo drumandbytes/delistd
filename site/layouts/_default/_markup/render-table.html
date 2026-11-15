@@ -1,9 +1,13 @@
+{{- /* A column headed exactly "Delistd" gets the .is-us class so comparison tables can lift it. */ -}}
+{{- $us := -1 -}}
+{{- range .THead }}{{ range $i, $c := . }}{{ if eq (strings.TrimSpace (plainify $c.Text)) "Delistd" }}{{ $us = $i }}{{ end }}{{ end }}{{ end -}}
+<div class="table-scroll" role="region" tabindex="0" aria-label="Table">
 <table{{ with .Attributes.class }} class="{{ . }}"{{ end }}>
   <thead>
     {{- range .THead }}
     <tr>
-      {{- range . }}
-      <th scope="col"{{ with .Alignment }} style="text-align: {{ . }}"{{ end }}>{{ .Text }}</th>
+      {{- range $i, $c := . }}
+      <th scope="col"{{ if eq $i $us }} class="is-us"{{ end }}{{ with .Alignment }} style="text-align: {{ . }}"{{ end }}>{{ .Text }}</th>
       {{- end }}
     </tr>
     {{- end }}
@@ -11,10 +15,11 @@
   <tbody>
     {{- range .TBody }}
     <tr>
-      {{- range . }}
-      <td{{ with .Alignment }} style="text-align: {{ . }}"{{ end }}>{{ .Text }}</td>
+      {{- range $i, $c := . }}
+      <td{{ if eq $i $us }} class="is-us"{{ end }}{{ with .Alignment }} style="text-align: {{ . }}"{{ end }}>{{ .Text }}</td>
       {{- end }}
     </tr>
     {{- end }}
   </tbody>
 </table>
+</div>

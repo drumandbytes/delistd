@@ -1,5 +1,6 @@
 ---
 title: "Delistd vs Incogni and DeleteMe"
+wide: true
 description: "Delistd vs Incogni and DeleteMe: price, where your details are held, who sends the requests, coverage, and when a paid service is the better choice."
 ---
 

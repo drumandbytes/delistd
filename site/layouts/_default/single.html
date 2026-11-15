@@ -1,8 +1,11 @@
 {{ define "main" }}
-{{ if eq .Section "guides" }}<article class="prose">{{ else }}<div class="prose">{{ end }}
+<div{{ if not .Params.wide }} class="doc-layout"{{ end }}>
+{{ if eq .Section "guides" }}<article class="prose{{ if .Params.wide }} wide{{ end }}">{{ else }}<div class="prose{{ if .Params.wide }} wide{{ end }}">{{ end }}
   <p class="crumb"><a href="{{ "/" | relURL }}">Home</a>{{ with .CurrentSection }} <span class="sep" aria-hidden="true">/</span> <a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</p>
   <h1>{{ .Title }}</h1>
   {{ if .Params.last_checked }}<p class="meta">Broker last checked {{ .Lastmod.Format "2006-01-02" }}.</p>{{ end }}
   {{ .Content }}
 {{ if eq .Section "guides" }}</article>{{ else }}</div>{{ end }}
+{{ if not .Params.wide }}{{ partial "toc.html" . }}{{ end }}
+</div>
 {{ end }}

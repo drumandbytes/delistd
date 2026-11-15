@@ -1,0 +1,5 @@
+{{- /* "On this page": shown only when a page has enough headings to need it. */ -}}
+{{- $toc := .TableOfContents -}}
+{{- if gt (len (findRE "<li>" $toc)) 2 -}}
+<aside class="toc" aria-label="On this page"><p class="toc-title">On this page</p>{{ $toc | safeHTML }}</aside>
+{{- end -}}

@@ -1,5 +1,5 @@
 {{ define "main" }}
-{{ $all := .Site.Data.brokers.brokers }}
+{{ $all := hugo.Data.brokers.brokers }}
 {{ $docs := "" }}{{ with index (where hugo.Data.docs_versions.versions "latest" true) 0 }}{{ $docs = printf "/docs/%s/getting-started/" .slug | relURL }}{{ end }}
 
 <section class="hero">

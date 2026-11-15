@@ -9,6 +9,7 @@
 
   {{ range $r := ($regions | uniq) }}
   <h2>{{ $r }}</h2>
+  <div class="table-scroll" role="region" tabindex="0" aria-label="{{ $r }}">
   <table class="dir">
     <thead><tr><th>Country</th><th>Authority</th>{{ if ne $r "European Union / EEA" }}<th>Law</th>{{ end }}<th>Website</th></tr></thead>
     <tbody>
@@ -22,6 +23,7 @@
     {{ end }}
     </tbody>
   </table>
+  </div>
   {{ end }}
 
   <p class="meta">Also: <a href="https://noyb.eu">noyb.eu</a> — GDPR complaint templates and strategic litigation.</p>

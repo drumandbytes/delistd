@@ -139,6 +139,25 @@ a:hover { text-decoration-thickness: 2px; }
 .foot li { break-inside: avoid; padding: var(--space-2xs) 0; }
 .foot a { display: inline-flex; min-height: 24px; align-items: center; }
 
+/* long reading pages: the text column with an "On this page" rail */
+.doc-layout { display: grid; grid-template-columns: minmax(0, 72ch) minmax(0, 1fr); gap: var(--space-3xl); align-items: start; }
+.toc { position: sticky; top: var(--space-xl); max-height: calc(100dvh - 2 * var(--space-xl)); overflow-y: auto; padding-top: var(--space-xs); font-size: var(--text-sm); }
+.toc-title { margin: 0 0 var(--space-sm); font: 600 var(--text-sm)/1.3 var(--font-display); color: var(--color-ink); }
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc ul ul { padding-left: var(--space-md); }
+.toc li { margin: 0; }
+.toc a { display: block; padding: var(--space-3xs) 0; color: var(--color-muted); text-decoration: none; }
+.toc a:hover { color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-accent); }
+@media (max-width: 75rem) { .doc-layout { grid-template-columns: minmax(0, 1fr); } .toc { display: none; } }
+
+/* comparison tables: the Delistd column sits on a cotton card */
+.prose.wide table { display: table; width: 100%; table-layout: auto; }
+.prose.wide th.is-us, .prose.wide td.is-us { background: var(--color-cotton); color: var(--color-ink); }
+.prose.wide th.is-us { box-shadow: inset 0 2px 0 var(--color-accent-2); color: var(--color-accent-2); }
+.prose.wide td { padding: var(--space-md) var(--space-md) var(--space-md) var(--space-sm); }
+.prose.wide th { padding: var(--space-sm) var(--space-md) var(--space-sm) var(--space-sm); }
+.prose.wide td:first-child, .prose.wide th:first-child { padding-left: 0; font-weight: 600; color: var(--color-ink); }
+
 /* inner pages: the book */
 .wrap { padding: var(--space-2xl) var(--gutter) var(--space-3xl); max-width: calc(var(--container) + 2 * var(--gutter)); margin-inline: auto; }
 .prose { max-width: 72ch; }
@@ -158,11 +177,16 @@ a:hover { text-decoration-thickness: 2px; }
 .prose pre code { background: none; padding: 0; overflow-wrap: normal; }
 .prose blockquote { border-radius: var(--radius-pill); margin: var(--space-lg) 0; padding: var(--space-md) var(--space-lg); background: var(--color-paper-2); border: var(--rule-hair) solid var(--color-rule); color: var(--color-ink-2); }
 .prose blockquote p:last-child { margin-bottom: 0; }
-.prose table { display: block; overflow-x: auto; max-width: 100%; border-collapse: collapse; margin: 0 0 var(--space-lg); font-size: var(--text-md); }
+.prose table { border-collapse: collapse; margin: 0; font-size: var(--text-md); }
+.prose .table-scroll { margin: 0 0 var(--space-lg); }
 .prose th { font: 500 var(--text-sm)/1.3 var(--font-body); color: var(--color-muted); text-align: left; padding: var(--space-xs) var(--space-md) var(--space-xs) 0; border-bottom: var(--rule-hair) solid var(--color-rule-2); }
 .prose td { padding: var(--space-xs) var(--space-md) var(--space-xs) 0; border-top: var(--rule-hair) solid var(--color-rule); vertical-align: top; }
 .prose img { border: var(--rule-hair) solid var(--color-rule); }
 .highlight { overflow-x: auto; max-width: 100%; }
+.chroma { background-color: var(--color-sheet); color: var(--color-ink); }
+.chroma .c, .chroma .c1, .chroma .cm, .chroma .cs, .chroma .ch, .chroma .cp, .chroma .cpf { color: var(--color-muted); }
+.chroma .k, .chroma .kd, .chroma .kn, .chroma .kr, .chroma .kt, .chroma .kc, .chroma .kp, .chroma .nb { color: var(--color-accent-2); }
+.chroma .s, .chroma .s1, .chroma .s2, .chroma .sb, .chroma .sc, .chroma .se, .chroma .sx, .chroma .si { color: var(--color-ink-2); font-style: italic; }
 .crumb, .meta { color: var(--color-muted); font-size: var(--text-sm); }
 .crumb { margin: 0 0 var(--space-lg); }
 .crumb a { text-decoration-color: var(--color-rule-2); }

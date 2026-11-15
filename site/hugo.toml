@@ -17,6 +17,11 @@ enableGitInfo = true
 [markup.goldmark.renderer]
   unsafe = true
 
+# Classes, not inline colours: the stylesheet colours code from the page tokens
+# so it holds in light and dark.
+[markup.highlight]
+  noClasses = false
+
 [[menu.main]]
   name = "Broker directory"
   pageRef = "/brokers"

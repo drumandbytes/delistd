@@ -1,7 +1,7 @@
 {{ define "main" }}
 <div class="prose wide">
   <h1>Broker directory</h1>
-  <p>Delistd sends removal requests to {{ len .Site.Data.brokers.brokers }} data brokers. {{ len .Pages }} of them
+  <p>Delistd sends removal requests to {{ len hugo.Data.brokers.brokers }} data brokers. {{ len .Pages }} of them
   have a full opt-out guide, listed below and marked <strong>guide</strong> in the
   full list. The rest are mostly advertising / data-append brokers you remove with
   the same GDPR or CCPA email — see
@@ -24,7 +24,7 @@
     <select id="cat" aria-label="Category"><option value="">All categories</option></select>
     <label><input type="checkbox" id="curatedonly"> Guides only</label>
   </div>
-  {{ $all := .Site.Data.brokers.brokers }}
+  {{ $all := hugo.Data.brokers.brokers }}
   <p class="meta"><span id="count">{{ len $all }} of {{ len $all }} brokers</span></p>
 
   <div class="table-scroll" role="region" aria-label="Broker list" tabindex="0">
