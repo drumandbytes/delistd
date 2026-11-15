@@ -2,28 +2,11 @@
 <div class="min-h-[80vh] flex items-center justify-center py-8">
     <div class="max-w-lg w-full fade-in-up">
         <div class="card p-8">
-            <!-- Progress Steps -->
-            <div class="flex justify-center mb-8">
-                <div class="flex items-center gap-2">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white" style="background: var(--accent);">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                    </div>
-                    <div class="w-12 h-1 rounded" style="background: var(--accent);"></div>
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white" style="background: var(--accent);">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                    </div>
-                    <div class="w-12 h-1 rounded" style="background: var(--accent);"></div>
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-white" style="background: var(--accent);">3</div>
-                </div>
-            </div>
+            {{template "partials/setup-steps.html" 3}}
 
             <!-- Header -->
             <div class="text-center mb-6">
-                <h1 class="font-display text-2xl font-bold text-primary mb-2">Connect Your Email</h1>
+                <h1 class="font-display text-2xl font-semibold text-primary mb-2">Connect Your Email</h1>
                 <p class="text-secondary">We'll send removal requests from your own email account</p>
             </div>
 

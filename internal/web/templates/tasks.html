@@ -17,60 +17,39 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="card p-4">
+    <div class="figures">
+        <div class="figure-link">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: var(--accent-muted);">
-                    <svg class="w-5 h-5" style="color: var(--accent);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                </div>
                 <div>
                     <p class="text-xs text-muted">Total Action Items</p>
-                    <p class="font-display text-2xl font-bold text-primary">{{.TotalActionItems}}</p>
+                    <p class="num text-2xl text-primary">{{.TotalActionItems}}</p>
                 </div>
             </div>
         </div>
 
-        <div class="card p-4 cursor-pointer hover:ring-2 hover:ring-[var(--accent)]" role="button" tabindex="0" onclick="filterItems('form')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterItems('form')}">
+        <div class="figure-link cursor-pointer" role="button" tabindex="0" onclick="filterItems('form')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterItems('form')}">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 icon-box icon-box-info">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                </div>
                 <div>
                     <p class="text-xs text-muted">Forms to Fill</p>
-                    <p class="font-display text-2xl font-bold text-accent">{{.FormsNeedingAction}}</p>
+                    <p class="num text-2xl text-primary">{{.FormsNeedingAction}}</p>
                 </div>
             </div>
         </div>
 
-        <div class="card p-4 cursor-pointer hover:ring-2 hover:ring-[var(--warning)]" role="button" tabindex="0" onclick="filterItems('review')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterItems('review')}">
+        <div class="figure-link cursor-pointer" role="button" tabindex="0" onclick="filterItems('review')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterItems('review')}">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 icon-box icon-box-warning">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                    </svg>
-                </div>
                 <div>
                     <p class="text-xs text-muted">Needs Review</p>
-                    <p class="font-display text-2xl font-bold text-warning">{{.NeedsReview}}</p>
+                    <p class="num text-2xl text-primary">{{.NeedsReview}}</p>
                 </div>
             </div>
         </div>
 
-        <div class="card p-4 cursor-pointer hover:ring-2 hover:ring-[var(--success)]" role="button" tabindex="0" onclick="filterItems('completed')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterItems('completed')}">
+        <div class="figure-link cursor-pointer" role="button" tabindex="0" onclick="filterItems('completed')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterItems('completed')}">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 icon-box icon-box-success">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
                 <div>
                     <p class="text-xs text-muted">Completed</p>
-                    <p class="font-display text-2xl font-bold text-success">{{add .CompletedTasks .FilledForms}}</p>
+                    <p class="num text-2xl text-primary">{{add .CompletedTasks .FilledForms}}</p>
                 </div>
             </div>
         </div>
@@ -136,13 +115,6 @@
                  data-status="pending"
                  style="background: var(--bg-surface);">
                 <div class="flex items-start gap-4">
-                    <!-- Status Icon -->
-                    <div class="flex-shrink-0 w-10 h-10 icon-box icon-box-info">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                    </div>
-
                     <!-- Details -->
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2">

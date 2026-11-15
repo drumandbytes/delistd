@@ -92,6 +92,7 @@ summary { min-height: 24px; }
 .figures li { display: flex; border-right: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
 .figure-link { flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 20px 24px; text-decoration: none; transition: background-color var(--dur-micro) var(--ease-out); }
 .figure-link:hover { background: var(--bg-elevated); }
+.figures > .figure-link { border-right: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
 .figure-label { font-size: 14px; color: var(--text-muted); }
 .figure-value { margin: 0; font: 400 34px/1.15 var(--font-mono); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
 .figure-hint { margin-top: 6px; font-size: 13px; color: var(--text-muted); }
@@ -103,6 +104,17 @@ summary { min-height: 24px; }
 .ledger-rows li > a:hover { background: var(--bg-elevated); color: var(--text-primary); }
 .ledger-rows .num { font-size: 16px; color: var(--text-primary); }
 .callout { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 16px; border: 1px solid color-mix(in oklab, var(--warning) 35%, transparent); background: color-mix(in oklab, var(--warning) 10%, transparent); border-radius: var(--radius-control); color: var(--warning); font-size: 14px; text-decoration: none; }
+
+/* ---- Setup flow: a labelled stepper ---- */
+.setup-steps { list-style: none; display: flex; gap: 8px; margin: 0 0 32px; padding: 0 0 20px; border-bottom: 1px solid var(--border); }
+.setup-step { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; font-size: 14px; color: var(--text-muted); }
+.setup-step-n { flex: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--text-muted); font-size: 13px; }
+.setup-step.current { color: var(--text-primary); font-weight: 600; }
+.setup-step.current .setup-step-n { background: var(--accent-solid); border-color: var(--accent-solid); color: var(--accent-ink); }
+.setup-step.done { color: var(--text-secondary); }
+.setup-step.done .setup-step-n { background: var(--bg-elevated); border-color: var(--border); color: var(--success); }
+.setup-step-l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 40rem) { .setup-step:not(.current) .setup-step-l { display: none; } }
 
 /* ---- Quick links ---- */
 .quick-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 24px; }

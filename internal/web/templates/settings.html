@@ -10,11 +10,9 @@
         <!-- Profiles Section -->
         <div class="card p-6">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--accent-muted);">
-                    <svg class="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6-2a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
-                </div>
                 <h2 class="font-display text-lg font-semibold text-primary">Profiles</h2>
             </div>
 
@@ -52,11 +50,9 @@
         <!-- Email Configuration Section -->
         <div class="card p-6">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--accent-muted);">
-                    <svg class="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
-                </div>
                 <h2 class="font-display text-lg font-semibold text-primary">Email Configuration</h2>
             </div>
 
@@ -101,11 +97,9 @@
         <!-- Inbox Monitoring Section -->
         <div class="card p-6">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--accent-muted);">
-                    <svg class="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                     </svg>
-                </div>
                 <div>
                     <h2 class="font-display text-lg font-semibold text-primary">Inbox Monitoring</h2>
                     <p class="text-sm text-muted">Monitor your inbox for broker responses</p>
@@ -179,11 +173,9 @@
         {{with .Automation}}
         <div class="card p-6" id="automation">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--accent-muted);">
-                    <svg class="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                </div>
                 <div>
                     <h2 class="font-display text-lg font-semibold text-primary">Automation</h2>
                     <p class="text-sm text-muted">Send due requests and check the inbox {{.Every}}, for every profile</p>
@@ -266,11 +258,9 @@
         <!-- Passphrase Section -->
         <div class="card p-6" id="passphrase">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--accent-muted);">
-                    <svg class="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
-                </div>
                 <div>
                     <h2 class="font-display text-lg font-semibold text-primary">Passphrase</h2>
                     <p class="text-sm text-muted">{{if .Passphrase.Protected}}Your mail passwords are protected by a passphrase{{else}}An extra gate on your stored mail passwords{{end}}</p>
@@ -311,11 +301,9 @@
         <!-- Request Options Section -->
         <div class="card p-6">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--accent-muted);">
-                    <svg class="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
                     </svg>
-                </div>
                 <h2 class="font-display text-lg font-semibold text-primary">Request Options</h2>
             </div>
 
@@ -378,11 +366,9 @@
         <!-- Broker List Section: same as `delistd update-brokers` -->
         <div class="card p-6" id="broker-list">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--accent-muted);">
-                    <svg class="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
-                </div>
                 <h2 class="font-display text-lg font-semibold text-primary">Broker List</h2>
             </div>
             <div class="flex items-start justify-between py-3 border-b border-[var(--border-subtle)] mb-4">

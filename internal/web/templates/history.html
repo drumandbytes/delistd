@@ -21,15 +21,9 @@
     <!-- Filter Tabs -->
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div class="flex gap-2">
-            <a href="/history" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{if not .StatusFilter}}bg-[var(--accent)] text-white{{else}}bg-[var(--bg-elevated)] text-secondary hover:text-primary{{end}}">
-                All
-            </a>
-            <a href="/history?status=sent" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{if eq .StatusFilter "sent"}}bg-[var(--success)] text-white{{else}}bg-[var(--bg-elevated)] text-secondary hover:text-primary{{end}}">
-                Sent
-            </a>
-            <a href="/history?status=failed" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{if eq .StatusFilter "failed"}}bg-[var(--error)] text-white{{else}}bg-[var(--bg-elevated)] text-secondary hover:text-primary{{end}}">
-                Failed
-            </a>
+            <a href="/history" class="btn {{if not .StatusFilter}}btn-primary{{else}}btn-secondary{{end}}"{{if not .StatusFilter}} aria-current="page"{{end}}>All</a>
+            <a href="/history?status=sent" class="btn {{if eq .StatusFilter "sent"}}btn-primary{{else}}btn-secondary{{end}}"{{if eq .StatusFilter "sent"}} aria-current="page"{{end}}>Sent</a>
+            <a href="/history?status=failed" class="btn {{if eq .StatusFilter "failed"}}btn-primary{{else}}btn-secondary{{end}}"{{if eq .StatusFilter "failed"}} aria-current="page"{{end}}>Failed</a>
         </div>
         <button
             id="clear-failed-btn"
