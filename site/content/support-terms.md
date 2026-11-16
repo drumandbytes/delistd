@@ -8,7 +8,7 @@ These terms cover the paid [setup and support](/support/) offered by Drumandbyte
 
 ## Who we are
 
-Drumandbytes OÜ, registry code 17599202, Uus-Sadama tn 21-207, 10120 Tallinn, Estonia. Write to [{{< param supportEmail >}}](mailto:{{< param supportEmail >}}). We are not VAT-registered at the moment; the price you see already includes any tax that applies. How we handle your details is on the [privacy page](/privacy/).
+Drumandbytes OÜ, registry code 17599202, Uus-Sadama tn 21-207, 10120 Tallinn, Estonia. Write to [{{< param supportEmail >}}](mailto:{{< param supportEmail >}}). How we handle your details is on the [privacy page](/privacy/).
 
 ## What you get, and what you don't
 
