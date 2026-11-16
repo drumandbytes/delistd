@@ -48,6 +48,6 @@ Write to [{{< param supportEmail >}}](mailto:{{< param supportEmail >}}) with:
 - Your **operating system** (macOS, Linux, Windows, or a home server)
 - The **country or region** you live in
 
-Setup for one person starts **from €39** for a standard desktop setup, and scales depending on your environment or ongoing support needs. Households and organisations are quoted as agreed. You get a clear quote, or an honest *"this isn't something we can help with"*, in reply. The [terms for paid setup](/support/terms/) cover scope, rescheduling and the right of withdrawal.
+Setup for one person starts **from €39** for a standard desktop setup, and scales depending on your environment or ongoing support needs. Households and organisations are quoted as agreed. You get a clear quote with the final price before you pay, or an honest *"this isn't something we can help with"*, in reply. The [terms for paid setup](/support/terms/) cover scope, rescheduling and the right of withdrawal.
 
 Bug reports and feature requests are free and public: [open an issue on GitHub](https://github.com/drumandbytes/delistd/issues/new).
