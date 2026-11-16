@@ -22,6 +22,14 @@ Move a session free of charge by telling us at least 24 hours before it starts. 
 
 Our liability for a paid service is limited to the fee you paid for it. This does not limit anything the law does not let us limit, including your mandatory rights as a consumer under Estonian law and liability for intent or gross negligence.
 
+## Language
+
+These terms and our replies are in English, which we take to be the language you want to deal with us in. If you would rather have them in Estonian, say so before you book and we will provide it.
+
+## Complaints
+
+Write to us first and we will try to put it right. If we can't agree, and you are a consumer, you can take the dispute to the [Consumer Disputes Committee](https://ttja.ee/en/about-consumer-disputes-committee) (Tarbijavaidluste komisjon) at the Consumer Protection and Technical Regulatory Authority. It is free to use. You can also go to the courts.
+
 ## Questions
 
 Write to [{{< param supportEmail >}}](mailto:{{< param supportEmail >}}). How we handle your details is on the [privacy page](/privacy/).
