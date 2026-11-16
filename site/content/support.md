@@ -18,7 +18,7 @@ A fixed-scope session, done remotely with you at the keyboard, on your own compu
 - Set up the unattended re-send, so brokers that re-list you are written to again.
 - One follow-up message afterwards for anything that didn't make sense.
 
-The scope is fixed. The time it takes is not: we go at your pace.
+The scope is fixed. The time it takes is not: we go at your pace. If your setup turns out to need more than this, we stop and quote the extra before doing it.
 
 **What you need ready:** a computer (macOS, Linux or Windows) and an email account you're happy to dedicate to removal requests (or we create a fresh one together).
 
