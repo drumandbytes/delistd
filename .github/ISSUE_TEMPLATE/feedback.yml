@@ -1,5 +1,6 @@
 name: Feedback
 description: Tell us how Delistd worked for you, or what would make it better
+labels: [feedback]
 body:
   - type: markdown
     attributes:
