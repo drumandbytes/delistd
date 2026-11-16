@@ -1,0 +1,30 @@
+name: Feedback
+description: Tell us how Delistd worked for you, or what would make it better
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Good or bad, this helps. **Don't paste personal data**: no profile details, mailbox content or screenshots that show your information. Security problems go through the private route, not here.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: How did it go?
+      options:
+        - It worked well
+        - It was confusing in places
+        - Something was missing
+        - Something broke (please use the bug report form instead)
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: What would you like us to know?
+    validations:
+      required: true
+  - type: checkboxes
+    id: quote
+    attributes:
+      label: Optional
+      options:
+        - label: You may quote this feedback on the website (without my name)

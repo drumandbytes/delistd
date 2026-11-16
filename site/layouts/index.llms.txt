@@ -6,6 +6,7 @@
 
 - [Home]({{ "/" | absURL }}): what Delistd is and how it compares with paid removal services
 - [Delistd vs Incogni and DeleteMe]({{ "/compare/" | absURL }}): price, data custody, coverage and when a paid service is the better choice
+- [FAQ]({{ "/faq/" | absURL }}): common questions about what Delistd does, what it needs from you and what to expect
 - [Help setting up Delistd]({{ "/support/" | absURL }}): optional paid setup and support from Drumandbytes OÜ; the tool stays free
 - [Terms for paid setup]({{ "/support/terms/" | absURL }}): scope, withdrawal, rescheduling and liability for the optional paid setup
 - [Broker directory]({{ "/brokers/" | absURL }}): every broker Delistd contacts, with region, category and opt-out route
