@@ -9,11 +9,11 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-**Take back your privacy.** Delistd sends data removal requests to 700+ data brokers on your behalf — for free.
+**Your data is traded. You can ask for it back.** Delistd sends removal requests to 700+ data brokers from your own mailbox: free, open source, and your details stay on your computer.
 
 ![Delistd dashboard](.github/images/dashboard.png)
 
-Sites like Spokeo, BeenVerified and Whitepages hold your home address, phone number and relatives' names. They're data brokers, and there are hundreds. Services like Incogni and DeleteMe charge $100+/year to send opt-out requests to them; Delistd does the same from your own email account, open source and free.
+Brokers such as Spokeo, BeenVerified and Whitepages collect home addresses, phone numbers and relatives' names, and sell them on, usually without people knowing. There are hundreds of them. Services like Incogni and DeleteMe send the opt-out requests for $100+ a year and hold your details to do it. Delistd sends the same requests from your own email account, so nothing is held by anyone but you.
 
 📖 **[delistd.dev](https://delistd.dev/?ref=delistd-readme)** — broker directory, opt-out guides, and the list of EU/EEA data protection authorities.
 🔗 [More Drumandbytes projects](https://drumandbytes.com/projects/?ref=delistd-readme)
