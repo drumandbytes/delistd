@@ -30,13 +30,11 @@ Brokers decide how they answer. Delistd sends the requests, tracks the replies a
 
 ## Check-ins and ongoing help
 
-Brokers re-list people, so removal is a recurring job. If you want a person in the loop, we can go through the replies with you on a regular schedule and keep your broker exclusions and settings tidy.
+Brokers re-list people, so removal is a recurring job. If you want a person in the loop, you can agree a support period up front: a set number of months with a set number of sessions a month, in which we go through the replies with you and keep your broker exclusions and settings tidy. To continue after it ends, agree another period.
 
 ## For organisations
 
 For teams that want staff, executives or clients removed from broker lists: onboarding several profiles, a review of how mailboxes and access are set up, help with the evidence export for your compliance people, broker-list work for your regions, and a support contact with agreed response times. The same rule applies: you run it, we advise.
-
-NGOs, charities, journalists and similar groups: ask about a reduced rate. In some cases we offer a discount in return for a short review or feedback on the tool.
 
 ## Get in touch
 
