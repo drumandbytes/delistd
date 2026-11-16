@@ -20,6 +20,8 @@ A fixed-scope session, done remotely with you at the keyboard, on your own compu
 
 The scope is fixed. The time it takes is not: we go at your pace.
 
+What you need ready: a computer (macOS, Linux or Windows) and an email account you are happy to dedicate to removal requests, or we create a fresh one together.
+
 ### What stays with you
 
 You keep every credential and all of your data. The mailbox password is entered by you on your own machine, and we have no remote access afterwards. We don't host your copy, store your details or see your replies. That is the point of doing it this way, and it is why we don't offer a hosted version.
@@ -40,6 +42,12 @@ For teams that want staff, executives or clients removed from broker lists: onbo
 
 ## Get in touch
 
-Write to [{{< param supportEmail >}}](mailto:{{< param supportEmail >}}) with a line about who you are and what you need (one person, a household, an organisation). You get a quote or a "this isn't something we can help with" in reply. There are no listed prices because the right answer depends on the case.
+Write to [{{< param supportEmail >}}](mailto:{{< param supportEmail >}}) with:
+
+- whether this is for one person, a household or an organisation
+- your operating system (macOS, Linux, Windows, or a home server)
+- the country or region you live in
+
+You get a quote, or an honest "this isn't something we can help with", in reply. Households and organisations are quoted by the number of profiles and what the setup involves.
 
 Bug reports and feature requests are free and public: [open an issue on GitHub](https://github.com/drumandbytes/delistd/issues/new).
