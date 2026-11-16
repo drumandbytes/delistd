@@ -18,7 +18,7 @@ Incogni and DeleteMe are services that remove your data for you. Delistd is a to
 | Coverage | 420+ data broker sites; custom removals on the Unlimited plans only | Automated opt-outs plus manual custom removals; coverage figures vary by source | 700+ brokers in a published list you can read and add to, with a focus on the US and the EU/EEA |
 | Progress reporting | Recurring removals on every plan; the Unlimited plans add an exposure scanner and a privacy score | Quarterly privacy reports | A local dashboard of each broker's reply, and an evidence report you can export |
 | Replies, ID checks and confirmation links | Handled by the service | Handled by the service and its advisors | Flagged to you as tasks that need action |
-| Support | Live phone support on the Unlimited plans | From the vendor | Community, through GitHub issues |
+| Support | Live phone support on the Unlimited plans | From the vendor | Community, through GitHub issues; [paid setup help](/support/) is optional |
 | Money-back guarantee | 30 days | Yes (terms on their site) | Not applicable |
 
 ## What a paid service gives you
@@ -46,7 +46,7 @@ Being honest about the trade-off:
 
 - **You do some of the work.** You set up a mail account for sending (an app password), and you handle the "needs action" items: confirmation links, ID checks and replies that ask a question.
 - **It doesn't scan for you.** Delistd sends requests to the brokers in its list. It doesn't search the web for where your data appears, and it can't verify that a broker actually deleted it, only record what the broker replied.
-- **No guarantee and no support team.** Brokers decide how they respond. Delistd re-sends on a schedule, because brokers re-list people, but there is nobody to call.
+- **No guarantee, and support is optional.** Brokers decide how they respond. Delistd re-sends on a schedule, because brokers re-list people. Help is community-based through GitHub, or [paid setup and support](/support/) if you want a person.
 - **Coverage is its own list.** 700+ brokers is a large list, but it isn't the same list as the services above. You can add brokers yourself.
 
 ## Which should you choose?

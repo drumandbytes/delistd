@@ -13,6 +13,8 @@ enableGitInfo = true
 [params]
   description = "Send data removal requests to data brokers. Open source, local-first, free."
   repo = "https://github.com/drumandbytes/delistd"
+  # Drumandbytes OÜ support inbox; shown on /support/
+  supportEmail = "support@drumandbytes.com"
 
 [markup.goldmark.renderer]
   unsafe = true
@@ -42,6 +44,10 @@ enableGitInfo = true
   name = "Authorities"
   pageRef = "/authorities"
   weight = 30
+[[menu.main]]
+  name = "Support"
+  pageRef = "/support"
+  weight = 35
 
 [mediaTypes."text/x-redirects"]
   suffixes = [""]

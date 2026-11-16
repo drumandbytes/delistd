@@ -43,6 +43,15 @@ One processor is involved in serving you this page:
 | --- | --- | --- |
 | Cloudflare | Your IP address and request headers, as any web server does | Serving the site, aggregate visitor counts |
 
+## If you ask us for help
+
+If you write to us or book [paid setup help](/support/), we hold your emails and,
+for a customer, the invoice details, for as long as the work and our accounting
+duties need them (Estonian law requires accounting records for seven years). We
+use them only to answer you and do the work. During a setup session your Delistd
+profile, mailbox password and broker replies stay on your own computer; we do not
+copy them or keep any access afterwards.
+
 ## Lawful basis
 
 Aggregate, cookieless analytics on a public site: legitimate interest,
