@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.7.0](https://github.com/drumandbytes/delistd/compare/v2.6.1...v2.7.0) (2026-11-16)
+
+
+### Features
+
+* **web:** phone layout trial ([#308](https://github.com/drumandbytes/delistd/issues/308)) ([5a23959](https://github.com/drumandbytes/delistd/commit/5a23959309d047bac2e02f9db6beaef8d9afd645))
+
+
+### Bug Fixes
+
+* **inbox:** decode ISO-8859-x and windows-125x mail ([#311](https://github.com/drumandbytes/delistd/issues/311)) ([ccdddaf](https://github.com/drumandbytes/delistd/commit/ccdddafe00f55d8b05a13dd58f49129d70f538ac))
+* **web:** size the loading spinner itself so it renders inside a plain wrapper span ([#313](https://github.com/drumandbytes/delistd/issues/313)) ([#314](https://github.com/drumandbytes/delistd/issues/314)) ([6062731](https://github.com/drumandbytes/delistd/commit/6062731f5a3a358713d3661ed7543edfbdc34d2d))
+
 ## [2.6.1](https://github.com/drumandbytes/delistd/compare/v2.6.0...v2.6.1) (2026-11-15)
 
 
