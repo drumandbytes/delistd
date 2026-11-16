@@ -186,7 +186,7 @@ main:focus { outline: none; }
 .theme-switch svg { width: 16px; height: 16px; }
 
 /* ---- Progress ---- */
-.spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; }
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; }
 .progress-ring { transform: rotate(-90deg); }
 .progress-ring-bg { stroke: var(--border); }
 .progress-ring-fill { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
