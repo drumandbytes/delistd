@@ -20,7 +20,7 @@ A fixed-scope session, done remotely with you at the keyboard, on your own compu
 
 The scope is fixed. The time it takes is not: we go at your pace.
 
-What you need ready: a computer (macOS, Linux or Windows) and an email account you are happy to dedicate to removal requests, or we create a fresh one together.
+**What you need ready:** a computer (macOS, Linux or Windows) and an email account you're happy to dedicate to removal requests (or we create a fresh one together).
 
 ### What stays with you
 
@@ -44,10 +44,10 @@ For teams that want staff, executives or clients removed from broker lists: onbo
 
 Write to [{{< param supportEmail >}}](mailto:{{< param supportEmail >}}) with:
 
-- whether this is for one person, a household or an organisation
-- your operating system (macOS, Linux, Windows, or a home server)
-- the country or region you live in
+- Whether this is for **one person, a household or an organisation**
+- Your **operating system** (macOS, Linux, Windows, or a home server)
+- The **country or region** you live in
 
-You get a quote, or an honest "this isn't something we can help with", in reply. Households and organisations are quoted by the number of profiles and what the setup involves.
+Setup for one person starts **from €39** for a standard desktop setup, and scales depending on your environment or ongoing support needs. Households and organisations are quoted as agreed. You get a clear quote, or an honest *"this isn't something we can help with"*, in reply. The [terms for paid setup](/support/terms/) cover scope, rescheduling and the right of withdrawal.
 
 Bug reports and feature requests are free and public: [open an issue on GitHub](https://github.com/drumandbytes/delistd/issues/new).

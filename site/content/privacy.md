@@ -1,9 +1,9 @@
 ---
 title: "Privacy"
-description: "What this website collects (cookieless, aggregate visit counts), and what the Delistd tool on your machine doesn't — nothing about your use reaches us."
+description: "What this website collects (cookieless, aggregate visit counts), what the Delistd tool on your machine doesn't (nothing about your use reaches us), and what Drumandbytes OÜ keeps when you ask for paid setup help."
 ---
 
-Two different things live under this name, and they have very different answers.
+Three different things live under this name, and they have very different answers: the tool and this website, which collect next to nothing, and the optional paid setup service, which does keep some of your details.
 
 ## The tool
 
@@ -43,14 +43,18 @@ One processor is involved in serving you this page:
 | --- | --- | --- |
 | Cloudflare | Your IP address and request headers, as any web server does | Serving the site, aggregate visitor counts |
 
-## If you ask us for help
+## Paid setup and support
 
-If you write to us or book [paid setup help](/support/), we hold your emails and,
-for a customer, the invoice details, for as long as the work and our accounting
-duties need them (Estonian law requires accounting records for seven years). We
-use them only to answer you and do the work. During a setup session your Delistd
-profile, mailbox password and broker replies stay on your own computer; we do not
-copy them or keep any access afterwards.
+The tool and this website never see your credentials or your broker replies. If you ask [Drumandbytes OÜ](/support/) for a quote, or pay for setup help, that is a separate relationship, and Drumandbytes OÜ (Estonia) is the controller of what it involves:
+
+| What | Why | How long |
+| --- | --- | --- |
+| Your name and email address, and what you wrote to us | To answer you, give a quote and do the work | While the enquiry or the work is open, then deleted unless you become a customer |
+| Billing details on an invoice | To bill you and meet our accounting duties | Seven years, as the Estonian Accounting Act requires |
+
+Live setup sessions are not recorded. You type your mailbox password on your own computer; we never receive it, write it down or keep any access to your machine afterwards. Your Delistd profile and broker replies stay on your computer. Your payment provider handles card details, which we do not see.
+
+The [terms for paid setup](/support/terms/) cover the rest.
 
 ## Lawful basis
 
@@ -58,11 +62,18 @@ Aggregate, cookieless analytics on a public site: legitimate interest,
 GDPR Article 6(1)(f). Knowing roughly how many people find the project is
 proportionate, and it can't identify anyone.
 
+Paid setup and support: taking steps you ask for before a contract and
+performing it (Article 6(1)(b)), and keeping invoices because the law requires
+it (Article 6(1)(c)).
+
 ## Your rights
 
 We hold no personal data about you from this website — nothing is stored beyond
 the aggregate counts and whatever the processors above keep in their own logs.
 So there's nothing of yours for us to export or delete.
+
+If you have written to us or been a customer, you can ask what we hold, have
+it corrected, or have it deleted, apart from invoices we must keep by law.
 
 If you use the tool, the data is on your computer, under your control. Delete
 the database and it's gone.
