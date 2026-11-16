@@ -124,6 +124,8 @@ a:hover { text-decoration-thickness: 2px; }
 .band { background: var(--color-band); color: var(--color-band-ink); padding-block: var(--section-gap-s); }
 .band h2 { font-size: var(--text-display-s); max-width: 20ch; color: var(--color-band-ink); }
 .band .actions { margin-top: var(--space-xl); }
+.band-note { margin: var(--space-lg) 0 0; font-size: var(--text-sm); }
+.band-note a { color: inherit; text-decoration-color: currentColor; }
 .band .btn:not(.btn--primary) { background-color: transparent; box-shadow: 0 0 0 1px var(--color-band-ink); color: var(--color-band-ink); }
 .band .btn--primary { background-color: var(--color-band-ink); color: var(--color-band); box-shadow: none; }
 .band .btn:not(.btn--primary):hover { background: var(--color-band-rule); }
