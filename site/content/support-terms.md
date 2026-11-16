@@ -24,7 +24,7 @@ Our liability for a paid service is limited to the fee you paid for it. This doe
 
 ## Language
 
-These terms and our replies are in English, which we take to be the language you want to deal with us in. If you would rather have them in Estonian, say so before you book and we will provide it.
+The service, these terms and our replies are in English. If you need another language, ask before you book and we will tell you whether we can offer it.
 
 ## Complaints
 
