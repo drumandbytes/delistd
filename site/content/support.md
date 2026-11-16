@@ -28,9 +28,11 @@ You keep every credential and all of your data. The mailbox password is entered 
 
 Brokers decide how they answer. Delistd sends the requests, tracks the replies and keeps the evidence, but no one can guarantee a broker deletes your data. See [how Delistd compares with paid removal services](/compare/) for the trade-offs.
 
-## Check-ins and ongoing help
+## Staying covered
 
-Brokers re-list people, so removal is a recurring job. If you want a person in the loop, you can agree a support period up front: a set number of months with a set number of sessions a month, in which we go through the replies with you and keep your broker exclusions and settings tidy. To continue after it ends, agree another period.
+Removal is not a one-off job. Brokers re-list people, new ones appear, and replies keep arriving long after the first batch has gone out. Most people don't mind the work so much as not knowing whether something needs them.
+
+A support period takes that off your plate. We agree a length and a rhythm that suit you, for example a few months with a regular session each month. In those sessions we go through the replies together, deal with anything that needs a decision, and keep your settings and exclusions current, so you always know what has happened and what, if anything, is waiting for you. When the period ends you can renew it, change it, or carry on alone. The tool and your data are yours either way.
 
 ## For organisations
 
