@@ -55,9 +55,9 @@ Follow [docker.md](docker.md) (compose, volume, optional Chromium container) or 
 1. Show them the Dashboard and where "needs action" items appear.
 2. Say what they do next and when: check the Pipeline every week or two, run again after a few weeks (or leave the schedule on).
 3. Follow-up message within a day: a short summary of what was set up, the three things to check, and how to reach us.
-4. Ask for feedback in the same message, and for a testimonial only with their explicit yes ("may we quote you, with or without your name?"). Never quote anyone without it.
+4. Ask for feedback in the same message (the feedback form, or a reply by email if they don't use GitHub), invite a star on the GitHub repo, and ask for a testimonial only with their explicit yes ("may we quote you, with or without your name?"). Never quote anyone without it.
 5. Offer a check-in period if they wanted ongoing help.
 
 ## Admin
 
-Stripe payment link per plan and add-on; the receipt shows Drumandbytes OÜ's name and address; no VAT until registered. Move or cancel with at least 24 hours' notice is free; short-notice bookings carry the extra. Keep only the invoice and the correspondence needed for it (seven years for invoices, see the privacy page).
+Stripe payment link per plan and add-on; the receipt shows Drumandbytes OÜ's name and address; no VAT until registered. Move or cancel with at least 24 hours' notice is free. The calendar only offers slots 24 hours or more ahead; anything sooner is by prior email agreement only, at +€10. Keep only the invoice and the correspondence needed for it (seven years for invoices, see the privacy page).

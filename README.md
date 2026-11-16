@@ -202,7 +202,7 @@ A paid service saves you time and handles replies and ID checks for you; Delistd
 - **Contributing:** brokers, fixes, templates and docs are welcome: [CONTRIBUTING.md](CONTRIBUTING.md).
 - **Code layout and CI:** [docs/architecture.md](docs/architecture.md).
 
-Stuck on setup? [We can help](https://delistd.dev/support/?ref=delistd-readme). Found Delistd useful? A star, a share, or [a few words of feedback](https://github.com/drumandbytes/delistd/issues/new?template=feedback.yml) helps it reach the people who need it.
+Stuck on setup? [We can help](https://delistd.dev/support/?ref=delistd-readme). Found Delistd useful? Please **star the repo**, share it, or leave [a few words of feedback](https://github.com/drumandbytes/delistd/issues/new?template=feedback.yml) (or email support@drumandbytes.com if you don't use GitHub). It helps Delistd reach the people who need it.
 
 ## License
 

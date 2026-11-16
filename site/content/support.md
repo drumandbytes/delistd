@@ -39,7 +39,7 @@ The standard setup is **€39**: one person, one Windows, macOS or Linux compute
 - **Home server, NAS or Docker:** €69. It is installed on your own hardware and reachable only from your own devices, through a VPN such as Tailscale or an SSH tunnel. We don't put the web interface on the public internet: it holds your details and has no login, because it is built for local use.
 - **Evidence and complaint walkthrough** (the export report, writing to a data protection authority): €29
 - **An extra session later:** €19
-- **Short notice:** slots booked more than 24 hours ahead cost nothing extra. A slot inside 24 hours, if one is free, is +€10
+- **Short notice:** the calendar offers slots at least 24 hours ahead at no extra cost. If you need one sooner, write to us first; if we can fit you in it is +€10, and it is booked only once we have agreed it
 - **Three months of check-ins** (see below): €69
 
 You get the final price in writing before you pay.
@@ -64,4 +64,4 @@ Write to [{{< param supportEmail >}}](mailto:{{< param supportEmail >}}) with:
 
 You get a quote with the final price before you pay, or an honest *"this isn't something we can help with"*, in reply. Organisations are quoted as agreed. The [terms for paid setup](/support/terms/) cover scope, rescheduling and the right of withdrawal.
 
-Bug reports and feature requests are free and public: [open an issue on GitHub](https://github.com/drumandbytes/delistd/issues/new). Questions before you decide are answered in the [FAQ](/faq/).
+Bug reports and feature requests are free and public: [open an issue on GitHub](https://github.com/drumandbytes/delistd/issues/new). Questions before you decide are answered in the [FAQ](/faq/). If Delistd is useful to you, a star on [GitHub](https://github.com/drumandbytes/delistd) helps it reach the people who need it.

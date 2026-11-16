@@ -70,10 +70,10 @@ During the session we can see your screen. Nothing is recorded. You type your ma
 
 ### How do I book, pay and change a booking?
 
-You get a quote with the final price, then book a slot and pay by card. Booking more than 24 hours ahead costs no extra, and you can move a session free of charge with 24 hours' notice. The full wording is in the [terms](/support/terms/).
+You get a quote with the final price, then book a slot and pay by card. The calendar offers slots at least 24 hours ahead. Anything sooner is only by agreement, for an extra €10. You can move a session free of charge with 24 hours' notice. The full wording is in the [terms](/support/terms/).
 
 ### Do you offer a hosted version?
 
 No, and that is deliberate. A hosted copy would mean holding your mailbox credentials and your personal details. Doing it on your own machine keeps both with you.
 
-Something missing from this page? [Tell us](https://github.com/drumandbytes/delistd/issues/new?template=feedback.yml). If Delistd has been useful, a star on [GitHub](https://github.com/drumandbytes/delistd) or a share helps it reach more people.
+Something missing from this page, or a few words on how Delistd worked for you? Use the [feedback form on GitHub](https://github.com/drumandbytes/delistd/issues/new?template=feedback.yml), or just write to [{{< param supportEmail >}}](mailto:{{< param supportEmail >}}) if you don't use GitHub. If Delistd has been useful, a star on [GitHub](https://github.com/drumandbytes/delistd) or a share helps it reach more people.
