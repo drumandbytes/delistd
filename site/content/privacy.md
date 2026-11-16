@@ -52,7 +52,7 @@ The tool and this website never see your credentials or your broker replies. If 
 | Your name and email address, and what you wrote to us | To answer you, give a quote and do the work | While the enquiry or the work is open, then deleted unless you become a customer |
 | Billing details on an invoice | To bill you and meet our accounting duties | Seven years, as the Estonian Accounting Act requires |
 
-Live setup sessions are not recorded. You type your mailbox password on your own computer; we never receive it, write it down or keep any access to your machine afterwards. Your Delistd profile and broker replies stay on your computer. Your payment provider handles card details, which we do not see.
+Live setup sessions are not recorded. During a session we can see your screen, which may show your profile or broker replies, but we keep none of it. You type your mailbox password on your own computer; we never receive it, write it down or keep any access to your machine afterwards. Payments go through Stripe, which handles your card details and any VAT; we see only the invoice it produces.
 
 The [terms for paid setup](/support/terms/) cover the rest.
 

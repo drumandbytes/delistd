@@ -4,7 +4,7 @@ url: /support/terms/
 description: "Plain terms for Drumandbytes OÜ's paid remote Delistd setup: scope, no guarantee, the 14-day right of withdrawal, rescheduling and liability."
 ---
 
-These cover the paid [setup and support](/support/) offered by Drumandbytes OÜ (registry code 17599202, Uus-Sadama tn 21-207, 10120 Tallinn, Estonia). Delistd itself is free, MIT licensed and has no terms beyond its licence. The price quoted to you is the final price.
+These cover the paid [setup and support](/support/) offered by Drumandbytes OÜ (registry code 17599202, Uus-Sadama tn 21-207, 10120 Tallinn, Estonia). Delistd itself is free, MIT licensed and has no terms beyond its licence. The price shown at payment, including any tax that applies, is the final price.
 
 ## What you get, and what you don't
 
