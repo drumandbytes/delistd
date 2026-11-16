@@ -30,6 +30,20 @@ You keep every credential and all of your data. The mailbox password is entered 
 
 Brokers decide how they answer. Delistd sends the requests, tracks the replies and keeps the evidence, but no one can guarantee a broker deletes your data. See [how Delistd compares with paid removal services](/compare/) for the trade-offs.
 
+## Prices for individuals
+
+The standard setup is **€39**: one person, one Windows, macOS or Linux computer, everything in the list above. Extras are added only if you choose them:
+
+- **A second person on the same computer:** €15
+- **A non-standard mailbox** (Proton Mail Bridge, a locked-down work account): €15
+- **Home server, NAS or Docker:** €69. It is installed on your own hardware and reachable only from your own devices, through a VPN such as Tailscale or an SSH tunnel. We don't put the web interface on the public internet: it holds your details and has no login, because it is built for local use.
+- **Evidence and complaint walkthrough** (the export report, writing to a data protection authority): €29
+- **An extra session later:** €19
+- **An evening or weekend slot:** +€10
+- **Three months of check-ins** (see below): €69
+
+You get the final price in writing before you pay.
+
 ## Staying covered
 
 Removal is not a one-off job. Brokers re-list people, new ones appear, and replies keep arriving long after the first batch has gone out. Most people don't mind the work so much as not knowing whether something needs them.
@@ -48,6 +62,6 @@ Write to [{{< param supportEmail >}}](mailto:{{< param supportEmail >}}) with:
 - Your **operating system** (macOS, Linux, Windows, or a home server)
 - The **country or region** you live in
 
-Setup for one person starts **from €39** for a standard desktop setup, and scales depending on your environment or ongoing support needs. Households and organisations are quoted as agreed. You get a clear quote with the final price before you pay, or an honest *"this isn't something we can help with"*, in reply. The [terms for paid setup](/support/terms/) cover scope, rescheduling and the right of withdrawal.
+You get a quote with the final price before you pay, or an honest *"this isn't something we can help with"*, in reply. Organisations are quoted as agreed. The [terms for paid setup](/support/terms/) cover scope, rescheduling and the right of withdrawal.
 
 Bug reports and feature requests are free and public: [open an issue on GitHub](https://github.com/drumandbytes/delistd/issues/new).
