@@ -62,7 +62,7 @@ A support period (for example three months of check-ins) runs for the fixed time
 
 ## Liability
 
-Our liability for a paid service is limited to the fee you paid for it. We are not liable for what brokers or your email provider do. This does not limit anything the law does not let us limit, including your mandatory rights as a consumer and liability for intent, gross negligence, or injury to a person.
+Our liability for a paid service is limited to the fee you paid for it. We are not liable for what brokers or your email provider do. This does not limit anything the law does not let us limit, including your mandatory rights as a consumer and liability for intent or gross negligence.
 
 ## Language
 
