@@ -45,14 +45,27 @@ One processor is involved in serving you this page:
 
 ## Paid setup and support
 
-The tool and this website never see your credentials or your broker replies. If you ask [Drumandbytes OÜ](/support/) for a quote, or pay for setup help, that is a separate relationship, and Drumandbytes OÜ (Estonia) is the controller of what it involves:
+The tool and this website never see your credentials or your broker replies. If you ask [Drumandbytes OÜ](/support/) for a quote, or pay for setup help, that is a separate relationship, and Drumandbytes OÜ (Estonia, details below) is the controller of what it involves.
+
+**What we collect, from you:** your name and email address, what you tell us about your setup (operating system, country, mail provider), your chosen time, and the billing details on an invoice. You need to give us these for us to quote and do the work.
 
 | What | Why | How long |
 | --- | --- | --- |
-| Your name and email address, and what you wrote to us | To answer you, give a quote and do the work | While the enquiry or the work is open, then deleted unless you become a customer |
+| Name, email address and what you wrote to us | To answer you, give a quote and do the work | While the enquiry or the work is open; if you don't become a customer, then deleted |
+| Correspondence with customers | To support you and deal with any claim | Up to three years after the work, then deleted |
 | Billing details on an invoice | To bill you and meet our accounting duties | Seven years, as the Estonian Accounting Act requires |
 
-Live setup sessions are not recorded. During a session we can see your screen, which may show your profile or broker replies, but we keep none of it. You type your mailbox password on your own computer; we never receive it, write it down or keep any access to your machine afterwards. Payments go through Stripe, which handles your card details and any VAT; we see only the invoice it produces.
+Live setup sessions are not recorded. During a session we can see your screen, which may show your profile or broker replies, but we keep none of it. You type your mailbox password on your own computer; we never receive it, write it down or keep any access to your machine afterwards.
+
+**Who else handles it.** We use a few providers to run this, and they act on our instructions:
+
+| Who | What they handle | Why |
+| --- | --- | --- |
+| Stripe | Your payment details and the invoice | Taking payment, receipts and any tax |
+| Our email provider | Your messages to and from us | Answering you |
+| Our booking tool | Your name, email and chosen time | Scheduling the session |
+
+Some of these providers may process data outside the EEA. Where they do, they rely on safeguards the law recognises, such as an adequacy decision or standard contractual clauses. We don't sell your details or use them for marketing, and we make no automated decisions about you.
 
 The [terms for paid setup](/support/terms/) cover the rest.
 
@@ -72,8 +85,11 @@ We hold no personal data about you from this website — nothing is stored beyon
 the aggregate counts and whatever the processors above keep in their own logs.
 So there's nothing of yours for us to export or delete.
 
-If you have written to us or been a customer, you can ask what we hold, have
-it corrected, or have it deleted, apart from invoices we must keep by law.
+If you have written to us or been a customer, you can ask us what we hold, have
+it corrected or deleted, ask us to restrict how we use it, receive it in a usable
+format, or object to our using it. Deletion does not reach invoices we must keep
+by law. Where we rely on your consent, you can withdraw it at any time. Write to
+<privacy@drumandbytes.com> and we answer within a month.
 
 If you use the tool, the data is on your computer, under your control. Delete
 the database and it's gone.
@@ -87,5 +103,6 @@ this page, including any of the rights above.
 You can also raise anything publicly as a
 [GitHub issue](https://github.com/drumandbytes/delistd/issues/new).
 
-If you're in the EU or EEA and think we've got this wrong, you can complain to
-your national data protection authority — see [Privacy authorities](/authorities/).
+If you think we've got this wrong, you can complain to the Estonian Data
+Protection Inspectorate (Andmekaitse Inspektsioon, <https://www.aki.ee>) or, if
+you're elsewhere in the EU or EEA, to your national data protection authority — see [Privacy authorities](/authorities/).
