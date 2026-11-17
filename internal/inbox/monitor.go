@@ -17,7 +17,30 @@ import (
 type Monitor struct {
 	config  config.InboxConfig
 	client  *client.Client
-	brokers map[string]broker.Broker // by the domain mail comes from
+	brokers map[string]broker.Broker // by the domain mail comes from; by full address for a free-mail broker
+}
+
+// freeMail domains host unrelated senders, so a broker on one (a gmail.com
+// privacy address) owns its address, never the domain.
+var freeMail = map[string]bool{
+	"gmail.com": true, "googlemail.com": true, "yahoo.com": true, "ymail.com": true,
+	"outlook.com": true, "hotmail.com": true, "live.com": true, "msn.com": true,
+	"aol.com": true, "icloud.com": true, "me.com": true, "mac.com": true,
+	"protonmail.com": true, "proton.me": true, "gmx.com": true, "gmx.net": true,
+	"mail.com": true, "zoho.com": true, "yandex.com": true,
+}
+
+// brokerFor finds the broker a sender belongs to.
+func (m *Monitor) brokerFor(from, domain string) (broker.Broker, bool) {
+	if domain == "" {
+		return broker.Broker{}, false
+	}
+	if freeMail[domain] {
+		b, ok := m.brokers[strings.ToLower(from)]
+		return b, ok
+	}
+	b, ok := m.brokers[domain]
+	return b, ok
 }
 
 type Email struct {
@@ -38,7 +61,11 @@ func NewMonitor(cfg config.InboxConfig, brokerList []broker.Broker) *Monitor {
 	byDomain := map[string]broker.Broker{}
 	for _, b := range brokerList {
 		if _, host, ok := strings.Cut(b.Email, "@"); ok && !strings.Contains(host, "@") {
-			byDomain[strings.ToLower(host)] = b
+			if host = strings.ToLower(host); freeMail[host] {
+				byDomain[strings.ToLower(strings.TrimSpace(b.Email))] = b
+			} else {
+				byDomain[host] = b
+			}
 		}
 		if d := b.Domain(); d != "" {
 			byDomain[d] = b // the website's domain wins over the mail domain when they are the same

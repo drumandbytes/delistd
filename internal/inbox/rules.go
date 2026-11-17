@@ -29,6 +29,12 @@ var (
 		`opt[\s-]?out (request )?(is )?(complete|confirmed)`,
 		`we have (removed|deleted)`,
 		`no longer (have|hold|store) your (data|information)`,
+		// replies relayed by privacy services (Retention.com, DataGrail, TrustSuperset);
+		// done tense only, a promise ("will be deleted within 45 days") is not a success
+		`(have|has) (now )?processed your opt[\s-]?out`,
+		`(has|have) been marked for removal`,
+		`(data|information|records?|profile) (has|have) been permanently (deleted|removed)`,
+		`request to exercise your [\w\s-]{0,60}? has been completed`,
 	)
 
 	// the broker wants a web form instead of email
@@ -94,7 +100,9 @@ var (
 		`we('ll| will) (get back|respond|follow up)`,
 		`request (has been )?(received|acknowledged)`,
 		`thank you for (your )?(inquiry|email|contacting|reaching|privacy)`,
-		`we (have )?received your (request|email|inquiry)`,
+		`we (have )?received your ([\w-]+ )?(request|email|inquiry)`, // "received your Deletion request"
+		`(receive|get) (another|a further) (email|message|notification|update)`,
+		`once (we have|we've|it has been|your request has been) (processed|completed)`,
 		`(has been )?assigned (a )?(ticket|case|reference)_(number|#|id)?`,
 		`one of our .{0,30}(will )?(reach out|respond|contact)`,
 		`ticket (has been )?(created|opened|received)`,

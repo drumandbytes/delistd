@@ -28,7 +28,7 @@ func (m *Monitor) parseMessage(msg *imap.Message, section *imap.BodySectionName)
 		e.From, e.FromName = from.Address(), from.PersonalName
 		e.FromDomain = strings.ToLower(from.HostName)
 	}
-	if b, ok := m.brokers[e.FromDomain]; ok && e.FromDomain != "" {
+	if b, ok := m.brokerFor(e.From, e.FromDomain); ok {
 		e.BrokerID, e.BrokerName = b.ID, b.Name
 	}
 
