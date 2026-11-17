@@ -33,7 +33,10 @@ on the Automation page of the web UI or with `delistd mcp approve <id>` in a
 terminal. A client that auto-approves every tool therefore cannot start a batch
 or release a retry by itself.
 
-![The Automation approvals page showing a pending batch with the profile fields, opt-out forms and emails the agent may use](https://raw.githubusercontent.com/drumandbytes/delistd/main/.github/images/automation-approvals.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/drumandbytes/delistd/main/.github/images/automation-approvals-dark.png">
+  <img src="https://raw.githubusercontent.com/drumandbytes/delistd/main/.github/images/automation-approvals-light.png" alt="The Automation approvals page showing a pending batch with the profile fields, opt-out forms and emails the agent may use" width="800">
+</picture>
 
 That separation has limits. `delistd mcp approve` refuses to run without a
 terminal, and the web page only accepts a browser's same-origin form post, but

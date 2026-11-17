@@ -1,0 +1,9 @@
+{
+  "name": "delistd-doc-images",
+  "private": true,
+  "type": "module",
+  "description": "light/dark screenshots of the web UI for the docs",
+  "dependencies": {
+    "puppeteer-core": "^25.16.0"
+  }
+}

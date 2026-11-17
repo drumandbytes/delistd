@@ -23,6 +23,10 @@ go test ./...
 
 [docs/architecture.md](docs/architecture.md), [docs/commands.md](docs/commands.md), and [docs/code-patterns.md](docs/code-patterns.md) cover the tech stack, project layout, and conventions/known quirks worth reading before touching `send`, the reply classifier, history scoping, or the web UI.
 
+### Screenshots
+
+The images in the README and `docs/` come in light and dark pairs (`<name>-light.png`, `<name>-dark.png`) and are shown with `<picture>` so GitHub picks the one matching the reader's theme. Regenerate them with `scripts/doc-images/run.sh` (needs Go, Node and a Chromium-based browser; pass its binary as the first argument if it isn't Chrome). It runs the app against the fictional seed data from `scripts/a11y/seed`, so no real data ends up in an image. To add a screen, add it to `scripts/doc-images/capture.mjs` and embed both files with a `<picture>` block.
+
 ## Adding or updating a broker
 
 `data/brokers.yaml` is compiled into the binary, so a downloaded `delistd` is self-contained. Each entry:

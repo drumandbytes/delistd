@@ -94,11 +94,17 @@ The page walks you through three screens.
 **1. Welcome.** Click **Get Started**.
 
 
-![Your Information screen](https://raw.githubusercontent.com/drumandbytes/delistd/main/docs/images/wizard-profile.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/drumandbytes/delistd/main/docs/images/wizard-profile-dark.png">
+  <img src="https://raw.githubusercontent.com/drumandbytes/delistd/main/docs/images/wizard-profile-light.png" alt="Your Information screen" width="420">
+</picture>
 
 **2. Your Information.** Enter your name, email address and, ideally, your address and country. Brokers match requests to records using these, so the more accurate they are, the more records get found. This stays on your computer. Optional fields (phone, date of birth, former names) help but are not required.
 
-![Connect Your Email screen with Gmail selected](https://raw.githubusercontent.com/drumandbytes/delistd/main/docs/images/wizard-email.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/drumandbytes/delistd/main/docs/images/wizard-email-dark.png">
+  <img src="https://raw.githubusercontent.com/drumandbytes/delistd/main/docs/images/wizard-email-light.png" alt="Connect Your Email screen with Gmail selected" width="420">
+</picture>
 
 **3. Connect Your Email.**
 

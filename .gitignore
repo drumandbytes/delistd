@@ -81,3 +81,4 @@ delistd-evidence-*.json
 # Generated versioned docs (scripts/docs-versions)
 site/content/docs/*/
 site/data/docs_versions.json
+scripts/doc-images/node_modules/
