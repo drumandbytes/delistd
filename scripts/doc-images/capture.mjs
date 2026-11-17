@@ -37,6 +37,7 @@ for (const scheme of ["light", "dark"]) {
     await dismissBanners(page, seeded + path);
     await settle();
     await page.screenshot({ path: out(dir, name) });
+    if (name === "dashboard") await page.screenshot({ path: out("site/static/img", name) }); // homepage hero, same 2560x1090 crop
     await page.close();
   }
 

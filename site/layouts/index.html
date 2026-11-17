@@ -99,7 +99,10 @@
 <section class="section section--well">
   <div class="container">
     <figure class="shot">
-      <img src="{{ "img/dashboard.png" | relURL }}" width="2560" height="1090" loading="lazy" alt="Delistd's local dashboard: counts of brokers, requests sent, failed and pending, and a pipeline of replies waiting, confirmed, rejected and needing action">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="{{ "img/dashboard-dark.png" | relURL }}">
+        <img src="{{ "img/dashboard-light.png" | relURL }}" width="2560" height="1090" loading="lazy" alt="Delistd's local dashboard: counts of brokers, requests sent, failed and pending, and a pipeline of replies waiting, confirmed, rejected and needing action">
+      </picture>
       <figcaption>The local dashboard, with sample data.</figcaption>
     </figure>
   </div>
