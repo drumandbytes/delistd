@@ -37,7 +37,7 @@ func main() {
 	if len(os.Args) != 2 {
 		log.Fatal("usage: seed <home-dir>")
 	}
-	dir := filepath.Join(os.Args[1], ".eraser")
+	dir := filepath.Join(os.Args[1], ".delistd")
 	must(os.MkdirAll(dir, 0o700))
 	must(os.WriteFile(filepath.Join(dir, "config.yaml"), []byte(cfg), 0o600))
 	s, err := history.NewStore(filepath.Join(dir, "history.db"))

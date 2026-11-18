@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -217,5 +218,37 @@ func TestDetectCaptchaContextError(t *testing.T) {
 	cancel()
 	if _, err := b.detectCaptcha(ctx); err == nil {
 		t.Error("detectCaptcha on a cancelled context returned no error")
+	}
+}
+
+// A site that cannot be reached is reported with the reason, and the browser
+// stays usable for the next form.
+func TestNavigateAndFillReportsAnUnreachableSite(t *testing.T) {
+	b := chromeBrowser(t, chromeConfig(t))
+	closed := httptest.NewServer(http.NotFoundHandler())
+	url := closed.URL
+	closed.Close()
+
+	res, err := b.NavigateAndFill(url, "acme", false)
+	if err == nil || res.Success || !strings.Contains(res.ErrorMessage, "navigation failed") {
+		t.Fatalf("result = %+v, err = %v", res, err)
+	}
+	site := newOptOutSite(t, optOutForm)
+	if res, err := b.NavigateAndFill(site.URL, "acme", false); err != nil || !res.Success {
+		t.Fatalf("browser unusable after a failed navigation: %+v, %v", res, err)
+	}
+}
+
+func TestShootToleratesAFailedScreenshot(t *testing.T) {
+	cfg := chromeConfig(t)
+	cfg.ScreenshotDir = filepath.Join(t.TempDir(), "file-not-dir")
+	if err := os.WriteFile(cfg.ScreenshotDir, nil, 0o600); err != nil { // a file where the directory should be
+		t.Fatal(err)
+	}
+	b := chromeBrowser(t, cfg)
+	site := newOptOutSite(t, optOutForm)
+	res, err := b.NavigateAndFill(site.URL, "acme", false)
+	if err != nil || !res.Success {
+		t.Fatalf("a screenshot that cannot be saved must not fail the fill: %+v, %v", res, err)
 	}
 }

@@ -1,6 +1,6 @@
 # Web UI and CLI parity
 
-Everything a person needs should be doable from either surface. This is the state after the 2.0 work, and what is deliberately one-sided.
+Everything a person needs should be doable from either surface. What each surface can do, and what is deliberately one-sided.
 
 ## Both
 

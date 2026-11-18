@@ -37,7 +37,6 @@ type Item struct {
 	ReceivedAt time.Time
 }
 
-// Report is the result of a scan.
 type Report struct {
 	Total int
 	Items []Item

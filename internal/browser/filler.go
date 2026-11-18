@@ -2,6 +2,7 @@ package browser
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -12,412 +13,259 @@ import (
 	"github.com/drumandbytes/delistd/internal/country"
 )
 
-// isContextErr reports a context cancel/deadline, as opposed to chromedp's
-// "not found" (nil error, empty result), so callers can tell a missing field
-// from a dead browser.
+// isContextErr tells a dead browser (the context was cancelled or timed out)
+// from chromedp's ordinary "no such element", so a missing field is not
+// mistaken for a failure and a failure is not reported as success.
 func isContextErr(err error) bool {
 	return errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled)
 }
 
-// FormFiller handles form field detection and auto-filling
+// FormFiller finds the fields of an opt-out form and types the profile into them.
 type FormFiller struct {
 	profile *config.Profile
 }
 
-// FillResult contains the outcome of form filling
+// FillResult is what a fill did.
 type FillResult struct {
 	FilledFields  []string
-	MissingFields []string
-	Errors        []string
+	MissingFields []string // profile fields with no value to enter
+	Errors        []string // real failures such as a timeout, not just "no such field on this page"
 }
 
-// FieldMapping maps detected field types to profile values
+// FieldMapping is one profile field and how to find its input on a page.
 type FieldMapping struct {
 	FieldType    string
 	ProfileValue string
-	Selectors    []string
-	Patterns     []string // Patterns to match in name/id/placeholder
+	Selectors    []string // CSS selectors, most specific first
+	Patterns     []string // fragments looked for in an input's name, id, placeholder and label
 }
 
-// NewFormFiller creates a new FormFiller
-func NewFormFiller(profile *config.Profile) *FormFiller {
-	return &FormFiller{profile: profile}
+func NewFormFiller(profile *config.Profile) *FormFiller { return &FormFiller{profile: profile} }
+
+// fieldSpec is a field's static part. Selectors are separated by " | " and
+// patterns by spaces. The order of the selectors is the order they are tried.
+type fieldSpec struct {
+	name      string
+	value     func(*config.Profile) string
+	selectors string
+	patterns  string
 }
 
-// Fill detects and fills form fields
-func (f *FormFiller) Fill(ctx context.Context) *FillResult {
-	result := &FillResult{}
+var fieldSpecs = []fieldSpec{
+	{"email", func(p *config.Profile) string { return p.Email },
+		`input[type='email'] | input[name='email'] | input[id='email'] | input[name*='email'] | input[id*='email'] | input[placeholder*='email' i] | input[autocomplete='email']`,
+		"email e-mail e_mail"},
+	{"firstName", func(p *config.Profile) string { return p.FirstName },
+		`input[name='firstName'] | input[name='first_name'] | input[name='fname'] | input[id='firstName'] | input[id='first_name'] | input[name*='first'] | input[id*='first'] | input[placeholder*='first name' i] | input[autocomplete='given-name']`,
+		"first fname given"},
+	{"lastName", func(p *config.Profile) string { return p.LastName },
+		`input[name='lastName'] | input[name='last_name'] | input[name='lname'] | input[id='lastName'] | input[id='last_name'] | input[name*='last'] | input[id*='last'] | input[placeholder*='last name' i] | input[autocomplete='family-name']`,
+		"last lname family surname"},
+	{"fullName", func(p *config.Profile) string { return p.FullName() },
+		`input[name='name'] | input[name='fullName'] | input[name='full_name'] | input[id='name'] | input[id='fullName'] | input[placeholder*='full name' i] | input[placeholder*='your name' i] | input[autocomplete='name']`,
+		"fullname full_name your_name"},
+	{"phone", func(p *config.Profile) string { return p.Phone },
+		`input[type='tel'] | input[name='phone'] | input[name='telephone'] | input[name='mobile'] | input[id='phone'] | input[name*='phone'] | input[id*='phone'] | input[placeholder*='phone' i] | input[autocomplete='tel']`,
+		"phone tel mobile cell"},
+	{"address", func(p *config.Profile) string { return p.Address },
+		`input[name='address'] | input[name='street'] | input[name='address1'] | input[name='streetAddress'] | input[id='address'] | input[name*='address'] | input[name*='street'] | input[placeholder*='address' i] | input[placeholder*='street' i] | input[autocomplete='street-address'] | input[autocomplete='address-line1']`,
+		"address street addr"},
+	{"city", func(p *config.Profile) string { return p.City },
+		`input[name='city'] | input[id='city'] | input[name*='city'] | input[placeholder*='city' i] | input[autocomplete='address-level2']`,
+		"city town locality"},
+	{"state", func(p *config.Profile) string { return p.State },
+		`input[name='state'] | input[id='state'] | input[name*='state'] | input[placeholder*='state' i] | select[name='state'] | select[id='state'] | input[autocomplete='address-level1']`,
+		"state province region"},
+	{"zipCode", func(p *config.Profile) string { return p.ZipCode },
+		`input[name='zip'] | input[name='zipCode'] | input[name='zip_code'] | input[name='postalCode'] | input[name='postal_code'] | input[id='zip'] | input[name*='zip'] | input[name*='postal'] | input[placeholder*='zip' i] | input[placeholder*='postal' i] | input[autocomplete='postal-code']`,
+		"zip postal postcode"},
+	{"country", func(p *config.Profile) string { return country.Display(p.Country) },
+		`input[name='country'] | input[id='country'] | select[name='country'] | select[id='country'] | input[autocomplete='country-name']`,
+		"country nation"},
+	{"dateOfBirth", func(p *config.Profile) string { return p.DateOfBirth },
+		`input[name='dob'] | input[name='dateOfBirth'] | input[name='date_of_birth'] | input[name='birthdate'] | input[name='birth_date'] | input[type='date'] | input[id='dob'] | input[placeholder*='birth' i] | input[autocomplete='bday']`,
+		"dob birth bday"},
+}
 
-	mappings := f.getFieldMappings()
-
-	for _, mapping := range mappings {
-		if mapping.ProfileValue == "" {
-			result.MissingFields = append(result.MissingFields, mapping.FieldType)
-			continue
-		}
-
-		filled, err := f.tryFillField(ctx, mapping)
-		if err != nil {
-			// A real error (e.g. context deadline/cancellation), not just
-			// "this field isn't on the page" -- record it distinctly so
-			// NavigateAndFill doesn't report Success=true purely because
-			// some other field happened to fill before this failure.
-			result.Errors = append(result.Errors, fmt.Sprintf("%s: %v", mapping.FieldType, err))
-			continue
-		}
-		if filled {
-			result.FilledFields = append(result.FilledFields, mapping.FieldType)
+func (f *FormFiller) getFieldMappings() []FieldMapping {
+	out := make([]FieldMapping, len(fieldSpecs))
+	for i, s := range fieldSpecs {
+		out[i] = FieldMapping{
+			FieldType:    s.name,
+			ProfileValue: s.value(f.profile),
+			Selectors:    strings.Split(s.selectors, " | "),
+			Patterns:     strings.Fields(s.patterns),
 		}
 	}
+	return out
+}
 
+// Fill enters every profile field it can find on the page.
+func (f *FormFiller) Fill(ctx context.Context) *FillResult {
+	result := &FillResult{}
+	for _, m := range f.getFieldMappings() {
+		if m.ProfileValue == "" {
+			result.MissingFields = append(result.MissingFields, m.FieldType)
+			continue
+		}
+		filled, err := f.fillField(ctx, m)
+		switch {
+		case err != nil:
+			// a real failure, not an absent field: kept apart so a fill is
+			// not reported as a success just because some other field went in
+			result.Errors = append(result.Errors, fmt.Sprintf("%s: %v", m.FieldType, err))
+		case filled:
+			result.FilledFields = append(result.FilledFields, m.FieldType)
+		}
+	}
 	return result
 }
 
-// getFieldMappings returns mappings for all profile fields
-func (f *FormFiller) getFieldMappings() []FieldMapping {
-	return []FieldMapping{
-		{
-			FieldType:    "email",
-			ProfileValue: f.profile.Email,
-			Selectors: []string{
-				"input[type='email']",
-				"input[name='email']",
-				"input[id='email']",
-				"input[name*='email']",
-				"input[id*='email']",
-				"input[placeholder*='email' i]",
-				"input[autocomplete='email']",
-			},
-			Patterns: []string{"email", "e-mail", "e_mail"},
-		},
-		{
-			FieldType:    "firstName",
-			ProfileValue: f.profile.FirstName,
-			Selectors: []string{
-				"input[name='firstName']",
-				"input[name='first_name']",
-				"input[name='fname']",
-				"input[id='firstName']",
-				"input[id='first_name']",
-				"input[name*='first']",
-				"input[id*='first']",
-				"input[placeholder*='first name' i]",
-				"input[autocomplete='given-name']",
-			},
-			Patterns: []string{"first", "fname", "given"},
-		},
-		{
-			FieldType:    "lastName",
-			ProfileValue: f.profile.LastName,
-			Selectors: []string{
-				"input[name='lastName']",
-				"input[name='last_name']",
-				"input[name='lname']",
-				"input[id='lastName']",
-				"input[id='last_name']",
-				"input[name*='last']",
-				"input[id*='last']",
-				"input[placeholder*='last name' i]",
-				"input[autocomplete='family-name']",
-			},
-			Patterns: []string{"last", "lname", "family", "surname"},
-		},
-		{
-			FieldType:    "fullName",
-			ProfileValue: f.profile.FullName(),
-			Selectors: []string{
-				"input[name='name']",
-				"input[name='fullName']",
-				"input[name='full_name']",
-				"input[id='name']",
-				"input[id='fullName']",
-				"input[placeholder*='full name' i]",
-				"input[placeholder*='your name' i]",
-				"input[autocomplete='name']",
-			},
-			Patterns: []string{"fullname", "full_name", "your_name"},
-		},
-		{
-			FieldType:    "phone",
-			ProfileValue: f.profile.Phone,
-			Selectors: []string{
-				"input[type='tel']",
-				"input[name='phone']",
-				"input[name='telephone']",
-				"input[name='mobile']",
-				"input[id='phone']",
-				"input[name*='phone']",
-				"input[id*='phone']",
-				"input[placeholder*='phone' i]",
-				"input[autocomplete='tel']",
-			},
-			Patterns: []string{"phone", "tel", "mobile", "cell"},
-		},
-		{
-			FieldType:    "address",
-			ProfileValue: f.profile.Address,
-			Selectors: []string{
-				"input[name='address']",
-				"input[name='street']",
-				"input[name='address1']",
-				"input[name='streetAddress']",
-				"input[id='address']",
-				"input[name*='address']",
-				"input[name*='street']",
-				"input[placeholder*='address' i]",
-				"input[placeholder*='street' i]",
-				"input[autocomplete='street-address']",
-				"input[autocomplete='address-line1']",
-			},
-			Patterns: []string{"address", "street", "addr"},
-		},
-		{
-			FieldType:    "city",
-			ProfileValue: f.profile.City,
-			Selectors: []string{
-				"input[name='city']",
-				"input[id='city']",
-				"input[name*='city']",
-				"input[placeholder*='city' i]",
-				"input[autocomplete='address-level2']",
-			},
-			Patterns: []string{"city", "town", "locality"},
-		},
-		{
-			FieldType:    "state",
-			ProfileValue: f.profile.State,
-			Selectors: []string{
-				"input[name='state']",
-				"input[id='state']",
-				"input[name*='state']",
-				"input[placeholder*='state' i]",
-				"select[name='state']",
-				"select[id='state']",
-				"input[autocomplete='address-level1']",
-			},
-			Patterns: []string{"state", "province", "region"},
-		},
-		{
-			FieldType:    "zipCode",
-			ProfileValue: f.profile.ZipCode,
-			Selectors: []string{
-				"input[name='zip']",
-				"input[name='zipCode']",
-				"input[name='zip_code']",
-				"input[name='postalCode']",
-				"input[name='postal_code']",
-				"input[id='zip']",
-				"input[name*='zip']",
-				"input[name*='postal']",
-				"input[placeholder*='zip' i]",
-				"input[placeholder*='postal' i]",
-				"input[autocomplete='postal-code']",
-			},
-			Patterns: []string{"zip", "postal", "postcode"},
-		},
-		{
-			FieldType:    "country",
-			ProfileValue: country.Display(f.profile.Country),
-			Selectors: []string{
-				"input[name='country']",
-				"input[id='country']",
-				"select[name='country']",
-				"select[id='country']",
-				"input[autocomplete='country-name']",
-			},
-			Patterns: []string{"country", "nation"},
-		},
-		{
-			FieldType:    "dateOfBirth",
-			ProfileValue: f.profile.DateOfBirth,
-			Selectors: []string{
-				"input[name='dob']",
-				"input[name='dateOfBirth']",
-				"input[name='date_of_birth']",
-				"input[name='birthdate']",
-				"input[name='birth_date']",
-				"input[type='date']",
-				"input[id='dob']",
-				"input[placeholder*='birth' i]",
-				"input[autocomplete='bday']",
-			},
-			Patterns: []string{"dob", "birth", "bday"},
-		},
-	}
+type candidate struct {
+	Selector string `json:"selector"`
+	Tag      string `json:"tag"`
+	Type     string `json:"type"`
 }
 
-// tryFillField attempts to fill a field using multiple strategies. The
-// returned error is non-nil only for a real failure (e.g. the browser
-// context died mid-fill) -- a field simply not being present on this
-// broker's page is reported as (false, nil), not an error.
-func (f *FormFiller) tryFillField(ctx context.Context, mapping FieldMapping) (bool, error) {
-	// Strategy 1: Try exact selectors
-	for _, selector := range mapping.Selectors {
-		filled, err := f.fillSelector(ctx, selector, mapping.ProfileValue)
+// findCandidates asks the page, in one round trip, which of the field's
+// selectors point at a visible element, and which input its name, id,
+// placeholder or label suggest as a last resort. It looks at the page as it is
+// now, so a field a previous fill revealed (a state list after the country) is
+// found.
+const findCandidatesJS = `(function(spec) {
+	function visible(sel) {
+		try {
+			var el = document.querySelector(sel);
+			return el !== null && el.offsetParent !== null ? {tag: el.tagName.toLowerCase(), type: (el.type || '').toLowerCase()} : null;
+		} catch (e) { return null; }
+	}
+	var found = [];
+	spec.selectors.forEach(function(sel) {
+		var v = visible(sel);
+		if (v) found.push({selector: sel, tag: v.tag, type: v.type});
+	});
+	var inputs = document.querySelectorAll('input, select, textarea');
+	for (var i = 0; i < inputs.length; i++) {
+		var el = inputs[i];
+		var text = [el.name, el.id, el.placeholder].map(function(s) { return (s || '').toLowerCase(); });
+		if (el.id) {
+			var label = document.querySelector('label[for="' + el.id + '"]');
+			if (label) text.push(label.textContent.toLowerCase());
+		}
+		var hit = spec.patterns.some(function(p) { return text.some(function(t) { return t.includes(p); }); });
+		if (!hit || el.offsetParent === null) continue;
+		var sel = el.tagName.toLowerCase() + (el.id ? '#' + el.id : (el.name ? '[name="' + el.name + '"]' : ''));
+		var v = visible(sel);
+		if (v) found.push({selector: sel, tag: v.tag, type: v.type});
+		break;
+	}
+	return found;
+})(`
+
+func (f *FormFiller) findCandidates(ctx context.Context, m FieldMapping) ([]candidate, error) {
+	spec, _ := json.Marshal(map[string]any{"selectors": m.Selectors, "patterns": m.Patterns})
+	found, err := chromedp.Run(ctx, chromedp.Evaluate[[]candidate](findCandidatesJS+string(spec)+`)`))
+	if err != nil {
+		if isContextErr(err) {
+			return nil, err
+		}
+		return nil, nil // the page would not run it: treat as nothing found
+	}
+	return found, nil
+}
+
+// fillField tries each candidate in order until one takes the value. The
+// error is non-nil only for a real failure; a field that is not on the page is
+// (false, nil).
+func (f *FormFiller) fillField(ctx context.Context, m FieldMapping) (bool, error) {
+	candidates, err := f.findCandidates(ctx, m)
+	if err != nil {
+		return false, err
+	}
+	tried := map[string]bool{}
+	for _, c := range candidates {
+		if tried[c.Selector] {
+			continue
+		}
+		tried[c.Selector] = true
+		var ok bool
+		switch {
+		case c.Tag == "select":
+			ok, err = f.chooseOption(ctx, c.Selector, m.ProfileValue)
+		case c.Type == "date":
+			ok, err = f.setValue(ctx, c.Selector, m.ProfileValue)
+		default:
+			ok, err = f.typeInto(ctx, c.Selector, singleLine(c.Tag, m.ProfileValue))
+		}
 		if err != nil {
 			return false, err
 		}
-		if filled {
+		if ok {
 			return true, nil
 		}
 	}
-
-	// Strategy 2: Try pattern matching on all input fields
-	return f.fillByPattern(ctx, mapping)
+	return false, nil
 }
 
-// fillSelector attempts to fill a specific CSS selector. Returns
-// (filled, err) where err is non-nil only for a real failure; a selector
-// that just doesn't exist/isn't visible on this page is (false, nil).
-func (f *FormFiller) fillSelector(ctx context.Context, selector string, value string) (bool, error) {
-	// Check if element exists and is visible, and what tag it is (so we can
-	// tell a <select> apart from a plain text input -- see fillSelectElement).
-	var info struct {
-		Exists bool   `json:"exists"`
-		Tag    string `json:"tag"`
+// singleLine keeps a newline out of a one-line input: typing Enter there
+// submits the form half filled. A textarea takes the value as it is.
+func singleLine(tag, value string) string {
+	if tag == "textarea" {
+		return value
 	}
-	err := chromedp.Run(ctx, chromedp.Evaluate(
-		fmt.Sprintf(`(function() {
-			var el = document.querySelector("%s");
-			if (el === null || el.offsetParent === null) {
-				return {exists: false, tag: ""};
-			}
-			return {exists: true, tag: el.tagName.toLowerCase()};
-		})()`, escapeSelector(selector)),
-		&info,
-	))
+	return strings.NewReplacer("\r\n", " ", "\n", " ", "\r", " ").Replace(value)
+}
 
-	if err != nil {
+// typeInto clears the input and types the value.
+func (f *FormFiller) typeInto(ctx context.Context, selector, value string) (bool, error) {
+	if err := chromedp.Do(ctx, chromedp.Clear(selector), chromedp.SendKeys(selector, value)); err != nil {
 		if isContextErr(err) {
 			return false, err
 		}
 		return false, nil
 	}
-	if !info.Exists {
-		return false, nil
-	}
-
-	// <select> elements don't respond reliably to SendKeys -- it can return
-	// a nil error while no option actually gets selected. Use a JS-based
-	// approach that sets .value against a real <option> and fires 'change'.
-	if info.Tag == "select" {
-		return f.fillSelectElement(ctx, selector, value)
-	}
-
-	err = chromedp.Run(ctx,
-		chromedp.Clear(selector),
-		chromedp.SendKeys(selector, value),
-	)
-	if err != nil {
-		if isContextErr(err) {
-			return false, err
-		}
-		return false, nil
-	}
-
 	return true, nil
 }
 
-// fillSelectElement picks an <option> by value or text and fires 'change'.
-// No match is (false, nil), not an error.
-func (f *FormFiller) fillSelectElement(ctx context.Context, selector string, value string) (bool, error) {
-	js := fmt.Sprintf(`(function() {
-		var el = document.querySelector("%s");
-		if (!el) return false;
-		var target = %s;
-		var opt = Array.from(el.options).find(function(o) {
-			return o.value === target || o.textContent.trim() === target;
-		});
-		if (!opt) return false;
-		el.value = opt.value;
-		el.dispatchEvent(new Event('change', {bubbles: true}));
-		return el.value === opt.value;
-	})()`, escapeSelector(selector), jsStringLiteral(value))
-
-	var ok bool
-	err := chromedp.Run(ctx, chromedp.Evaluate(js, &ok))
+// evalOnElement runs body, a JS function body over (el, value), against the
+// first element matching selector, and reports whether it returned true. A
+// failing script is (false, nil) so the caller can fall through to the next
+// way of filling the field; only a dead context is an error.
+func (f *FormFiller) evalOnElement(ctx context.Context, selector, value, body string) (bool, error) {
+	sel, _ := json.Marshal(selector)
+	want, _ := json.Marshal(value)
+	js := fmt.Sprintf(`(function(el, value) { if (!el) return false; %s })(document.querySelector(%s), %s)`, body, sel, want)
+	ok, err := chromedp.Run(ctx, chromedp.Evaluate[bool](js))
 	if err != nil {
 		if isContextErr(err) {
 			return false, err
 		}
 		return false, nil
 	}
-
 	return ok, nil
 }
 
-// fillByPattern searches for fields matching patterns. Returns (filled, err)
-// where err is non-nil only for a real failure (see fillSelector).
-func (f *FormFiller) fillByPattern(ctx context.Context, mapping FieldMapping) (bool, error) {
-	patternsJS := "["
-	for i, p := range mapping.Patterns {
-		if i > 0 {
-			patternsJS += ","
-		}
-		patternsJS += fmt.Sprintf(`"%s"`, p)
-	}
-	patternsJS += "]"
-
-	// JavaScript to find field by pattern
-	js := fmt.Sprintf(`(function() {
-		var patterns = %s;
-		var inputs = document.querySelectorAll('input, select, textarea');
-		for (var i = 0; i < inputs.length; i++) {
-			var el = inputs[i];
-			var name = (el.name || '').toLowerCase();
-			var id = (el.id || '').toLowerCase();
-			var placeholder = (el.placeholder || '').toLowerCase();
-			var label = '';
-
-			// Check for associated label
-			if (el.id) {
-				var labelEl = document.querySelector('label[for="' + el.id + '"]');
-				if (labelEl) label = labelEl.textContent.toLowerCase();
-			}
-
-			for (var j = 0; j < patterns.length; j++) {
-				var p = patterns[j];
-				if (name.includes(p) || id.includes(p) || placeholder.includes(p) || label.includes(p)) {
-					if (el.offsetParent !== null) { // is visible
-						return {found: true, selector: el.tagName.toLowerCase() + (el.id ? '#' + el.id : (el.name ? '[name="' + el.name + '"]' : ''))};
-					}
-				}
-			}
-		}
-		return {found: false};
-	})()`, patternsJS)
-
-	var result map[string]interface{}
-	err := chromedp.Run(ctx, chromedp.Evaluate(js, &result))
-	if err != nil {
-		if isContextErr(err) {
-			return false, err
-		}
-		return false, nil
-	}
-
-	found, ok := result["found"].(bool)
-	if !ok || !found {
-		return false, nil
-	}
-
-	selector, ok := result["selector"].(string)
-	if !ok || selector == "" {
-		return false, nil
-	}
-
-	return f.fillSelector(ctx, selector, mapping.ProfileValue)
+// chooseOption picks the <option> whose value or text is value and fires
+// 'change'. Typing into a <select> can report success while selecting
+// nothing, so this sets .value against a real option instead. No matching
+// option is (false, nil).
+func (f *FormFiller) chooseOption(ctx context.Context, selector, value string) (bool, error) {
+	return f.evalOnElement(ctx, selector, value, `
+		var opt = Array.from(el.options).find(function(o) { return o.value === value || o.textContent.trim() === value; });
+		if (!opt) return false;
+		el.value = opt.value;
+		el.dispatchEvent(new Event('change', {bubbles: true}));
+		return el.value === opt.value;`)
 }
 
-// escapeSelector escapes special characters in CSS selectors for JS strings
-func escapeSelector(s string) string {
-	s = strings.ReplaceAll(s, `\`, `\\`)
-	s = strings.ReplaceAll(s, `"`, `\"`)
-	return s
-}
-
-// jsStringLiteral returns s safely embedded as a double-quoted JavaScript
-// string literal (e.g. for splicing profile values into an Evaluate snippet).
-func jsStringLiteral(s string) string {
-	return `"` + escapeSelector(s) + `"`
+// setValue sets the value directly and fires the events a keystroke would. A
+// date input has to be filled this way: typed keys are read in the browser's
+// own date order (month first in en-US, day first elsewhere), so an ISO date
+// typed into it ends up as a different date from machine to machine.
+func (f *FormFiller) setValue(ctx context.Context, selector, value string) (bool, error) {
+	return f.evalOnElement(ctx, selector, value, `
+		el.value = value;
+		el.dispatchEvent(new Event('input', {bubbles: true}));
+		el.dispatchEvent(new Event('change', {bubbles: true}));
+		return el.value === value;`)
 }

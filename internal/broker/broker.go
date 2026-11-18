@@ -1,486 +1,138 @@
+// Package broker holds the data-broker list: the entry type, loading and
+// saving it, validating it, and picking the brokers a request should go to.
 package broker
 
 import (
 	"fmt"
-	"net/url"
 	"os"
-	"path/filepath"
-	"regexp"
 	"slices"
 	"strings"
 	"time"
 
-	"github.com/drumandbytes/delistd/data"
-	"github.com/drumandbytes/delistd/internal/country"
 	"gopkg.in/yaml.v3"
+
+	"github.com/drumandbytes/delistd/internal/fsutil"
 )
 
-// MinSaneBrokerCount is the floor below which the main broker database is
-// assumed to be truncated or corrupt rather than legitimately small. Used
-// both by `update-brokers` (before replacing the local copy) and by Validate.
-const MinSaneBrokerCount = 200
-
-// MinVerifiedBrokerCount is the equivalent floor for the hand-built,
-// registry-sourced verified list (data/brokers-verified.yaml), which is
-// deliberately a fraction of the size of the main list.
-const MinVerifiedBrokerCount = 20
-
-var countryCodeRe = regexp.MustCompile(`^[A-Z]{2}$`)
-
-// KnownRegions is the closed set of region values the rest of the code
-// branches on (see Filter). A typo like "usa" would silently drop a broker
-// from every region-filtered send.
-var KnownRegions = []string{"us", "eu", "global"}
-
-// looseEmailRe is a deliberately permissive check - it only catches obvious
-// breakage (missing @, no dot in the domain, whitespace), not RFC compliance.
-var looseEmailRe = regexp.MustCompile(`^[^\s@]+@[^\s@]+\.[^\s@]+$`)
-
-func isValidURL(rawURL string) bool {
-	if rawURL == "" {
-		return true
-	}
-	u, err := url.Parse(rawURL)
-	if err != nil {
-		return false
-	}
-	scheme := strings.ToLower(u.Scheme)
-	return scheme == "http" || scheme == "https"
-}
-
-var researchedDate = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
-
-func sanitizeBroker(b *Broker) {
-	if !isValidURL(b.OptOutURL) {
-		b.OptOutURL = ""
-	}
-	if !isValidURL(b.Website) {
-		b.Website = ""
-	}
-	kept := b.Sources[:0]
-	for _, u := range b.Sources {
-		if isValidURL(u) {
-			kept = append(kept, u)
-		}
-	}
-	b.Sources = kept
-}
-
+// Broker is one entry of brokers.yaml.
 type Broker struct {
 	ID        string `yaml:"id"`
 	Name      string `yaml:"name"`
 	Email     string `yaml:"email"`
 	Website   string `yaml:"website,omitempty"`
 	OptOutURL string `yaml:"opt_out_url,omitempty"`
-	Region    string `yaml:"region"`             // "us", "eu", "global"
-	Category  string `yaml:"category,omitempty"` // "people-search", "marketing", "background-check", etc.
+	Region    string `yaml:"region"`             // us, eu or global
+	Category  string `yaml:"category,omitempty"` // people-search, marketing, background-check, ...
 	Notes     string `yaml:"notes,omitempty"`
-	// Countries limits a broker to people connected to these countries (ISO 3166-1
-	// alpha-2, e.g. ["DE"]) - for brokers that only hold data on one market and ask
-	// not to be sent requests from elsewhere. Empty means everyone.
+	// Countries limits the broker to people connected to these countries (ISO
+	// 3166-1 alpha-2, e.g. ["DE"]): it holds one market's data and asks not to
+	// be sent requests from elsewhere. Empty means everyone.
 	Countries []string `yaml:"countries,omitempty"`
 
-	// Optional research, shown on the site's guide page. Only facts the broker's own pages
-	// state; Sources are those pages and Researched the date they were read (YYYY-MM-DD).
+	// Optional research shown on the site's guide page. Only what the broker's
+	// own pages state; Sources are those pages and Researched the day they were read.
 	Parent       string   `yaml:"parent,omitempty"`        // operating company or owner
 	HQ           string   `yaml:"hq,omitempty"`            // country or city of the operator
-	Holds        string   `yaml:"holds,omitempty"`         // categories of data they say they hold
+	Holds        string   `yaml:"holds,omitempty"`         // data categories they say they hold
 	Verification string   `yaml:"verification,omitempty"`  // what they ask for before acting
 	ResponseTime string   `yaml:"response_time,omitempty"` // what their policy says
 	Sources      []string `yaml:"sources,omitempty"`
-	Researched   string   `yaml:"researched,omitempty"`
-	Guide        bool     `yaml:"guide,omitempty"` // give a long-tail broker its own guide page
+	Researched   string   `yaml:"researched,omitempty"` // YYYY-MM-DD
+	Guide        bool     `yaml:"guide,omitempty"`      // give a long-tail broker its own guide page
 }
 
+// BrokerDatabase is the top level of a broker YAML document.
 type BrokerDatabase struct {
 	Brokers []Broker `yaml:"brokers"`
 }
 
-// Parse unmarshals and sanitizes a broker YAML document. Used to validate a
-// freshly downloaded list before it replaces the local copy.
-func Parse(raw []byte) (*BrokerDatabase, error) {
-	var db BrokerDatabase
-	if err := yaml.Unmarshal(raw, &db); err != nil {
-		return nil, fmt.Errorf("failed to parse broker data: %w", err)
-	}
-	for i := range db.Brokers {
-		sanitizeBroker(&db.Brokers[i])
-	}
-	return &db, nil
-}
-
-// Validate checks raw broker YAML (min count, id/name, unique ids, known
-// regions, plausible emails, http(s) URLs) without sanitizing, and reports
-// every problem in one error. CI runs it; the parsed db is returned too.
-func Validate(raw []byte, minCount int) (*BrokerDatabase, error) {
-	var db BrokerDatabase
-	if err := yaml.Unmarshal(raw, &db); err != nil {
-		return nil, fmt.Errorf("failed to parse broker data: %w", err)
-	}
-
-	var problems []string
-	if len(db.Brokers) < minCount {
-		problems = append(problems, fmt.Sprintf("only %d brokers (expected at least %d) - looks truncated", len(db.Brokers), minCount))
-	}
-
-	seen := make(map[string]int, len(db.Brokers))
-	for i, b := range db.Brokers {
-		id := strings.TrimSpace(b.ID)
-		label := fmt.Sprintf("entry %d", i)
-		if id != "" {
-			label += " (" + id + ")"
-		}
-
-		if id == "" {
-			problems = append(problems, label+": missing id")
-		} else if prev, dup := seen[strings.ToLower(id)]; dup {
-			problems = append(problems, fmt.Sprintf("%s: duplicate id, also at entry %d", label, prev))
-		} else {
-			seen[strings.ToLower(id)] = i
-		}
-
-		for _, p := range b.Problems() {
-			problems = append(problems, label+": "+p)
-		}
-	}
-
-	if len(problems) > 0 {
-		return &db, fmt.Errorf("broker database has %d problem(s):\n  - %s", len(problems), strings.Join(problems, "\n  - "))
-	}
-	return &db, nil
-}
-
-// Problems lists what's wrong with one entry's fields (not id uniqueness,
-// which needs the whole list). Shared by Validate and the add-broker paths.
-func (b Broker) Problems() []string {
-	var problems []string
-	if strings.TrimSpace(b.Name) == "" {
-		problems = append(problems, "missing name")
-	}
-	if b.Region != "" && !slices.Contains(KnownRegions, strings.ToLower(strings.TrimSpace(b.Region))) {
-		problems = append(problems, fmt.Sprintf("unknown region %q", b.Region))
-	}
-	for _, c := range b.Countries {
-		if !countryCodeRe.MatchString(c) {
-			problems = append(problems, fmt.Sprintf("countries entry is not an upper-case ISO 3166-1 alpha-2 code: %q", c))
-		}
-	}
-	if b.Email != "" && !looseEmailRe.MatchString(strings.TrimSpace(b.Email)) {
-		problems = append(problems, fmt.Sprintf("implausible email %q", b.Email))
-	}
-	if b.OptOutURL != "" && !isValidURL(b.OptOutURL) {
-		problems = append(problems, fmt.Sprintf("opt_out_url is not a valid http(s) URL: %q", b.OptOutURL))
-	}
-	for _, u := range b.Sources {
-		if !isValidURL(u) {
-			problems = append(problems, fmt.Sprintf("sources entry is not a valid http(s) URL: %q", u))
-		}
-	}
-	if b.Researched != "" && !researchedDate.MatchString(b.Researched) {
-		problems = append(problems, fmt.Sprintf("researched is not YYYY-MM-DD: %q", b.Researched))
-	}
-	if b.Website != "" && !isValidURL(b.Website) {
-		problems = append(problems, fmt.Sprintf("website is not a valid http(s) URL: %q", b.Website))
-	}
-	return problems
-}
-
-// LoadFromFile parses a broker YAML file from an explicit path.
-func LoadFromFile(path string) (*BrokerDatabase, error) {
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read broker file: %w", err)
-	}
-	return Parse(raw)
-}
-
-// UserBrokersPath is where `delistd update-brokers` writes a refreshed copy of
-// the list; Load() prefers it over the embedded default when it exists.
-func UserBrokersPath() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return ""
-	}
-	return filepath.Join(home, ".eraser", "brokers.yaml")
-}
-
-// Load resolves the broker database from, in order: overridePath (the
-// --brokers flag) when set, then ~/.eraser/brokers.yaml when it exists, then
-// the copy embedded in the binary. Except for an explicit --brokers file, the
-// user's own entries (LocalPath) are merged on top. There is no implicit ./data or
-// <exe-dir>/data scanning any more.
-func Load(overridePath string) (*BrokerDatabase, error) {
-	if overridePath != "" {
-		return LoadFromFile(overridePath)
-	}
-	return withLocal(loadPublished())
-}
-
-// loadPublished is the shared list without the user's own entries:
-// update-brokers' copy if there is one, else the embedded list.
-func loadPublished() (*BrokerDatabase, error) {
-	if p := UserBrokersPath(); p != "" {
-		if _, err := os.Stat(p); err == nil {
-			return LoadFromFile(p)
-		}
-	}
-	return Parse(data.BrokersYAML)
-}
-
-// LoadList resolves the broker database for send-family commands:
-// --brokers, then options.broker_file, then the embedded verified list for
-// "verified", else Load(). audit, guides, update-brokers and reply processing
-// call Load directly.
-func LoadList(overridePath, configPath, listName string) (*BrokerDatabase, error) {
-	if overridePath != "" {
-		return LoadFromFile(overridePath)
-	}
-	if configPath != "" {
-		return withLocal(LoadFromFile(configPath))
-	}
-	if strings.EqualFold(listName, "verified") {
-		return withLocal(Parse(data.BrokersVerifiedYAML))
-	}
-	return Load("")
-}
-
-// Set is the lower-cased, trimmed, non-empty items as a lookup set.
-func Set(items []string) map[string]bool {
-	m := make(map[string]bool, len(items))
-	for _, s := range items {
-		if key := strings.ToLower(strings.TrimSpace(s)); key != "" {
-			m[key] = true
-		}
-	}
-	return m
-}
-
-// Domain is the broker website's lower-case host without a leading "www.", or
-// "" when it has no usable website.
+// Domain is the website's lower-case host without a leading "www.", or "" when
+// there is no usable website.
 func (b Broker) Domain() string {
-	u, err := url.Parse(strings.TrimSpace(b.Website))
+	u, err := parseURL(b.Website)
 	if err != nil {
 		return ""
 	}
 	return strings.TrimPrefix(strings.ToLower(u.Hostname()), "www.")
 }
 
-// Domains lists the website host with and without "www." (nil without a
-// website), for matching links against a broker's own site.
+// Domains is the website host with and without "www." (nil without a website),
+// for matching links against the broker's own site.
 func (b Broker) Domains() []string {
-	d := b.Domain()
-	if d == "" {
-		return nil
-	}
-	return []string{d, "www." + d}
-}
-
-// AppliesTo reports whether a request from someone in profileCountry (a profile's
-// country: ISO code, or a legacy name) is in scope for the broker. Brokers
-// without a countries list apply to everyone, and so does an empty or
-// unrecognised country - an unset profile never hides brokers.
-func (b Broker) AppliesTo(profileCountry string) bool {
-	if len(b.Countries) == 0 {
-		return true
-	}
-	code, ok := country.Code(profileCountry)
-	if !ok {
-		return true
-	}
-	for _, c := range b.Countries {
-		if strings.EqualFold(strings.TrimSpace(c), code) {
-			return true
-		}
-	}
-	return false
-}
-
-// ForCountry drops brokers whose countries list excludes the given country.
-func ForCountry(brokers []Broker, profileCountry string) []Broker {
-	out := make([]Broker, 0, len(brokers))
-	for _, b := range brokers {
-		if b.AppliesTo(profileCountry) {
-			out = append(out, b)
-		}
-	}
-	return out
-}
-
-// Filter returns brokers matching the given regions (empty means "all"),
-// excluding any broker whose ID/name is in excluded or whose category
-// (case-insensitive) is in excludedCategories - e.g. "requires-id" to skip
-// brokers that demand a government ID document before acting on a request.
-func (db *BrokerDatabase) Filter(regions []string, excluded []string, excludedCategories []string) []Broker {
-	regionSet := Set(regions)
-	selected := db.Select(nil, nil, nil, excluded, excludedCategories)
-	result := selected[:0]
-	for _, b := range selected {
-		if b.InRegions(regionSet) {
-			result = append(result, b)
-		}
-	}
-	return result
-}
-
-// InRegions reports whether b is in scope for a configured region set
-// (lower-case keys). An empty set or one containing "global" means every
-// broker, and global brokers are in scope for any set.
-func (b Broker) InRegions(set map[string]bool) bool {
-	if len(set) == 0 || set["global"] {
-		return true
-	}
-	r := strings.ToLower(b.Region)
-	return r == "global" || set[r]
-}
-
-func (db *BrokerDatabase) Select(ids, regions, categories, excluded, excludedCategories []string) []Broker {
-	idSet, regionSet, categorySet := Set(ids), Set(regions), Set(categories)
-	excludedSet, excludedCatSet := Set(excluded), Set(excludedCategories)
-
-	var result []Broker
-	for _, b := range db.Brokers {
-		id := strings.ToLower(b.ID)
-		name := strings.ToLower(b.Name)
-		category := strings.ToLower(b.Category)
-		if len(idSet) > 0 && !idSet[id] {
-			continue
-		}
-		if excludedSet[id] || excludedSet[name] || excludedCatSet[category] {
-			continue
-		}
-		if len(categorySet) > 0 && !categorySet[category] {
-			continue
-		}
-		if len(regionSet) > 0 && !regionSet[strings.ToLower(b.Region)] {
-			continue
-		}
-		result = append(result, b)
-	}
-	return result
-}
-
-func (db *BrokerDatabase) UnknownIDs(ids []string) []string {
-	var unknown []string
-	for id := range Set(ids) {
-		if db.FindByID(id) == nil {
-			unknown = append(unknown, id)
-		}
-	}
-	slices.Sort(unknown)
-	return unknown
-}
-
-func (db *BrokerDatabase) FindByID(id string) *Broker {
-	id = strings.ToLower(id)
-	for i := range db.Brokers {
-		if strings.ToLower(db.Brokers[i].ID) == id {
-			return &db.Brokers[i]
-		}
+	if d := b.Domain(); d != "" {
+		return []string{d, "www." + d}
 	}
 	return nil
 }
 
-func (db *BrokerDatabase) Save(path string) error {
-	data, err := yaml.Marshal(db)
-	if err != nil {
-		return fmt.Errorf("failed to serialize brokers: %w", err)
+// find returns the first broker satisfying match, or nil.
+func (db *BrokerDatabase) find(match func(Broker) bool) *Broker {
+	if i := slices.IndexFunc(db.Brokers, match); i >= 0 {
+		return &db.Brokers[i]
 	}
-	return os.WriteFile(path, data, 0644)
-}
-
-func (db *BrokerDatabase) Add(broker Broker) error {
-	if db.FindByID(broker.ID) != nil {
-		return fmt.Errorf("broker with ID %q already exists", broker.ID)
-	}
-	db.Brokers = append(db.Brokers, broker)
 	return nil
 }
 
-// FindByName finds a broker by name, ignoring case and surrounding spaces.
-func (db *BrokerDatabase) FindByName(name string) *Broker {
+func hasID(id string) func(Broker) bool {
+	return func(b Broker) bool { return strings.EqualFold(b.ID, id) }
+}
+
+func hasEmail(email string) func(Broker) bool {
+	return func(b Broker) bool { return strings.EqualFold(b.Email, email) }
+}
+
+func hasName(name string) func(Broker) bool {
 	name = strings.TrimSpace(name)
-	for i := range db.Brokers {
-		if strings.EqualFold(strings.TrimSpace(db.Brokers[i].Name), name) {
-			return &db.Brokers[i]
-		}
+	return func(b Broker) bool { return strings.EqualFold(strings.TrimSpace(b.Name), name) }
+}
+
+func (db *BrokerDatabase) FindByID(id string) *Broker       { return db.find(hasID(id)) }
+func (db *BrokerDatabase) FindByName(name string) *Broker   { return db.find(hasName(name)) }
+func (db *BrokerDatabase) FindByEmail(email string) *Broker { return db.find(hasEmail(email)) }
+
+// Add appends b, refusing an ID that is already taken.
+func (db *BrokerDatabase) Add(b Broker) error {
+	if db.FindByID(b.ID) != nil {
+		return fmt.Errorf("broker with ID %q already exists", b.ID)
 	}
+	db.Brokers = append(db.Brokers, b)
 	return nil
 }
 
-// FindByEmail finds a broker by their email address
-func (db *BrokerDatabase) FindByEmail(email string) *Broker {
-	email = strings.ToLower(email)
-	for i := range db.Brokers {
-		if strings.ToLower(db.Brokers[i].Email) == email {
-			return &db.Brokers[i]
-		}
-	}
-	return nil
-}
-
-// RemoveByEmail removes a broker by their email address
-// Returns the removed broker, or nil if not found
-func (db *BrokerDatabase) RemoveByEmail(email string) *Broker {
-	email = strings.ToLower(email)
-	for i := range db.Brokers {
-		if strings.ToLower(db.Brokers[i].Email) == email {
-			removed := db.Brokers[i]
-			db.Brokers = append(db.Brokers[:i], db.Brokers[i+1:]...)
-			return &removed
-		}
-	}
-	return nil
-}
-
-// MarkEmailUnreachable clears a broker's email (old address and reason go to
-// Notes) instead of deleting it: a bounce usually means a changed address, not
-// a gone company. Returns the broker, or nil if none matched.
+// MarkEmailUnreachable clears a broker's email instead of deleting the entry
+// (a bounce usually means a changed address, not a gone company) and appends a
+// dated note with the old address and the reason. It returns the broker, or nil
+// when none has that email.
 func (db *BrokerDatabase) MarkEmailUnreachable(email, reason string) *Broker {
 	b := db.FindByEmail(email)
 	if b == nil {
 		return nil
 	}
-
-	oldEmail := b.Email
-	b.Email = ""
-
 	note := fmt.Sprintf("Email %s became undeliverable (%s, %s) - cleared, needs a working address.",
-		oldEmail, reason, time.Now().Format("2006-01-02"))
-	if b.Notes != "" {
-		b.Notes = b.Notes + " " + note
-	} else {
-		b.Notes = note
-	}
-
+		b.Email, reason, time.Now().Format("2006-01-02"))
+	b.Email = ""
+	b.Notes = strings.TrimSpace(b.Notes + " " + note)
 	return b
 }
 
-// RemoveByID removes a broker by their ID
-// Returns the removed broker, or nil if not found
-func (db *BrokerDatabase) RemoveByID(id string) *Broker {
-	id = strings.ToLower(id)
-	for i := range db.Brokers {
-		if strings.ToLower(db.Brokers[i].ID) == id {
-			removed := db.Brokers[i]
-			db.Brokers = append(db.Brokers[:i], db.Brokers[i+1:]...)
-			return &removed
-		}
+// Save writes the list as YAML, atomically.
+func (db *BrokerDatabase) Save(path string) error {
+	out, err := yaml.Marshal(db)
+	if err != nil {
+		return fmt.Errorf("failed to serialize brokers: %w", err)
 	}
-	return nil
+	return fsutil.WriteFileAtomic(path, out, 0o644)
 }
 
-// SaveWithBackup saves the database to file, creating a backup first
+// SaveWithBackup copies an existing file to path+".bak" before saving.
 func (db *BrokerDatabase) SaveWithBackup(path string) error {
-	if _, err := os.Stat(path); err == nil {
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return fmt.Errorf("failed to read file for backup: %w", err)
-		}
-		backupPath := path + ".bak"
-		if err := os.WriteFile(backupPath, data, 0644); err != nil {
+	switch prev, err := os.ReadFile(path); {
+	case err == nil:
+		if err := os.WriteFile(path+".bak", prev, 0o644); err != nil {
 			return fmt.Errorf("failed to create backup: %w", err)
 		}
+	case !os.IsNotExist(err):
+		return fmt.Errorf("failed to read file for backup: %w", err)
 	}
-
 	return db.Save(path)
 }

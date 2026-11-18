@@ -136,3 +136,23 @@ func TestMatchesAllowedDomain_EmptyAllowlistIsDocumentedAsNoMatch(t *testing.T) 
 		t.Error("matchesAllowedDomain with an empty allowlist returned true; expected false (callers that want to skip the check must special-case an empty list themselves)")
 	}
 }
+
+func TestMatchesAllowedDomainHostForms(t *testing.T) {
+	for _, c := range []struct {
+		url  string
+		want bool
+	}{
+		{"https://broker.example/x", true},
+		{"https://BROKER.example:8443/x", true},
+		{"https://www.broker.example./x", true}, // a trailing dot is the same host
+		{"https://broker.example.evil.test/x", false},
+		{"https://evilbroker.example/x", false},
+		{"https://broker.example@evil.test/x", false}, // userinfo is not the host
+		{"https://[::1]:8080/x", false},
+	} {
+		got, _, err := matchesAllowedDomain(c.url, []string{"broker.example", ""})
+		if err != nil || got != c.want {
+			t.Errorf("matchesAllowedDomain(%q) = %v, %v; want %v", c.url, got, err, c.want)
+		}
+	}
+}

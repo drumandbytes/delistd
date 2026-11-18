@@ -6,7 +6,7 @@ import _ "embed"
 
 // BrokersYAML is data/brokers.yaml, the broker database shipped with this
 // build. broker.Load() falls back to it when there is no --brokers override
-// and no ~/.eraser/brokers.yaml. Refresh the on-disk copy with
+// and no ~/.delistd/brokers.yaml. Refresh the on-disk copy with
 // `delistd update-brokers`.
 //
 //go:embed brokers.yaml

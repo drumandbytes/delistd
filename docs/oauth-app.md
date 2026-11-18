@@ -35,6 +35,6 @@ Personal-account sign-ins to this app may not appear in the owning tenant's Entr
 1. Register a replacement app with the settings above.
 2. Set `DefaultOAuthClientID` in `internal/config/providers.go` and ship a **patch release**. Refresh tokens are bound to the app that issued them, so existing installs get "sign-in expired: run `delistd oauth login` again" and sign in again against the new app.
 3. Delete or disable the old registration once the release is out. Until users update, they can switch immediately without a release: set `DELISTD_OAUTH_CLIENT_ID=<new id>` (applies to every account without its own `client_id`) or put `client_id:` on the account.
-4. Say so in the release notes and on issue #293.
+4. Say so in the release notes.
 
 Users who don't want to depend on the shared app at all can register their own and set `client_id`; see [outlook.md](outlook.md).

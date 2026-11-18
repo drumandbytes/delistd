@@ -31,7 +31,7 @@ func sessionRequest(t *testing.T, s *Server, method, target string, fill func(*S
 		t.Fatal(err)
 	}
 	s.sessions.Update(id, fill)
-	req.AddCookie(&http.Cookie{Name: "eraser_session", Value: id})
+	req.AddCookie(&http.Cookie{Name: "delistd_session", Value: id})
 	return req
 }
 
@@ -55,7 +55,7 @@ func TestSetupTestPage(t *testing.T) {
 	}
 	rec = serve(s, sessionRequest(t, s, http.MethodGet, "/setup/test", func(se *Session) {
 		se.Profile = profile
-		se.Email = config.Email{From: "test@example.com", SMTP: config.SMTPConfig{Host: "smtp.example.com", Port: 465}}
+		se.Email = config.EmailConfig{From: "test@example.com", SMTP: config.SMTPConfig{Host: "smtp.example.com", Port: 465}}
 	}))
 	if rec.Code != http.StatusOK {
 		t.Fatalf("configured: %d", rec.Code)
@@ -69,7 +69,7 @@ func TestSetupTestSend(t *testing.T) {
 	relay := smtptest.Start(t)
 	s := newTestServer(t, nil)
 	profile := config.Profile{FirstName: "Test", LastName: "User", Email: "me@example.com"}
-	withEmail := func(e config.Email) func(*Session) {
+	withEmail := func(e config.EmailConfig) func(*Session) {
 		return func(se *Session) { se.Profile, se.Email = profile, e }
 	}
 

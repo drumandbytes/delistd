@@ -1,61 +1,62 @@
-To Whom It May Concern at {{.BrokerName}},
+Dear {{.BrokerName}} privacy team,
 
-I am a California resident writing to exercise my rights under the California Consumer Privacy Act (CCPA) and the California Privacy Rights Act (CPRA). I am requesting that you delete all personal information you have collected about me.
+I am a California resident. Under the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA), I ask you to delete all personal information you have collected about me.
 
-PERSONAL IDENTIFICATION:
-- Full Name: {{.FullName}}
+DETAILS TO FIND MY RECORDS
+- Name: {{.FullName}}
 {{- if .OtherNames}}
-- Also Known As: {{.OtherNames}}
+- Also known as: {{.OtherNames}}
 {{- end}}
-- Email Address: {{.Email}}
+- Email: {{.Email}}
 {{- if .OtherEmails}}
-- Other Email Addresses Used: {{.OtherEmails}}
-{{- end}}
-{{- if .Address}}
-- Address: {{.Address}}
-{{- end}}
-{{- if .City}}
-- City: {{.City}}
-{{- end}}
-{{- if .State}}
-- State: {{.State}}
-{{- end}}
-{{- if .ZipCode}}
-- ZIP Code: {{.ZipCode}}
-{{- end}}
-{{- if .OtherAddresses}}
-- Previously Lived At: {{.OtherAddresses}}
+- Other emails I have used: {{.OtherEmails}}
 {{- end}}
 {{- if .Phone}}
 - Phone: {{.Phone}}
 {{- end}}
 {{- if .OtherPhones}}
-- Other Phone Numbers: {{.OtherPhones}}
+- Other phone numbers: {{.OtherPhones}}
+{{- end}}
+{{- if .Address}}
+- Street address: {{.Address}}
+{{- end}}
+{{- if .City}}
+- City: {{.City}}
+{{- end}}
+{{- if .State}}
+- State or province: {{.State}}
+{{- end}}
+{{- if .ZipCode}}
+- Postal code: {{.ZipCode}}
+{{- end}}
+{{- if .Country}}
+- Country: {{.Country}}
+{{- end}}
+{{- if .OtherAddresses}}
+- Previous addresses: {{.OtherAddresses}}
 {{- end}}
 {{- if .DateOfBirth}}
-- Date of Birth: {{.DateOfBirth}}
+- Date of birth: {{.DateOfBirth}}
 {{- end}}
 
-LEGAL BASIS:
-Under California Civil Code Section 1798.105, I have the right to request deletion of my personal information. This includes:
-- Identifiers (name, address, email, phone number, IP address)
-- Commercial information
-- Internet or network activity information
-- Geolocation data
-- Inferences drawn from any of the above
+GROUNDS
+California Civil Code section 1798.105 gives me the right to have my personal information deleted. That covers, among other things:
+- identifiers such as name, address, email, phone number and IP address;
+- commercial information;
+- internet and network activity;
+- geolocation data; and
+- inferences drawn from any of the above.
 
-REQUEST:
-1. Delete all personal information you have collected about me
-2. Direct any service providers to delete my personal information
-3. Notify all third parties to whom you have sold or shared my personal information to delete it
-4. Confirm completion of this request within 45 days as required by law
+WHAT I ASK YOU TO DO
+1. Delete all personal information you have collected about me.
+2. Instruct your service providers to delete it too.
+3. Tell every third party you have sold or shared it with to delete it.
+4. Confirm to me when this is complete.
 
-Please note that under CCPA Section 1798.105(c), you must respond to this request within 45 days. You may not discriminate against me for exercising these rights under Section 1798.125.
+Under section 1798.105(c) and the CCPA's timing rules you must respond within 45 days, and section 1798.125 bars you from discriminating against me for making this request.
 
-If you need to verify my identity, please contact me at {{.Email}}. I am prepared to provide reasonable verification as required.
+If you need to verify my identity, reply to {{.Email}}; I will provide reasonable verification.
 
-Thank you for your compliance with California privacy law.
-
-Sincerely,
+Thank you,
 {{.FullName}}
 {{.Date}}

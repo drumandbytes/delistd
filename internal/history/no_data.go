@@ -20,12 +20,12 @@ func (s *Store) MigrateNoData(classify NoDataClassifier) error {
 	// Read the marker without a write lock so routine opens (e.g. `delistd status`)
 	// don't contend with the writer once the migration has run.
 	var tables int
-	if err := s.db.QueryRow(`SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'data_migrations'`).Scan(&tables); err != nil {
+	if err := s.queryRow(`SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'data_migrations'`).Scan(&tables); err != nil {
 		return err
 	}
 	if tables > 0 {
 		var applied int
-		if err := s.db.QueryRow(`SELECT COUNT(*) FROM data_migrations WHERE name = 'no_data_v1'`).Scan(&applied); err != nil {
+		if err := s.queryRow(`SELECT COUNT(*) FROM data_migrations WHERE name = 'no_data_v1'`).Scan(&applied); err != nil {
 			return err
 		}
 		if applied > 0 {
@@ -40,7 +40,7 @@ func (s *Store) MigrateNoData(classify NoDataClassifier) error {
 	if _, err := tx.Exec(`CREATE TABLE IF NOT EXISTS data_migrations (name TEXT PRIMARY KEY, applied_at DATETIME NOT NULL)`); err != nil {
 		return err
 	}
-	result, err := tx.Exec(`INSERT INTO data_migrations (name, applied_at) VALUES ('no_data_v1', ?) ON CONFLICT(name) DO NOTHING`, time.Now())
+	result, err := tx.Exec(`INSERT INTO data_migrations (name, applied_at) VALUES ('no_data_v1', ?) ON CONFLICT(name) DO NOTHING`, time.Now().UTC())
 	if err != nil {
 		return err
 	}

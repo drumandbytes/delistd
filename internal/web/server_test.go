@@ -119,10 +119,6 @@ func TestServerConfigConcurrentAccess(t *testing.T) {
 	}
 }
 
-// TestServerConfigLoadCopyMutateStoreIsolation confirms that storing a
-// mutated copy never affects a config pointer obtained by an earlier
-// getConfig() call - i.e. writers really do produce a new *config.Config
-// rather than mutating the one readers may still be holding.
 func TestServerConfigLoadCopyMutateStoreIsolation(t *testing.T) {
 	s := newTestServer(t, testConfig())
 
@@ -155,7 +151,7 @@ func TestGetBrokersWithStatusRespectsExclusions(t *testing.T) {
 		{ID: "beenverified", Name: "BeenVerified", Region: "us", Category: "people-search"},
 	}
 
-	got := s.getBrokersWithStatus("default", "", "", "", "", nil, nil, false, false)
+	got := s.listBrokers("default", brokerQuery{})
 
 	if len(got) != 1 || got[0].ID != "beenverified" {
 		t.Errorf("expected only beenverified to survive exclusion, got %+v", got)
@@ -172,7 +168,7 @@ func TestGetBrokersWithStatusRespectsCountries(t *testing.T) {
 		{ID: "anywhere", Name: "Anywhere", Region: "eu"},
 	}
 
-	got := s.getBrokersWithStatus("default", "", "", "", "", nil, nil, false, false)
+	got := s.listBrokers("default", brokerQuery{})
 
 	if len(got) != 1 || got[0].ID != "anywhere" {
 		t.Errorf("expected only anywhere for a French profile, got %+v", got)
@@ -191,7 +187,7 @@ func TestGetBrokersWithStatusShowExcludedIncludesAndMarksThem(t *testing.T) {
 		{ID: "beenverified", Name: "BeenVerified", Region: "us", Category: "people-search"},
 	}
 
-	got := s.getBrokersWithStatus("default", "", "", "", "", nil, nil, false, true)
+	got := s.listBrokers("default", brokerQuery{ShowExcluded: true})
 
 	if len(got) != 3 {
 		t.Fatalf("expected all 3 brokers with showExcluded=true, got %d: %+v", len(got), got)
@@ -243,14 +239,14 @@ func TestHostAllowed(t *testing.T) {
 		{"0.0.0.0:8080", false},
 	}
 	for _, tc := range cases {
-		if got := hostAllowed(tc.host); got != tc.want {
-			t.Errorf("hostAllowed(%q) = %v, want %v", tc.host, got, tc.want)
+		if got := isHostAllowed(tc.host, nil); got != tc.want {
+			t.Errorf("isHostAllowed(%q) = %v, want %v", tc.host, got, tc.want)
 		}
 	}
 }
 
 func TestRequireLoopbackHostBlocksNonLoopback(t *testing.T) {
-	handler := requireLoopbackHost(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := (&Server{}).requireAllowedHost(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 

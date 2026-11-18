@@ -43,9 +43,9 @@ func TestCaptchaInfoGetCaptchaDescription(t *testing.T) {
 		want string
 	}{
 		{"not found", CaptchaInfo{Found: false}, "No CAPTCHA detected"},
-		{"recaptcha v2 has a known description", CaptchaInfo{Found: true, Type: CaptchaTypeRecaptchaV2}, "Google reCAPTCHA v2 - Click the checkbox and/or solve image puzzles"},
-		{"turnstile has a known description", CaptchaInfo{Found: true, Type: CaptchaTypeTurnstile}, "Cloudflare Turnstile - Usually auto-passes after brief check"},
-		{"unrecognized type falls back to unknown", CaptchaInfo{Found: true, Type: "some_future_captcha_type"}, "Unknown CAPTCHA type - Manual inspection required"},
+		{"recaptcha v2 has a known description", CaptchaInfo{Found: true, Type: CaptchaTypeRecaptchaV2}, "Google reCAPTCHA v2: tick the box and/or solve the image puzzle"},
+		{"turnstile has a known description", CaptchaInfo{Found: true, Type: CaptchaTypeTurnstile}, "Cloudflare Turnstile: normally passes after a short check"},
+		{"unrecognized type falls back to unknown", CaptchaInfo{Found: true, Type: "some_future_captcha_type"}, "Unknown CAPTCHA type: needs a manual look"},
 	}
 
 	for _, tt := range tests {

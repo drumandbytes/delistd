@@ -1,5 +1,7 @@
 package config
 
+import "os"
+
 // ContainerEnv is set to "1" by the Docker image (see docs/docker.md). It
 // tells Delistd it has no launchd/systemd to install a schedule into (the web
 // UI and `schedule install` hide that option) and no local Chrome, so a
@@ -16,4 +18,4 @@ const ChromeURLEnv = "DELISTD_CHROME_URL"
 const AllowedHostsEnv = "DELISTD_ALLOWED_HOSTS"
 
 // InContainer reports whether ContainerEnv is "1".
-func InContainer() bool { return Getenv(ContainerEnv) == "1" }
+func InContainer() bool { return os.Getenv(ContainerEnv) == "1" }

@@ -20,7 +20,7 @@ func ndr(addr string) (string, string, string) {
 // broker, an unknown address and an unreadable notice.
 func bounceServer(t *testing.T) *Server {
 	t.Helper()
-	srv := imaptest.Start(t, false)
+	srv := imaptest.StartWith(t, imaptest.Options{Move: false})
 	for _, addr := range []string{"privacy@spokeo.com", "dpo@acme.example", "nobody@unknown.example"} {
 		from, subject, body := ndr(addr)
 		srv.Deliver(t, "INBOX", from, subject, body)
@@ -90,7 +90,7 @@ func TestBounceCheckRefusals(t *testing.T) {
 	}
 
 	empty := inboxServer(t)
-	srv := imaptest.Start(t, false)
+	srv := imaptest.StartWith(t, imaptest.Options{Move: false})
 	cfg := *empty.getConfig()
 	cfg.Inbox = srv.Inbox
 	empty.config.Store(&cfg)
@@ -101,7 +101,7 @@ func TestBounceCheckRefusals(t *testing.T) {
 
 func TestBounceCheckWithNothingToClearAndClearFailures(t *testing.T) {
 	// Only an unknown-address bounce: reported, but nothing to clear.
-	srv := imaptest.Start(t, false)
+	srv := imaptest.StartWith(t, imaptest.Options{Move: false})
 	from, subject, body := ndr("nobody@unknown.example")
 	srv.Deliver(t, "INBOX", from, subject, body)
 	s := inboxServer(t)

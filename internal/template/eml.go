@@ -2,6 +2,7 @@ package template
 
 import (
 	"fmt"
+	"mime"
 	"strings"
 )
 
@@ -15,9 +16,10 @@ func FormatEML(from, to string, email *Email) []byte {
 		fmt.Fprintf(&b, "From: %s\r\n", from)
 	}
 	fmt.Fprintf(&b, "To: %s\r\n", to)
-	fmt.Fprintf(&b, "Subject: %s\r\n", email.Subject)
+	fmt.Fprintf(&b, "Subject: %s\r\n", mime.QEncoding.Encode("utf-8", email.Subject)) // RFC 2047: some clients mangle a raw UTF-8 subject
 	b.WriteString("MIME-Version: 1.0\r\n")
 	b.WriteString("Content-Type: text/plain; charset=utf-8\r\n")
+	b.WriteString("Content-Transfer-Encoding: 8bit\r\n")
 	b.WriteString("\r\n")
 	b.WriteString(strings.ReplaceAll(email.Body, "\n", "\r\n"))
 	if !strings.HasSuffix(email.Body, "\n") {

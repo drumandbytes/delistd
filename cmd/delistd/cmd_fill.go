@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/drumandbytes/delistd/internal/country"
+	"github.com/drumandbytes/delistd/internal/datadir"
 	"os"
 	"path/filepath"
 	"strings"
@@ -39,14 +40,13 @@ func fillCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "fill",
-		Short: "Fill opt-out forms using browser automation",
-		Long: `Navigate to data broker opt-out forms and automatically fill them using your profile data.
+		Short: "Fill in broker opt-out forms in a browser",
+		Long: `Opens a broker's opt-out form in Chrome and types your profile into it.
 
-This command uses headless Chrome to:
-- Navigate to opt-out form URLs
-- Detect and fill form fields with your personal information
-- Detect CAPTCHAs (creates tasks for manual solving)
-- Optionally submit the form
+For each form it:
+- finds the fields and enters what your profile holds for them
+- notices a CAPTCHA and turns it into a task for you to solve
+- submits the form only if you ask it to (--submit)
 
 Examples:
   # Fill a specific form URL
@@ -69,13 +69,13 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringVar(&brokerID, "broker", "", "Broker ID to fill form for (uses URL from pipeline)")
-	cmd.Flags().StringVar(&formURL, "url", "", "Direct URL to the opt-out form")
-	cmd.Flags().BoolVar(&headless, "headless", true, "Run browser in headless mode (default: your config's pipeline.browser_headless, or true if unset)")
-	cmd.Flags().BoolVar(&autoSubmit, "submit", false, "Automatically submit the form after filling")
-	cmd.Flags().StringVar(&screenshotDir, "screenshots", "", "Directory to save screenshots (default: ~/.eraser/screenshots)")
-	cmd.Flags().BoolVar(&pending, "pending", false, "Fill all pending forms from the pipeline")
-	cmd.Flags().BoolVar(&waitForCaptcha, "wait", false, "Wait for user to solve CAPTCHA before continuing (use with --headless=false)")
+	cmd.Flags().StringVar(&brokerID, "broker", "", "Fill the form a broker's reply pointed to (by broker ID)")
+	cmd.Flags().StringVar(&formURL, "url", "", "The opt-out form's address")
+	cmd.Flags().BoolVar(&headless, "headless", true, "Run Chrome without a window (default: pipeline.browser_headless in your config, else yes)")
+	cmd.Flags().BoolVar(&autoSubmit, "submit", false, "Submit the form once it is filled in")
+	cmd.Flags().StringVar(&screenshotDir, "screenshots", "", "Where screenshots are saved (default: screenshots in the data directory)")
+	cmd.Flags().BoolVar(&pending, "pending", false, "Fill every form the pipeline is waiting on")
+	cmd.Flags().BoolVar(&waitForCaptcha, "wait", false, "Pause at a CAPTCHA until you have solved it (needs --headless=false)")
 
 	return cmd
 }
@@ -85,38 +85,30 @@ func runFill(brokerID, formURL string, headless, headlessFlagSet, autoSubmit boo
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
-
 	activeProfile, err := resolveProfile(cfg)
 	if err != nil {
 		return err
 	}
-
-	// Load brokers so we can build a domain allowlist -- NavigateAndFill
-	// autofills PII into whatever page it's given, and form URLs can
-	// originate from email-parsed content (untrusted), so we only want to
-	// navigate to known broker domains.
+	// NavigateAndFill types personal data into whatever page it is given and
+	// form URLs can come from email (untrusted), so it only visits known
+	// broker domains.
 	brokerDB, err := broker.Load(brokerFile)
 	if err != nil {
 		return fmt.Errorf("failed to load brokers: %w", err)
 	}
-
-	// Build list of broker domains for validation (same logic as cmd_confirm.go)
 	var brokerDomains []string
 	for _, b := range brokerDB.Brokers {
 		brokerDomains = append(brokerDomains, b.Domains()...)
 	}
 
-	// --headless wins if you passed it explicitly; otherwise fall back to
-	// the config's pipeline.browser_headless (true if that's unset too).
+	// --headless wins when given; otherwise the config's pipeline.browser_headless
 	if !headlessFlagSet {
 		headless = cfg.Pipeline.Headless()
 	}
-
 	if screenshotDir == "" {
 		home, _ := os.UserHomeDir()
-		screenshotDir = filepath.Join(home, ".eraser", "screenshots")
+		screenshotDir = filepath.Join(datadir.Of(home), "screenshots")
 	}
-
 	store, err := openHistoryStore(history.DBPathFor(resolveConfigPath()))
 	if err != nil {
 		return fmt.Errorf("failed to initialize history: %w", err)
@@ -129,22 +121,13 @@ func runFill(brokerID, formURL string, headless, headlessFlagSet, autoSubmit boo
 	if cfg.Pipeline.BrowserTimeoutSec > 0 {
 		browserCfg.Timeout = time.Duration(cfg.Pipeline.BrowserTimeoutSec) * time.Second
 	}
-
 	if waitForCaptcha {
 		if headless {
 			fmt.Println("⚠️  Warning: --wait requires --headless=false to be useful")
 		}
 		browserCfg.WaitForUser = true
-		browserCfg.Timeout = 5 * time.Minute // Longer timeout when waiting for user
-		browserCfg.WaitCallback = func() error {
-			fmt.Println()
-			fmt.Println("       ⏸️  CAPTCHA detected! Solve it in the browser window.")
-			fmt.Println("       Press ENTER when done (or Ctrl+C to cancel)...")
-			fmt.Println()
-			reader := bufio.NewReader(os.Stdin)
-			_, err := reader.ReadString('\n')
-			return err
-		}
+		browserCfg.Timeout = 5 * time.Minute // long enough for a person to solve it
+		browserCfg.WaitCallback = waitForEnter
 	}
 
 	b, err := newFormBrowser(browserCfg, &activeProfile.Profile, brokerDomains)
@@ -157,143 +140,91 @@ func runFill(brokerID, formURL string, headless, headlessFlagSet, autoSubmit boo
 	fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 	fmt.Println()
 
-	// Determine what to fill
-	var formsToFill []struct {
-		BrokerID string
-		URL      string
+	forms, err := storedLinksFor(store, activeProfile.ID, "form_required", formURL, brokerID, pending,
+		func(r history.BrokerResponse) string { return r.FormURL }, "no form URL found for broker")
+	if err != nil {
+		return err
+	}
+	if len(forms) == 0 {
+		fmt.Println("✅ No pending forms to fill")
+		return nil
 	}
 
-	if formURL != "" {
-		// Direct URL provided
-		formsToFill = append(formsToFill, struct {
-			BrokerID string
-			URL      string
-		}{BrokerID: brokerID, URL: formURL})
-	} else if brokerID != "" {
-		responses, err := store.GetBrokerResponses(activeProfile.ID, "form_required", false, 100)
-		if err != nil {
-			return fmt.Errorf("failed to get broker responses: %w", err)
-		}
-
-		found := false
-		for _, resp := range responses {
-			if resp.BrokerID == brokerID && resp.FormURL != "" {
-				formsToFill = append(formsToFill, struct {
-					BrokerID string
-					URL      string
-				}{BrokerID: resp.BrokerID, URL: resp.FormURL})
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			return fmt.Errorf("no form URL found for broker: %s", brokerID)
-		}
-	} else if pending {
-		responses, err := store.GetBrokerResponses(activeProfile.ID, "form_required", false, 100)
-		if err != nil {
-			return fmt.Errorf("failed to get broker responses: %w", err)
-		}
-
-		for _, resp := range responses {
-			if resp.FormURL != "" {
-				formsToFill = append(formsToFill, struct {
-					BrokerID string
-					URL      string
-				}{BrokerID: resp.BrokerID, URL: resp.FormURL})
-			}
-		}
-
-		if len(formsToFill) == 0 {
-			fmt.Println("✅ No pending forms to fill")
-			return nil
-		}
-	} else {
-		return fmt.Errorf("please specify --url, --broker, or --pending")
-	}
-
-	fmt.Printf("📋 Forms to process: %d\n", len(formsToFill))
+	fmt.Printf("📋 Forms to process: %d\n", len(forms))
 	fmt.Println()
-
-	for i, form := range formsToFill {
-		fmt.Printf("[%d/%d] Processing %s\n", i+1, len(formsToFill), form.URL)
-
+	for i, form := range forms {
+		fmt.Printf("[%d/%d] Processing %s\n", i+1, len(forms), form.URL)
 		if form.BrokerID != "" {
 			fmt.Printf("       Broker: %s\n", form.BrokerID)
 		}
-
 		result, err := b.NavigateAndFill(form.URL, form.BrokerID, autoSubmit)
 		if err != nil {
 			fmt.Printf("       ❌ Error: %v\n", err)
 			continue
 		}
-
-		if len(result.FieldsFilled) > 0 {
-			fmt.Printf("       ✅ Filled fields: %s\n", strings.Join(result.FieldsFilled, ", "))
-		}
-		if len(result.FieldsMissing) > 0 {
-			fmt.Printf("       ⚠️  Missing profile data for: %s\n", strings.Join(result.FieldsMissing, ", "))
-		}
-
-		if result.CaptchaFound {
-			fmt.Printf("       🤖 CAPTCHA detected: %s\n", result.CaptchaType)
-
-			profileData := map[string]string{
-				"email":     activeProfile.Email,
-				"firstName": activeProfile.FirstName,
-				"lastName":  activeProfile.LastName,
-				"phone":     activeProfile.Phone,
-				"address":   activeProfile.Address,
-				"city":      activeProfile.City,
-				"state":     activeProfile.State,
-				"zipCode":   activeProfile.ZipCode,
-				"country":   country.Display(activeProfile.Country),
-			}
-			profileJSON, _ := json.Marshal(profileData)
-
-			task := &history.PendingTask{
-				ProfileID:    activeProfile.ID,
-				BrokerID:     form.BrokerID,
-				BrokerName:   form.BrokerID, // Will need broker lookup for proper name
-				TaskType:     history.TaskCaptcha,
-				FormURL:      form.URL,
-				BrowserState: string(profileJSON), // Store profile data for helper page
-				Status:       "pending",
-			}
-			if result.ScreenshotPath != "" {
-				task.ScreenshotPath = result.ScreenshotPath
-			}
-
-			if err := store.AddPendingTask(task); err != nil {
-				fmt.Printf("       ⚠️  Failed to create task: %v\n", err)
-			} else {
-				fmt.Printf("       📝 Created CAPTCHA task for manual solving\n")
-			}
-
-			_ = store.UpdatePipelineStatus(activeProfile.ID, form.BrokerID, history.PipelineAwaitingCaptcha)
-		} else if result.SubmitAttempted {
-			fmt.Printf("       📨 Form submitted!\n")
-			_ = store.UpdatePipelineStatus(activeProfile.ID, form.BrokerID, history.PipelineFormFilled)
-		} else if result.Success {
-			fmt.Printf("       ✅ Form filled (not submitted)\n")
-			_ = store.UpdatePipelineStatus(activeProfile.ID, form.BrokerID, history.PipelineFormFilled)
-		}
-
-		if result.ScreenshotPath != "" {
-			fmt.Printf("       📸 Screenshot: %s\n", result.ScreenshotPath)
-		}
-
+		reportFill(store, brokerDB, activeProfile, form, result)
 		fmt.Println()
-
-		// Small delay between forms to be respectful
-		if i < len(formsToFill)-1 {
-			time.Sleep(2 * time.Second)
+		if i < len(forms)-1 {
+			time.Sleep(2 * time.Second) // be gentle with the brokers
 		}
 	}
 
 	fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-	fmt.Printf("✅ Processed %d forms\n", len(formsToFill))
-
+	fmt.Printf("✅ Processed %d forms\n", len(forms))
 	return nil
+}
+
+// waitForEnter is what --wait does at a CAPTCHA: ask, then block until Enter.
+func waitForEnter() error {
+	fmt.Println()
+	fmt.Println("       ⏸️  CAPTCHA detected! Solve it in the browser window.")
+	fmt.Println("       Press ENTER when done (or Ctrl+C to cancel)...")
+	fmt.Println()
+	_, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	return err
+}
+
+// reportFill prints what a fill did and records it: a CAPTCHA becomes a task
+// for a person, a filled or submitted form moves the pipeline stage.
+func reportFill(store *history.Store, db *broker.BrokerDatabase, profile config.NamedProfile, form storedLink, result *browser.FormResult) {
+	if len(result.FieldsFilled) > 0 {
+		fmt.Printf("       ✅ Filled fields: %s\n", strings.Join(result.FieldsFilled, ", "))
+	}
+	if len(result.FieldsMissing) > 0 {
+		fmt.Printf("       ⚠️  Missing profile data for: %s\n", strings.Join(result.FieldsMissing, ", "))
+	}
+
+	switch {
+	case result.CaptchaFound:
+		fmt.Printf("       🤖 CAPTCHA detected: %s\n", result.CaptchaType)
+		// the helper page copies these into the form by hand
+		profileJSON, _ := json.Marshal(map[string]string{
+			"email": profile.Email, "firstName": profile.FirstName, "lastName": profile.LastName,
+			"phone": profile.Phone, "address": profile.Address, "city": profile.City,
+			"state": profile.State, "zipCode": profile.ZipCode, "country": country.Display(profile.Country),
+		})
+		name := form.BrokerID
+		if b := db.FindByID(form.BrokerID); b != nil {
+			name = b.Name
+		}
+		task := &history.PendingTask{
+			ProfileID: profile.ID, BrokerID: form.BrokerID, BrokerName: name, TaskType: history.TaskCaptcha,
+			FormURL: form.URL, BrowserState: string(profileJSON), Status: "pending", ScreenshotPath: result.ScreenshotPath,
+		}
+		if err := store.AddPendingTask(task); err != nil {
+			fmt.Printf("       ⚠️  Failed to create task: %v\n", err)
+		} else {
+			fmt.Printf("       📝 Created CAPTCHA task for manual solving\n")
+		}
+		_ = store.UpdatePipelineStatus(profile.ID, form.BrokerID, history.PipelineAwaitingCaptcha)
+	case result.SubmitAttempted:
+		fmt.Printf("       📨 Form submitted!\n")
+		_ = store.UpdatePipelineStatus(profile.ID, form.BrokerID, history.PipelineFormFilled)
+	case result.Success:
+		fmt.Printf("       ✅ Form filled (not submitted)\n")
+		_ = store.UpdatePipelineStatus(profile.ID, form.BrokerID, history.PipelineFormFilled)
+	}
+	if result.ScreenshotPath != "" {
+		fmt.Printf("       📸 Screenshot: %s\n", result.ScreenshotPath)
+	}
 }

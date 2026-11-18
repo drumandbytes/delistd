@@ -155,6 +155,7 @@ Still stuck? [Open an issue](https://github.com/drumandbytes/delistd/issues/new)
 
 ## What next
 
+- If this saved you time, a star on [GitHub](https://github.com/drumandbytes/delistd) or a few words of [feedback](https://github.com/drumandbytes/delistd/issues/new?template=feedback.yml) helps others find it.
 - [broker-replies.md](broker-replies.md): what to do with each kind of response
 - [multi-profile.md](multi-profile.md): sending for a partner or relative as well
 - [commands.md](commands.md): the full command and settings reference for when you want more control

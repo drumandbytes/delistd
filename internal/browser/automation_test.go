@@ -141,7 +141,7 @@ func TestAutomationBlocksRedirectAndFormAction(t *testing.T) {
 	if hits.Load() != 0 {
 		t.Fatal("form leaked to unapproved origin")
 	}
-	if err := chromedp.Run(s.b.ctx, chromedp.Navigate(url+"/redirect")); err == nil {
+	if err := chromedp.Do(s.b.ctx, chromedp.Navigate(url+"/redirect")); err == nil {
 		t.Fatal("redirect was not blocked")
 	}
 	if hits.Load() != 0 {
@@ -164,7 +164,7 @@ func TestAutomationHumanVerificationResume(t *testing.T) {
 		t.Fatal("missing handoff")
 	}
 	// Simulate the human completing our own local test fixture, not a CAPTCHA service.
-	if err := chromedp.Run(s.b.ctx, chromedp.Click("#human")); err != nil {
+	if err := chromedp.Do(s.b.ctx, chromedp.Click("#human")); err != nil {
 		t.Fatal(err)
 	}
 	snap, err = s.Observe(ctx)

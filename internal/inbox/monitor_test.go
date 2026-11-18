@@ -88,9 +88,6 @@ func TestParseMessageCapsOversizedMIMEPart(t *testing.T) {
 	}
 }
 
-// TestParseMessageDoesNotPadSmallBodies is a sanity check that the cap only
-// clips oversized parts and doesn't otherwise change parsing behavior for
-// normal-sized emails.
 func TestParseMessageDoesNotPadSmallBodies(t *testing.T) {
 	const body = "Please visit our opt-out page at https://broker.example.com/opt-out"
 	raw := buildMIMEMessage(t, body)
@@ -194,9 +191,7 @@ func writeLines(conn net.Conn, lines ...string) error {
 	return nil
 }
 
-// TestDeletedUIDsBesides runs against a scripted loopback IMAP server:
-// *client.Client is concrete, and UidSearch needs the "selected" state,
-// reachable only over the wire (PREAUTH greeting, then SELECT and UID SEARCH).
+// Needs a loopback IMAP server: UidSearch wants the selected state, reachable only over the wire.
 func TestDeletedUIDsBesides(t *testing.T) {
 	addr := fakeIMAPServer(t, func(conn net.Conn, br *bufio.Reader) error {
 		// Advertise capabilities directly in the greeting (via the

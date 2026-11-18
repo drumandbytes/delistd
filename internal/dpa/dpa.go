@@ -28,7 +28,6 @@ type file struct {
 	Authorities []Authority `yaml:"authorities"`
 }
 
-// All returns every authority, in file order.
 func All() []Authority {
 	var f file
 	if err := yaml.Unmarshal(data.AuthoritiesYAML, &f); err != nil {

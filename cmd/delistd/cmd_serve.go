@@ -98,7 +98,7 @@ func runServeWithHosts(port int, listen string, allowedHostsRaw string) error {
 	server.BrokerOverride = brokerFile
 	server.ListenHost = listen
 	if allowedHostsRaw == "" {
-		allowedHostsRaw = config.Getenv(config.AllowedHostsEnv)
+		allowedHostsRaw = os.Getenv(config.AllowedHostsEnv)
 	}
 	server.AllowedHosts = web.ParseAllowedHosts(allowedHostsRaw)
 	warnNonLoopback(os.Stdout, listen)

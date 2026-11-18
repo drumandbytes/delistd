@@ -1,13 +1,13 @@
 {{define "content"}}
-<div class="min-h-[80vh] flex items-center justify-center py-8">
-    <div class="max-w-lg w-full fade-in-up">
+<div class="page-center py-8">
+    <div class="fade-in-up narrow">
         <div class="card p-8">
             {{template "partials/setup-steps.html" 2}}
 
             <!-- Header -->
             <div class="mb-8">
-                <h1 class="font-display text-2xl font-semibold text-primary mb-2">Your Information</h1>
-                <p class="text-secondary">This will be used in your removal requests</p>
+                <h1 class="font-display font-semibold mb-2 text-2xl text-primary">Your Information</h1>
+                <p class="text-secondary">These details go into your removal requests</p>
             </div>
 
             <form method="POST" action="/setup/profile" class="space-y-6">
@@ -18,16 +18,12 @@
                 <!-- Navigation -->
                 <div class="flex items-center justify-between pt-6">
                     <a href="/setup" class="btn btn-ghost">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
+                        {{icon "chevron-left" "w-4 h-4"}}
                         Back
                     </a>
                     <button type="submit" class="btn btn-primary">
                         Continue
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
+                        {{icon "chevron-right" "w-4 h-4"}}
                     </button>
                 </div>
             </form>

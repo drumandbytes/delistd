@@ -4,24 +4,24 @@
 {{if .Responses}}
 <div class="space-y-3">
     {{range .Responses}}
-    <div class="p-3 rounded-lg" style="background: var(--bg-elevated);">
-        <div class="flex items-center gap-3">
+    <div class="bg-elevated p-3 rounded-lg">
+        <div class="row">
             {{if eq .ResponseType "success"}}
-            <span class="status-dot status-dot-success"></span>
+            <span class="status-dot status-dot-success" aria-hidden="true"></span>
             {{else if eq .ResponseType "form_required"}}
-            <span class="status-dot status-dot-warning"></span>
+            <span class="status-dot status-dot-warning" aria-hidden="true"></span>
             {{else if eq .ResponseType "confirmation_required"}}
-            <span class="status-dot" style="background: var(--accent);"></span>
+            <span class="status-dot status-dot-accent"></span>
             {{else if eq .ResponseType "no_data_held"}}
-            <span class="status-dot" style="background: var(--accent);"></span>
+            <span class="status-dot status-dot-accent"></span>
             {{else if eq .ResponseType "rejected"}}
-            <span class="status-dot status-dot-error"></span>
+            <span class="status-dot status-dot-error" aria-hidden="true"></span>
             {{else}}
-            <span class="status-dot" style="background: var(--warning);"></span>
+            <span class="status-dot status-dot-warning" aria-hidden="true"></span>
             {{end}}
             <div class="flex-1 min-w-0">
-                <a href="/pipeline/responses/{{.ID}}" class="text-sm font-medium text-primary hover:underline">{{.BrokerName}}</a>
-                <p class="text-xs text-muted truncate">{{.EmailSubject}}</p>
+                <a href="/pipeline/responses/{{.ID}}" class="font-medium hover:underline text-primary text-sm">{{.BrokerName}}</a>
+                <p class="text-muted text-xs truncate">{{.EmailSubject}}</p>
             </div>
             <div class="text-right">
                 <span class="rounded-full
@@ -34,37 +34,31 @@
                     {{pipelineLabel .ResponseType}}
                 </span>
                 {{if .NeedsReview}}
-                <span class="ml-1 rounded-full chip chip-warning">Review</span>
+                <span class="chip chip-warning ml-1 rounded-full">Review</span>
                 {{end}}
             </div>
         </div>
         {{if or .FormURL .ConfirmURL}}
-        <div class="mt-2 flex items-center gap-2">
+        <div class="flex gap-2 items-center mt-2">
             {{if .FormURL}}
             <a href="{{.FormURL}}" target="_blank" rel="noopener noreferrer"
-               class="chip chip-info inline-flex items-center gap-1">
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                </svg>
+               class="chip chip-info gap-1 inline-flex items-center">
+                {{icon "external-link" "w-3 h-3"}}
                 Open Form
             </a>
             {{end}}
             {{if .ConfirmURL}}
             <a href="{{.ConfirmURL}}" target="_blank" rel="noopener noreferrer"
-               class="chip chip-info inline-flex items-center gap-1">
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101"/>
-                </svg>
+               class="chip chip-info gap-1 inline-flex items-center">
+                {{icon "link" "w-3 h-3"}}
                 Confirm Link
             </a>
             {{end}}
         </div>
         {{end}}
         {{if .NeedsReview}}
-        <div class="mt-2 text-xs text-warning flex items-center gap-1">
-            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
+        <div class="flex gap-1 items-center mt-2 text-warning text-xs">
+            {{icon "warning" "w-3 h-3"}}
             Confidence: {{percent .Confidence}} - Manual review recommended
         </div>
         {{end}}
@@ -72,13 +66,11 @@
     {{end}}
 </div>
 {{else}}
-<div class="text-center py-8">
-    <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4" style="background: var(--bg-elevated);">
-        <svg class="w-8 h-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
+<div class="py-8 text-center">
+    <div class="bg-elevated flex h-16 items-center justify-center mb-4 mx-auto rounded-full w-16">
+        {{icon "mail" "w-8 h-8 text-muted"}}
     </div>
-    <p class="text-secondary mb-1">{{if .Filtered}}No matching results{{else}}No responses yet{{end}}</p>
-    <p class="text-sm text-muted">Run <code class="px-1 py-0.5 rounded" style="background: var(--bg-elevated);">delistd monitor</code> to check for broker responses</p>
+    <p class="mb-1 text-secondary">{{if .Filtered}}No matching results{{else}}No responses yet{{end}}</p>
+    <p class="note">Run <code class="bg-elevated px-1 py-0.5 rounded">delistd monitor</code> to check for broker responses</p>
 </div>
 {{end}}

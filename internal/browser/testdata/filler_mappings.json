@@ -1,0 +1,214 @@
+[
+ {
+  "FieldType": "email",
+  "ProfileValue": "j@example.com",
+  "Selectors": [
+   "input[type='email']",
+   "input[name='email']",
+   "input[id='email']",
+   "input[name*='email']",
+   "input[id*='email']",
+   "input[placeholder*='email' i]",
+   "input[autocomplete='email']"
+  ],
+  "Patterns": [
+   "email",
+   "e-mail",
+   "e_mail"
+  ]
+ },
+ {
+  "FieldType": "firstName",
+  "ProfileValue": "Jane",
+  "Selectors": [
+   "input[name='firstName']",
+   "input[name='first_name']",
+   "input[name='fname']",
+   "input[id='firstName']",
+   "input[id='first_name']",
+   "input[name*='first']",
+   "input[id*='first']",
+   "input[placeholder*='first name' i]",
+   "input[autocomplete='given-name']"
+  ],
+  "Patterns": [
+   "first",
+   "fname",
+   "given"
+  ]
+ },
+ {
+  "FieldType": "lastName",
+  "ProfileValue": "Doe",
+  "Selectors": [
+   "input[name='lastName']",
+   "input[name='last_name']",
+   "input[name='lname']",
+   "input[id='lastName']",
+   "input[id='last_name']",
+   "input[name*='last']",
+   "input[id*='last']",
+   "input[placeholder*='last name' i]",
+   "input[autocomplete='family-name']"
+  ],
+  "Patterns": [
+   "last",
+   "lname",
+   "family",
+   "surname"
+  ]
+ },
+ {
+  "FieldType": "fullName",
+  "ProfileValue": "Jane Marie Doe",
+  "Selectors": [
+   "input[name='name']",
+   "input[name='fullName']",
+   "input[name='full_name']",
+   "input[id='name']",
+   "input[id='fullName']",
+   "input[placeholder*='full name' i]",
+   "input[placeholder*='your name' i]",
+   "input[autocomplete='name']"
+  ],
+  "Patterns": [
+   "fullname",
+   "full_name",
+   "your_name"
+  ]
+ },
+ {
+  "FieldType": "phone",
+  "ProfileValue": "+1",
+  "Selectors": [
+   "input[type='tel']",
+   "input[name='phone']",
+   "input[name='telephone']",
+   "input[name='mobile']",
+   "input[id='phone']",
+   "input[name*='phone']",
+   "input[id*='phone']",
+   "input[placeholder*='phone' i]",
+   "input[autocomplete='tel']"
+  ],
+  "Patterns": [
+   "phone",
+   "tel",
+   "mobile",
+   "cell"
+  ]
+ },
+ {
+  "FieldType": "address",
+  "ProfileValue": "1 Main",
+  "Selectors": [
+   "input[name='address']",
+   "input[name='street']",
+   "input[name='address1']",
+   "input[name='streetAddress']",
+   "input[id='address']",
+   "input[name*='address']",
+   "input[name*='street']",
+   "input[placeholder*='address' i]",
+   "input[placeholder*='street' i]",
+   "input[autocomplete='street-address']",
+   "input[autocomplete='address-line1']"
+  ],
+  "Patterns": [
+   "address",
+   "street",
+   "addr"
+  ]
+ },
+ {
+  "FieldType": "city",
+  "ProfileValue": "Riga",
+  "Selectors": [
+   "input[name='city']",
+   "input[id='city']",
+   "input[name*='city']",
+   "input[placeholder*='city' i]",
+   "input[autocomplete='address-level2']"
+  ],
+  "Patterns": [
+   "city",
+   "town",
+   "locality"
+  ]
+ },
+ {
+  "FieldType": "state",
+  "ProfileValue": "CA",
+  "Selectors": [
+   "input[name='state']",
+   "input[id='state']",
+   "input[name*='state']",
+   "input[placeholder*='state' i]",
+   "select[name='state']",
+   "select[id='state']",
+   "input[autocomplete='address-level1']"
+  ],
+  "Patterns": [
+   "state",
+   "province",
+   "region"
+  ]
+ },
+ {
+  "FieldType": "zipCode",
+  "ProfileValue": "LV-1",
+  "Selectors": [
+   "input[name='zip']",
+   "input[name='zipCode']",
+   "input[name='zip_code']",
+   "input[name='postalCode']",
+   "input[name='postal_code']",
+   "input[id='zip']",
+   "input[name*='zip']",
+   "input[name*='postal']",
+   "input[placeholder*='zip' i]",
+   "input[placeholder*='postal' i]",
+   "input[autocomplete='postal-code']"
+  ],
+  "Patterns": [
+   "zip",
+   "postal",
+   "postcode"
+  ]
+ },
+ {
+  "FieldType": "country",
+  "ProfileValue": "Latvia",
+  "Selectors": [
+   "input[name='country']",
+   "input[id='country']",
+   "select[name='country']",
+   "select[id='country']",
+   "input[autocomplete='country-name']"
+  ],
+  "Patterns": [
+   "country",
+   "nation"
+  ]
+ },
+ {
+  "FieldType": "dateOfBirth",
+  "ProfileValue": "1990-01-01",
+  "Selectors": [
+   "input[name='dob']",
+   "input[name='dateOfBirth']",
+   "input[name='date_of_birth']",
+   "input[name='birthdate']",
+   "input[name='birth_date']",
+   "input[type='date']",
+   "input[id='dob']",
+   "input[placeholder*='birth' i]",
+   "input[autocomplete='bday']"
+  ],
+  "Patterns": [
+   "dob",
+   "birth",
+   "bday"
+  ]
+ }
+]

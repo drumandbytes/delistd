@@ -6,7 +6,7 @@
     Sent
 </span>
 {{/* same as `delistd mark-bounced`: the response swaps both status cells */}}
-<button class="text-xs text-muted hover:text-primary hover:underline ml-1"
+<button class="hover:text-primary hover:underline ml-1 text-muted text-xs"
     hx-post="/api/brokers/{{.ID}}/mark-bounced"
     hx-target="#status-{{.ID}}"
     hx-swap="innerHTML"

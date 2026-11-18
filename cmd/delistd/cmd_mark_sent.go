@@ -36,8 +36,7 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringSliceVar(&regions, "region", nil, "mark every broker in these regions: us, eu, global (comma-separated or repeated)")
-	cmd.Flags().StringSliceVar(&categories, "category", nil, "mark every broker in these categories (comma-separated or repeated)")
+	addRegionCategoryFlags(cmd, &regions, &categories, "Mark every broker")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "list what would be recorded without writing")
 
 	return cmd

@@ -1,62 +1,60 @@
-To Whom It May Concern at {{.BrokerName}},
+Dear {{.BrokerName}} privacy team,
 
-I am writing to exercise my right to erasure under Article 17 of the General Data Protection Regulation (GDPR). I request that you delete all personal data you hold about me.
+Under Article 17 of the General Data Protection Regulation (GDPR), the right to erasure, I ask you to delete all personal data you hold about me.
 
-PERSONAL IDENTIFICATION:
-- Full Name: {{.FullName}}
+DETAILS TO FIND MY RECORDS
+- Name: {{.FullName}}
 {{- if .OtherNames}}
-- Also Known As: {{.OtherNames}}
+- Also known as: {{.OtherNames}}
 {{- end}}
-- Email Address: {{.Email}}
+- Email: {{.Email}}
 {{- if .OtherEmails}}
-- Other Email Addresses Used: {{.OtherEmails}}
-{{- end}}
-{{- if .Address}}
-- Address: {{.Address}}
-{{- end}}
-{{- if .City}}
-- City: {{.City}}
-{{- end}}
-{{- if .State}}
-- State/Province: {{.State}}
-{{- end}}
-{{- if .ZipCode}}
-- Postal Code: {{.ZipCode}}
-{{- end}}
-{{- if .Country}}
-- Country: {{.Country}}
-{{- end}}
-{{- if .OtherAddresses}}
-- Previously Lived At: {{.OtherAddresses}}
+- Other emails I have used: {{.OtherEmails}}
 {{- end}}
 {{- if .Phone}}
 - Phone: {{.Phone}}
 {{- end}}
 {{- if .OtherPhones}}
-- Other Phone Numbers: {{.OtherPhones}}
+- Other phone numbers: {{.OtherPhones}}
+{{- end}}
+{{- if .Address}}
+- Street address: {{.Address}}
+{{- end}}
+{{- if .City}}
+- City: {{.City}}
+{{- end}}
+{{- if .State}}
+- State or province: {{.State}}
+{{- end}}
+{{- if .ZipCode}}
+- Postal code: {{.ZipCode}}
+{{- end}}
+{{- if .Country}}
+- Country: {{.Country}}
+{{- end}}
+{{- if .OtherAddresses}}
+- Previous addresses: {{.OtherAddresses}}
 {{- end}}
 {{- if .DateOfBirth}}
-- Date of Birth: {{.DateOfBirth}}
+- Date of birth: {{.DateOfBirth}}
 {{- end}}
 
-LEGAL BASIS:
-Under Article 17 of the GDPR, I have the right to obtain the erasure of personal data concerning me without undue delay where:
-- The personal data is no longer necessary for the purposes for which it was collected
-- I withdraw my consent and there is no other legal ground for the processing
-- I object to the processing and there are no overriding legitimate grounds
-- The personal data has been unlawfully processed
+GROUNDS
+Article 17(1) entitles me to erasure without undue delay where, among other grounds:
+- the data is no longer needed for the purpose it was collected for;
+- I withdraw my consent and no other legal basis for the processing applies;
+- I object to the processing and there are no overriding legitimate grounds; or
+- the data has been processed unlawfully.
 
-REQUEST:
-1. Delete all personal information you hold about me from your databases
-2. Remove my information from any data broker networks or partner sharing arrangements
-3. Confirm the deletion in writing within 30 days as required by GDPR
+WHAT I ASK YOU TO DO
+1. Delete all personal data about me from your databases.
+2. Remove it from any data broker networks and partner sharing arrangements, and tell the recipients to do the same.
+3. Confirm the deletion to me in writing.
 
-Please note that under Article 12 of the GDPR, you are required to respond to this request within one month. Failure to comply may result in a complaint to the relevant supervisory authority.
+Article 12(3) requires you to answer without undue delay and within one month of receiving this request. If you do not, I may complain to the competent supervisory authority.
 
-If you require any additional information to verify my identity or locate my records, please contact me at {{.Email}}.
+If you need anything more to verify my identity or find my records, reply to {{.Email}}.
 
-Thank you for your prompt attention to this matter.
-
-Sincerely,
+Thank you,
 {{.FullName}}
 {{.Date}}

@@ -8,15 +8,12 @@ import (
 	"github.com/drumandbytes/delistd/data"
 )
 
-// TestEmbeddedBrokerDataValid is the CI guard: the broker list shipped in the
-// binary must always pass structural validation.
 func TestEmbeddedBrokerDataValid(t *testing.T) {
 	if _, err := Validate(data.BrokersYAML, MinSaneBrokerCount); err != nil {
 		t.Fatalf("embedded data/brokers.yaml is invalid:\n%v", err)
 	}
 }
 
-// TestEmbeddedVerifiedDataValid guards the smaller registry-sourced list.
 func TestEmbeddedVerifiedDataValid(t *testing.T) {
 	if _, err := Validate(data.BrokersVerifiedYAML, MinVerifiedBrokerCount); err != nil {
 		t.Fatalf("embedded data/brokers-verified.yaml is invalid:\n%v", err)

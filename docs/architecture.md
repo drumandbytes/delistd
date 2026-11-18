@@ -1,65 +1,43 @@
 # Architecture
 
-## Tech Stack
+## Tech stack
 
-- **Language**: Go 1.26+ (module declares `go 1.26`; the toolchain auto-fetches a matching version on build if the installed `go` is older but supports toolchain switching, i.e. Go 1.21+)
-- **CLI Framework**: Cobra (`github.com/spf13/cobra`)
-- **Email**: SMTP only (`internal/email/smtp.go`). SendGrid and Resend were removed - see [auditing.md](auditing.md#dead-code--removed).
-- **Database**: SQLite (for history tracking via `modernc.org/sqlite`)
-- **Config**: YAML (`gopkg.in/yaml.v3`)
-- **Browser automation**: chromedp, for `fill`/`confirm` commands and CAPTCHA detection
-- **Local agent connection**: official Go MCP SDK, STDIO transport (`delistd mcp`)
+Go 1.26+ with Cobra for the CLI, SMTP for sending (`internal/email`; SendGrid and Resend were removed, see [auditing.md](auditing.md#dead-code)), SQLite for history (`modernc.org/sqlite`, pure Go), YAML config (`gopkg.in/yaml.v3`), chromedp for `fill`/`confirm`/CAPTCHA detection, the official Go MCP SDK over STDIO for `delistd mcp`, and chi + html/template + HTMX for the web UI. The website is Hugo.
 
-## Project Structure
+## Project structure
 
 ```
-delistd/
-├── cmd/delistd/
-│   ├── main.go                # Root cobra.Command wiring + shared helpers (config/profile/
-│   │                           # broker path resolution) - each command's own flags and Run
-│   │                           # logic live in their own cmd_*.go file, one per command:
-│   │                           # cmd_init.go, cmd_send.go, cmd_brokers.go (list-brokers/
-│   │                           # add-broker), cmd_status.go, cmd_bounces.go (mark-bounced/
-│   │                           # cleanup-bounces), cmd_monitor.go, cmd_pipeline.go,
-│   │                           # cmd_fill.go, cmd_confirm.go, cmd_serve.go, cmd_profile.go
-├── internal/
-│   ├── broker/broker.go       # Broker struct, YAML loading, filtering, add/remove
-│   ├── browser/                # chromedp automation: form filling, CAPTCHA detection,
-│   │                            # confirmation-link clicking, shared broker-domain allowlist
-│   │                            # validation (domain.go)
-│   ├── config/config.go        # User configuration (profile(s), email, options, inbox, pipeline)
-│   ├── evidence/evidence.go    # evidence report (requests, replies, deadlines, DPA) for `export` and the web download
-│   ├── email/
-│   │   ├── sender.go            # SMTP sender constructor, address validation
-│   │   ├── removal.go           # SendRemoval: render + send + history record, shared by CLI and web
-│   │   └── smtp.go              # SMTP implementation
-│   ├── history/history.go      # SQLite history tracking, pipeline status, per-profile scoping
-│   ├── inbox/                   # IMAP scan (scan.go: ScanAndStore/RecordReply) + reply classification (success/form-required/
-│   │                             # confirmation/rejection/pending/bounced)
-│   ├── schedule/                # unattended cycles: shared lock + state file, launchd/systemd install
-│   ├── mcpserver/               # profile-scoped MCP tools, reviewed batches, persistent browser sessions
-│   ├── template/
-│   │   ├── template.go          # Template rendering engine
-│   │   └── templates/           # Embedded: gdpr.tmpl, ccpa.tmpl, generic.tmpl
-│   └── web/
-│       ├── server.go            # Server struct, NewServer, router setup, core render/helper
-│       │                        # methods - handlers themselves live in handlers_*.go, grouped
-│       │                        # by resource: handlers_pages.go (dashboard/brokers/history/
-│       │                        # pipeline/tasks), handlers_api.go (HTMX JSON/fragment
-│       │                        # endpoints), handlers_jobs.go (send-job API + background
-│       │                        # send processing), handlers_settings.go, handlers_setup.go;
-│       │                        # scheduler.go runs `delistd auto --once` for schedule.enabled
-│       │                        # (setup wizard), handlers_profile.go (profile switching)
-│       ├── job.go               # Job/JobManager - background send-job state, mutex-protected
-│       └── session.go           # Setup-wizard session store
-├── data/brokers.yaml            # 700+ data broker database (embedded via data/embed.go)
-├── data/brokers-verified.yaml   # smaller registry-sourced list; `send --list verified`
-├── scripts/import-registries/   # helper: grow either list from state registry CSVs
-├── docs/                        # Granular reference docs (this directory)
-└── EU-NOTES.md                  # GDPR/EU-specific setup and customization notes
+cmd/delistd/       main.go wires the root command and shared helpers; one cmd_*.go per command
+internal/
+  broker/          Broker struct, YAML loading, filtering, add/remove
+  browser/         chromedp: form filling, CAPTCHA detection, confirmation links, the MCP
+                   automation session, and the broker-domain allowlist (domain.go)
+  config/          config.go (schema, Load/Save, validation), profiles.go, mail.go (email,
+                   inbox, SMTP), providers.go (mail presets), secret.go (password encryption)
+  email/           SMTP sender; removal.go renders + sends + builds the history record;
+                   batch.go runs a list of them (used by the CLI send loop and the web job)
+  history/         SQLite: requests, replies, tasks, pipeline status, per-profile scoping
+  inbox/           IMAP scan + reply classification (rules.go, classify.go, response.go)
+  evidence/        the export report (requests, replies, deadlines, authority)
+  schedule/        unattended cycles: shared lock, state file, launchd/systemd install
+  mcpserver/       profile-scoped MCP tools, reviewed batches, persistent browser sessions
+  oauth/           Outlook.com device-code sign-in
+  template/        email template rendering (templates/: gdpr, ccpa, generic)
+  web/             server.go + routes.go; handlers_*.go by resource; pages*.go build page
+                   data; templates/ and static/ are embedded
+  bounces, country, dpa, datadir, fsutil, reclassify   small helpers
+  imaptest, smtptest, testenv                          test-only servers and helpers
+data/              brokers.yaml (700+, embedded via embed.go), brokers-verified.yaml,
+                   authorities.yaml
+scripts/           covgate (CI coverage gate), docs-versions, import-registries,
+                   stylesnap (CSS regression tool), a11y/ (axe scan)
+site/              the Hugo site (delistd.dev)
+docs/              reference docs; EU-NOTES.md has the GDPR notes
 ```
 
-CI (`.github/workflows/ci.yml`) runs `go build`/`go vet`/`go test -race` and `golangci-lint` (config: `.golangci.yml`) on every push/PR, plus `zizmor` and `actionlint` (config: `.github/actionlint.yaml`) when workflow files change. `.github/workflows/release-please.yml` watches Conventional Commits on `main` and keeps an open release PR with the version bump and `CHANGELOG.md`; merging it tags `vX.Y.Z` and publishes a GitHub Release. That tag push fires `.github/workflows/release.yml`, which runs GoReleaser (`.goreleaser.yaml`) to cross-compile `linux/darwin/windows × amd64/arm64` (`CGO_ENABLED=0`, pure-Go SQLite) and append archives + checksums to the release release-please already created. A parallel `docker` job in the same workflow builds the distroless `Dockerfile` for `linux/amd64` and `linux/arm64` and pushes it to `ghcr.io/drumandbytes/delistd` (`vX.Y.Z`, `X.Y`, `latest`, with provenance and SBOM; no build cache), and `docker-smoke` pulls and runs it per architecture. Both smoke jobs alarm without gating the release. `main.version` is set via `-ldflags` at that point; it's `"dev"` otherwise.
+## CI and releases
+
+`ci.yml` runs `go build`, `go vet`, `go test -race` and `golangci-lint` (`.golangci.yml`) on every push and PR, with `zizmor` and `actionlint` when workflows change, plus coverage (`scripts/covgate`) and an accessibility scan. `release-please.yml` keeps an open release PR (version bump and `CHANGELOG.md`) from Conventional Commits on `main`; merging it tags `vX.Y.Z` and fires `release.yml`: GoReleaser cross-compiles `linux/darwin/windows x amd64/arm64` (`CGO_ENABLED=0`) and attaches archives and checksums, and a `docker` job pushes the distroless image to `ghcr.io/drumandbytes/delistd` (`vX.Y.Z`, `X.Y`, `latest`, with provenance and SBOM) and smoke-tests it per architecture. The smoke jobs alarm without gating the release. `main.version` is set by `-ldflags`; it is `dev` otherwise. `deploy.yaml` builds and publishes the site.
 
 ## Key Concepts
 
@@ -94,7 +72,7 @@ explicitly resolved owner. See [mcp.md](mcp.md) for operational limits.
 
 ### Broker
 `data/brokers.yaml` is compiled into the binary (`data/embed.go`, `//go:embed`).
-`broker.Load(override)` resolves it from `--brokers`, then `~/.eraser/brokers.yaml`
+`broker.Load(override)` resolves it from `--brokers`, then `~/.delistd/brokers.yaml`
 (written by `delistd update-brokers`, a conditional download), then the embedded
 copy - no implicit `./data` scanning. `add-broker`/`cleanup-bounces` write to a
 real path via `resolveBrokerWritePath()`.
@@ -104,7 +82,7 @@ public registries and authoritative privacy notices, where every entry is a
 confirmed data broker with a current first-party privacy email or rights portal.
 The send-family commands (`send`, `draft`, `mark-sent`, `serve`) call
 `broker.LoadList(flag, cfg.Options.BrokerFile, cfg.Options.BrokerList)` instead of
-`broker.Load`, adding two steps ahead of the `~/.eraser` fallback: an
+`broker.Load`, adding two steps ahead of the `~/.delistd` fallback: an
 `options.broker_file` path, then the verified list when `options.broker_list`
 (or `send --list`) is `verified`. Everything else stays on the full list. Grow
 the verified list with `scripts/import-registries` - see
@@ -129,31 +107,39 @@ Three email templates (`internal/template/templates/`):
 - **CCPA**: Invokes California Consumer Privacy Act
 - **Generic**: General privacy request referencing multiple laws
 
+### The website
+
+`delistd guides` writes `site/data/brokers.json` and `guides.json` (broker facts, editorial text and the request letters rendered with the real templates); Hugo builds the directory and the per-broker guide pages from them (`site/content/brokers/_content.gotmpl`, `site/layouts/partials/guide-body.md`). `deploy.yaml` runs both. See [site/README.md](../site/README.md).
+
 ### Web UI static assets
 `internal/web/static/` (embedded via `//go:embed static/*`) holds:
 - `js/htmx.min.js` - vendored as-is.
-- `css/tokens.css` - design tokens (colour / elevation / type custom properties for
-  both themes). The only place raw hex values are named. Linked first in `layout.html`.
-- `css/utilities.css` - a hand-maintained stylesheet: a preflight reset plus the
-  layout / spacing / sizing / flex / grid utilities the templates use. It began as
-  Tailwind v3.4.17 output, but there is **no Tailwind toolchain** any more - no config,
-  no CLI, no build step. If a template needs a utility class that isn't in the file,
-  add the rule by hand (the spacing scale is 0.25rem steps: `.p-2` = 0.5rem, `.p-4` =
-  1rem, ...).
-- Component classes (`.btn`, `.card`, `.badge`, `.nav-link`, ...) live in the `<style>`
-  block at the top of `layout.html`, not in `utilities.css`.
+- `css/tokens.css` - design tokens for both themes: colour and elevation, the type scale
+  (`--fs-*`, in rem) and the corner radii (`--radius-*`). The only place raw colour values
+  and font sizes are named. Linked first in `layout.html`.
+- `css/app.css` - the component classes (`.btn`, `.card`, `.badge`, `.nav-link`, ...), the
+  status tints (`.tint-*`, `.bg-*`, `.border-*`) and the page layouts, written against the tokens.
+- `css/utilities.css` - a small, hand-written reset plus the layout / spacing / sizing /
+  flex / grid utilities the templates use (`.p-4`, `.flex`, `.gap-2`, ...). There is no
+  Tailwind or any other CSS toolchain: add a rule by hand when a template needs one, and
+  size it from the scale in `tokens.css`. No inline `style=` attributes: name a class.
 
-The `<link>` for `utilities.css` in `layout.html` is deliberately placed *after* the
-hand-authored `<style>` block - same-specificity rules are decided by source order, and
-a utility like `.w-auto` needs to win over a same-specificity component class like
-`.input{width:100%}`. Moving it earlier silently breaks every element that combines a
-component class with a sizing utility (this happened once already - see the comment
-above the `<link>` in `layout.html`).
+`css_utilities_test.go` keeps the three in step: it fails on a utility class a template
+uses without a rule, and on a rule nothing uses. `utilities.css` is linked *after*
+`app.css` on purpose - same-specificity rules are decided by source order, and a utility
+like `.w-auto` has to win over a component class like `.input { width: 100% }`.
 
-### Flow
-1. Load user config from `~/.eraser/config.yaml`, resolve the active profile (see [multi-profile.md](multi-profile.md))
-2. Load brokers from `data/brokers.yaml`
-3. Filter by region and exclusions (`broker.Filter`)
-4. For each broker, render email template with profile + broker data
-5. Send via SMTP, never-sent brokers first and then oldest last send (`history.SortBySendPriority`), capped at `options.daily_send_limit` per rolling 24h window (`send` and the web UI's job sender both read this same config value - keep them in sync, see [code-patterns.md](code-patterns.md#known-quirks) for the history)
-6. Record result in SQLite history, tagged with the active profile's ID; `send` skips brokers already successfully emailed in the last 25 days (per profile) so re-running is always safe
+Before a CSS or template refactor, record the computed style of every element on every
+page with `go run ./scripts/stylesnap` (see its header for the three commands), then
+record again afterwards and `-compare` the two: it lists exactly which properties changed
+on how many elements, which is how a dropped rule shows up. It needs Chrome and a running
+`delistd serve` on demo data, so it is a local tool, not a CI step.
+
+### Send flow
+1. Load `~/.delistd/config.yaml` and resolve the active profile ([multi-profile.md](multi-profile.md)).
+2. Load the broker list, then narrow it by region, category, exclusions and the profile's country (`broker.Select`, `broker.ForCountry`).
+3. Keep brokers that match the `--status` filter (`history.MatchesFilter`, shared with the web Brokers page) and order them never-sent first, then oldest send (`history.SortBySendPriority`).
+4. Cap the list at `options.daily_send_limit` per rolling 24h.
+5. `email.Batch` renders each email, sends it over SMTP, stores the result in SQLite tagged with the profile, paces the sends, and stops after three authentication failures in a row. The CLI `send` and the web "Send all" job both run on it.
+
+`send` skips brokers emailed successfully in the last 25 days (per profile), so re-running is always safe.

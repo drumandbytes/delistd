@@ -53,7 +53,7 @@ func (c *wizardClient) get(path string) string {
 }
 
 // post submits a form the way a same-origin browser navigation would. The CSRF
-// layer (filippo.io/csrf/gorilla) keys off Sec-Fetch-Site, so set it.
+// layer (http.CrossOriginProtection) keys off Sec-Fetch-Site, so set it.
 func (c *wizardClient) post(path string, form url.Values) *http.Response {
 	c.t.Helper()
 	req, _ := http.NewRequest(http.MethodPost, c.srv.URL+path, strings.NewReader(form.Encode()))
@@ -66,10 +66,6 @@ func (c *wizardClient) post(path string, form url.Values) *http.Response {
 	return resp
 }
 
-// TestSetupWizardManualPath walks a fresh install through the wizard choosing
-// "I'll send the emails myself", and asserts a valid manual-mode config lands
-// on disk. This is the whole first-run experience for a privacy-maximalist
-// user - it must not dead-end.
 func TestSetupWizardManualPath(t *testing.T) {
 	c, s := newWizardClient(t)
 
@@ -146,9 +142,6 @@ func TestSetupWizardProfileValidation(t *testing.T) {
 	}
 }
 
-// TestCSRFBlocksCrossOrigin confirms the CSRF layer is actually doing its job:
-// a browser POST tagged cross-site is rejected, a same-origin one is allowed,
-// and a non-browser request (no Sec-Fetch-Site, no Origin) is allowed.
 func TestCSRFBlocksCrossOrigin(t *testing.T) {
 	c, _ := newWizardClient(t)
 	c.get("/setup/profile") // prime the session cookie

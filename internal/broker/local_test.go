@@ -40,8 +40,8 @@ func TestLocalEntriesMergeOverEveryList(t *testing.T) {
 	db, err := Load("")
 	check("embedded list", db, err, len(base.Brokers)+1)
 
-	// what update-brokers writes: replaces ~/.eraser/brokers.yaml wholesale
-	updated := filepath.Join(home, ".eraser", "brokers.yaml")
+	// what update-brokers writes: replaces ~/.delistd/brokers.yaml wholesale
+	updated := filepath.Join(home, ".delistd", "brokers.yaml")
 	if err := (&BrokerDatabase{Brokers: base.Brokers[:300]}).Save(updated); err != nil {
 		t.Fatal(err)
 	}

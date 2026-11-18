@@ -1,10 +1,10 @@
 {{define "content"}}
-<div class="min-h-[80vh] flex items-center justify-center py-8">
-    <div class="max-w-lg w-full fade-in-up">
+<div class="page-center py-8">
+    <div class="fade-in-up narrow">
         <div class="card p-8">
             <!-- Header -->
-            <div class="text-center mb-8">
-                <h1 class="font-display text-2xl font-bold text-primary mb-2">Edit Profile</h1>
+            <div class="mb-8 text-center">
+                <h1 class="font-bold font-display mb-2 text-2xl text-primary">Edit Profile</h1>
                 <p class="text-secondary">Update this profile's details. Its ID (<code>{{.ProfileID}}</code>) can't be changed here, since it's how existing send history is tracked.</p>
             </div>
 
@@ -22,16 +22,12 @@
                 <!-- Navigation -->
                 <div class="flex items-center justify-between pt-6">
                     <a href="/settings" class="btn btn-ghost">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
+                        {{icon "chevron-left" "w-4 h-4"}}
                         Cancel
                     </a>
                     <button type="submit" class="btn btn-primary">
                         Save Changes
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
+                        {{icon "check" "w-4 h-4"}}
                     </button>
                 </div>
             </form>

@@ -121,11 +121,9 @@ jobs:
         env:
           TAG: ${{ github.ref_name }}
         run: |
-          # ghcr.io/drumandbytes/eraser is the pre-rename image name: same image under both
-          # names until the next major release, so existing compose files keep pulling updates.
           version=${TAG#v}
           tags=""
-          for image in ghcr.io/drumandbytes/delistd ghcr.io/drumandbytes/eraser; do
+          for image in ghcr.io/drumandbytes/delistd; do
             tags+="$image:$TAG"$'\n'
             if [[ "$version" =~ ^([0-9]+\.[0-9]+)\.[0-9]+$ ]]; then
               tags+="$image:${BASH_REMATCH[1]}"$'\n'"$image:latest"$'\n'

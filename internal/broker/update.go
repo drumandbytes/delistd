@@ -3,6 +3,7 @@ package broker
 import (
 	"context"
 	"fmt"
+	"github.com/drumandbytes/delistd/internal/fsutil"
 	"io"
 	"net/http"
 	"os"
@@ -88,7 +89,7 @@ func Update(ctx context.Context, url string, checkOnly bool) (UpdateResult, erro
 	if err := os.MkdirAll(filepath.Dir(res.Path), 0o700); err != nil {
 		return res, fmt.Errorf("failed to create %s: %w", filepath.Dir(res.Path), err)
 	}
-	if err := os.WriteFile(res.Path, body, 0o644); err != nil {
+	if err := fsutil.WriteFileAtomic(res.Path, body, 0o644); err != nil {
 		return res, fmt.Errorf("failed to write %s: %w", res.Path, err)
 	}
 	if etag := resp.Header.Get("ETag"); etag != "" {

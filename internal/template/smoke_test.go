@@ -27,9 +27,9 @@ func TestRenderIncludesNameAndEmailVariants(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"Māris Popens", "Also Known As: Maris Popens",
-		"Other Email Addresses Used: old.maris@example.com, maris.work@example.com",
-		"Previously Lived At: Tartu mnt 15, Tallinn, 10117; Duntes iela 23, Riga, LV-1005"} {
+	for _, want := range []string{"Māris Popens", "Also known as: Maris Popens",
+		"Other emails I have used: old.maris@example.com, maris.work@example.com",
+		"Previous addresses: Tartu mnt 15, Tallinn, 10117; Duntes iela 23, Riga, LV-1005"} {
 		if !strings.Contains(email.Body, want) {
 			t.Errorf("rendered email missing %q\n---\n%s", want, email.Body)
 		}
@@ -54,7 +54,7 @@ func TestPreviousAddressesRenderInAllTemplates(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%s: %v", tmplName, err)
 		}
-		if !strings.Contains(email.Body, "Previously Lived At: Tartu mnt 15, Tallinn, 10117") {
+		if !strings.Contains(email.Body, "Previous addresses: Tartu mnt 15, Tallinn, 10117") {
 			t.Errorf("%s template missing previous address line\n---\n%s", tmplName, email.Body)
 		}
 	}

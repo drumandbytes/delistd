@@ -19,7 +19,8 @@ This file is intentionally slim. Read the doc(s) relevant to what you're touchin
 - [docs/oauth-app.md](docs/oauth-app.md) - the shared Microsoft app for Outlook sign-in: what its public client ID allows, registration settings, monitoring, and the rotation/abuse runbook
 - [docs/mcp.md](docs/mcp.md) - the experimental `delistd mcp` agent server: batch approval, shared-platform host scope, and what it may and may not do
 - [docs/code-patterns.md](docs/code-patterns.md) - conventions to follow, plus known quirks/gotchas worth reading before touching related code
-- [docs/auditing.md](docs/auditing.md) - how to re-run the dead-code/security sweep, and what's already been removed
+- [docs/auditing.md](docs/auditing.md) - how to re-run the dead-code/security sweep and grow the broker lists
+- [docs/upgrading-to-3.0.md](docs/upgrading-to-3.0.md) - what 3.0 removed (the pre-rename names) and what to change
 - [docs/stability.md](docs/stability.md) - what 1.x promises not to break (config keys, CLI flags, history.db, brokers.yaml, export JSON) - check before renaming or removing any of them
 
 ## Quick Start
@@ -36,7 +37,7 @@ See [docs/commands.md](docs/commands.md) for the full CLI reference.
 
 - **Commits**: Conventional Commits with a scope - `feat(brokers):`, `fix(site):`, `fix(audit):`, `chore(ci):`, `docs:`. [release-please](.release-please-manifest.json) reads them to bump the version and write `CHANGELOG.md`; an unscoped or non-conventional message just won't appear in the changelog. No `Co-Authored-By` / attribution trailers.
 - **Branches & PRs**: work on a branch, open a PR, squash-merge. `main` stays releasable; patch-level release PRs auto-merge.
-- **Go code**: idioms, package layout, and known quirks are in [docs/code-patterns.md](docs/code-patterns.md) - read the "Known quirks" section before touching `send`, the reply classifier, history scoping, or the web UI's CSS.
+- **Go code**: conventions and the gotchas per area (sending, the reply classifier, the history store and profile scoping, the web server, browser automation) are in [docs/code-patterns.md](docs/code-patterns.md); read the matching section before touching one. The web UI's CSS rules (no inline styles, no toolchain, class tests) are in [docs/architecture.md](docs/architecture.md#web-ui-static-assets).
 
 ## Recurring work
 

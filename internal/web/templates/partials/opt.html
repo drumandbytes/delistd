@@ -1,0 +1,14 @@
+{{/* One labelled control of the request-options form. Data: dict with Label,
+     ID, Name, Kind (input, select, textarea), Type, Value, Attrs, Hint,
+     Options ([]selectOption), Class. */}}
+<div>
+    <label for="{{.ID}}" class="note">{{.Label}}</label>
+    {{if eq .Kind "select" -}}
+    <select id="{{.ID}}" name="{{.Name}}" class="input mt-1 w-full">{{range .Options}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}</select>
+    {{- else if eq .Kind "textarea" -}}
+    <textarea id="{{.ID}}" name="{{.Name}}" rows="12" class="input w-full mt-1 {{.Class}}" placeholder="{{.Placeholder}}">{{.Value}}</textarea>
+    {{- else -}}
+    <input id="{{.ID}}" type="{{.Type}}" name="{{.Name}}" value="{{.Value}}" class="input mt-1 w-full"{{if .Attrs}} {{.Attrs}}{{end}}>
+    {{- end}}
+    {{if .Hint}}<p class="mt-1 text-muted text-xs">{{.Hint}}</p>{{end}}
+</div>

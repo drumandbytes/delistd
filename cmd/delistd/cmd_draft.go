@@ -41,8 +41,7 @@ Examples:
 	}
 
 	cmd.Flags().StringVarP(&output, "output", "o", "", "write one .eml file per broker into this directory")
-	cmd.Flags().StringSliceVar(&regions, "region", nil, "only brokers in these regions: us, eu, global (comma-separated or repeated)")
-	cmd.Flags().StringSliceVar(&categories, "category", nil, "only brokers in these categories (comma-separated or repeated)")
+	addRegionCategoryFlags(cmd, &regions, &categories, "Only brokers")
 
 	return cmd
 }

@@ -1,11 +1,14 @@
 # Delistd
 
-> Open-source, local-first tool that sends GDPR and CCPA data removal requests to {{ len .Site.Data.brokers.brokers }} data brokers from your own machine. Free, no account, no telemetry. This site holds the broker directory, opt-out guides, docs and the list of EU/EEA data protection authorities.
+> Open-source, local-first tool that sends GDPR and CCPA data removal requests to {{ len hugo.Data.brokers.brokers }} data brokers from your own machine. Free, no account, no telemetry. This site holds the broker directory, opt-out guides, docs and the list of EU/EEA data protection authorities.
 
 ## Start here
 
 - [Home]({{ "/" | absURL }}): what Delistd is and how it compares with paid removal services
 - [Delistd vs Incogni and DeleteMe]({{ "/compare/" | absURL }}): price, data custody, coverage and when a paid service is the better choice
+- [FAQ]({{ "/faq/" | absURL }}): common questions about what Delistd does, what it needs from you and what to expect
+- [Help setting up Delistd]({{ "/support/" | absURL }}): optional paid setup and support from Drumandbytes OÜ; the tool stays free
+- [Terms for paid setup]({{ "/support/terms/" | absURL }}): scope, withdrawal, rescheduling and liability for the optional paid setup
 - [Broker directory]({{ "/brokers/" | absURL }}): every broker Delistd contacts, with region, category and opt-out route
 - [Docs]({{ with index (where hugo.Data.docs_versions.versions "latest" true) 0 }}{{ printf "/docs/%s/" .slug | absURL }}{{ end }}): step-by-step setup for beginners, commands, configuration, broker replies, multi-profile, MCP, stability policy
 - [EU/EEA data protection authorities]({{ "/authorities/" | absURL }}): where to complain if a broker ignores you
@@ -16,7 +19,7 @@
 {{ end }}
 ## Broker opt-out guides
 
-{{ range where (where .Site.RegularPages "Section" "brokers") "Params.robots" "!=" "noindex,follow" }}- [{{ .Title }}]({{ .Permalink }})
+{{ range (where (where .Site.RegularPages "Section" "brokers") "Params.robots" "!=" "noindex,follow").ByParam "broker_id" }}- [{{ .Title }}]({{ .Permalink }})
 {{ end }}
 ## Optional
 

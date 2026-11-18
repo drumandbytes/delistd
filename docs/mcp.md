@@ -11,21 +11,20 @@ AI provider or API key to configure in Delistd.
 
 ## Connect Codex
 
-1. Build this version with `go build -o delistd ./cmd/delistd`. Install Chrome or
-   Chromium if you want to automate forms.
-2. Complete Delistd's existing setup (`./delistd serve`) if needed. Existing users
-   can keep their email configuration and selected regions/template, including
-   EU/EEA settings. MCP does not change these defaults.
+1. Install Delistd ([README](../README.md#install)), and Chrome or Chromium if you
+   want to automate forms.
+2. Finish the normal setup (`delistd serve`) if you haven't. MCP uses your existing
+   email configuration, regions and template, and changes none of them.
 3. Merge [examples/codex-mcp.toml](../examples/codex-mcp.toml) into your Codex
    user config or this project's `.codex/config.toml`. Replace the executable
    path with an absolute path. Keep machine-specific configuration out of Git.
 4. Check `codex mcp get delistd`. Start a new local Codex session if Delistd is not
    in the current session's tool list.
 
-Codex supports local STDIO servers and per-tool approval settings in its
-[official MCP documentation](https://modelcontextprotocol.io/).
-Other tools can use `approve`: the server rejects form actions and sends until
-a batch exists, and enforces that batch's scope afterward.
+Codex supports local STDIO servers and per-tool approval settings
+([MCP documentation](https://modelcontextprotocol.io/)). Other clients work the
+same way: the server rejects form actions and sends until a batch is approved,
+and enforces that batch's scope afterward.
 
 Batches and retries are approved in Delistd, not in the MCP client. `begin_batch`
 and `retry_action` only work after a person approves the preview, or the retry,
@@ -149,19 +148,17 @@ need manual completion; only standard visible controls in the main document
 are automated.
 
 Destinations come from that broker's trusted local `website` and `opt_out_url`:
-exactly those hosts and their `www.` form, not subdomains and not domains
-invented by an agent or extracted from email. On shared privacy and form
-platforms (OneTrust, TrustArc, Google Forms, and similar) a subdomain or a
-sibling path is another company's form, so page loads there also stay under the
-catalog entry's form path (its first two path segments). The connected IP
-address is checked too: a page served from a private address stops the session
-and is not shown to the agent. URLs need HTTPS and a public address. Redirects,
-frames, subresources, and form traffic outside those hosts are blocked. This
-deliberately also blocks third-party CDNs and verification services not covered by the catalog;
-some real sites will need manual handling. An unexpected destination pauses
-the session persistently. Review the catalog independently, end the batch, and
-prepare a fresh one after correcting a legitimate portal URL. The agent cannot
-expand the domain scope through a tool call.
+exactly those hosts and their `www.` form, never subdomains and never domains an
+agent invented or pulled from an email. On shared platforms (OneTrust, TrustArc,
+Google Forms and the like) a sibling path is another company's form, so page
+loads there also stay under the catalog entry's form path (its first two path
+segments). The connected IP is checked too: a page served from a private address
+stops the session and is never shown to the agent. URLs need HTTPS and a public
+address. Redirects, frames, subresources and form traffic outside those hosts are
+blocked, which also blocks third-party CDNs and verification services the catalog
+doesn't cover; some real sites will need manual handling. An unexpected
+destination pauses the session until you review the catalog, end the batch and
+prepare a new one. The agent cannot widen the scope through a tool call.
 
 SMTP/IMAP passwords, browser cookies, and password-field values are not returned
 by tools. Profile details, page text, email bodies, confirmation URLs, and
@@ -205,18 +202,4 @@ following the repository's security policy.
 
 ## Contributor verification
 
-```bash
-go build -o delistd ./cmd/delistd
-go vet ./...
-go test -race ./...
-golangci-lint run
-./delistd validate-brokers
-```
-
-Browser tests use an installed Chrome/Chromium; set `DELISTD_TEST_CHROME` to its
-absolute executable path if needed. Local browser tests skip when Chrome is
-unavailable, while CI requires it. Tests exercise real MCP schema discovery,
-profile isolation, batch scope and expiry, durable duplicate prevention, SMTP
-limits/recovery, and the local forms with Chromium. No real mailbox or broker
-is needed. Verify the demo's completed tasks, screenshots, and pending review
-in the existing web UI before trying a small, explicitly approved real batch.
+`go test -race ./...` covers real MCP schema discovery, profile isolation, batch scope and expiry, duplicate prevention, SMTP limits and recovery, and the local forms with Chromium. No real mailbox or broker is needed. Browser tests use an installed Chrome or Chromium (set `DELISTD_TEST_CHROME` to its executable if needed) and skip when there is none; CI requires it. Check the demo's completed tasks, screenshots and pending review in the web UI before trying a small, explicitly approved real batch.

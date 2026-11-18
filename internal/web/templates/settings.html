@@ -1,241 +1,107 @@
 {{define "content"}}
 <div class="fade-in-up">
-    <!-- Header -->
     <div class="mb-8">
-        <h1 class="font-display text-3xl font-bold text-primary">Settings</h1>
-        <p class="text-secondary mt-1">Manage your profile and email configuration</p>
+        <h1 class="page-title">Settings</h1>
+        <p class="lede">Manage your profile and email configuration</p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Profiles Section -->
-        <div class="card p-6">
-            <div class="flex items-center gap-3 mb-6">
-                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6-2a4 4 0 11-8 0 4 4 0 018 0z"/>
-                    </svg>
-                <h2 class="font-display text-lg font-semibold text-primary">Profiles</h2>
-            </div>
-
-            <div class="space-y-3 mb-6">
+    <div class="gap-6 grid grid-cols-1 lg:grid-cols-2">
+        {{section "users" "Profiles" ""}}
+            <div class="mb-6 space-y-3">
                 {{range .Profiles}}
-                <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]">
+                <div class="border-b border-subtle flex items-center justify-between py-3">
                     <div>
-                        <p class="text-primary font-medium">{{.FirstName}} {{if .MiddleName}}{{.MiddleName}} {{end}}{{.LastName}}</p>
-                        <p class="text-sm text-muted">{{.Email}} &middot; <code>{{.ID}}</code></p>
+                        <p class="font-medium text-primary">{{.FirstName}} {{if .MiddleName}}{{.MiddleName}} {{end}}{{.LastName}}</p>
+                        <p class="note">{{.Email}} &middot; <code>{{.ID}}</code></p>
                     </div>
-                    <div class="flex items-center gap-2">
-                        {{if eq .ID $.ActiveProfile.ID}}<span class="badge badge-success">Active</span>{{end}}
+                    <div class="row-tight">
+                        {{if eq .ID $.ActiveProfile.ID}}{{badge "success" "Active"}}{{end}}
                         {{if .Mail}}<span class="badge badge-neutral" title="Sends/monitors through its own email account instead of the shared one">Own account</span>{{end}}
-                        <a href="/settings/profiles/{{.ID}}/edit" class="btn btn-ghost text-sm py-1 px-3">Edit</a>
-                        {{if gt (len $.Profiles) 1}}
-                        <button type="button" onclick="deleteProfile('{{.ID}}')" class="btn btn-ghost text-sm py-1 px-3 text-error">Delete</button>
-                        {{end}}
+                        <a href="/settings/profiles/{{.ID}}/edit" class="btn btn-ghost btn-sm">Edit</a>
+                        {{if gt (len $.Profiles) 1}}<button type="button" data-delete-profile="{{.ID}}" class="btn btn-ghost px-3 py-1 text-error text-sm">Delete</button>{{end}}
                     </div>
                 </div>
                 {{end}}
             </div>
-
             {{if le (len .Profiles) 1}}
-            <p class="text-secondary mb-6 text-sm">Add a second profile to send removal requests for another identity (e.g. a spouse or family member). Email/inbox settings are shared by default - each profile can optionally use its own account instead (see its Edit page).</p>
+            <p class="mb-6 text-secondary text-sm">Add a second profile to send removal requests for another identity (e.g. a spouse or family member). Email/inbox settings are shared by default - each profile can optionally use its own account instead (see its Edit page).</p>
             {{end}}
+            <a href="/settings/profiles/new" class="btn btn-secondary">{{icon "plus" "w-4 h-4"}} Add Profile</a>
+        {{endcard}}
 
-            <a href="/settings/profiles/new" class="btn btn-secondary">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Add Profile
-            </a>
-        </div>
-
-        <!-- Email Configuration Section -->
-        <div class="card p-6">
-            <div class="flex items-center gap-3 mb-6">
-                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                <h2 class="font-display text-lg font-semibold text-primary">Email Configuration</h2>
-            </div>
-
+        {{section "mail" "Email Configuration" ""}}
             {{if .Config}}
             <div class="space-y-4">
-                <div class="flex items-start justify-between py-3 border-b border-[var(--border-subtle)]">
-                    <div>
-                        <p class="text-sm text-muted">Provider</p>
-                        <p class="text-primary font-medium">{{if .Config.IsManualSend}}Manual (you send){{else}}{{providerName .Config.Email.SMTP.Host}}{{end}}</p>
-                    </div>
-                    <span class="badge badge-success">Active</span>
-                </div>
-                <div class="flex items-start justify-between py-3 border-b border-[var(--border-subtle)]">
-                    <div>
-                        <p class="text-sm text-muted">From Address</p>
-                        <p class="text-secondary">{{.Config.Email.From}}</p>
-                    </div>
-                </div>
-                {{if .Config.Email.Configured}}
-                <div class="flex items-start justify-between py-3">
-                    <div>
-                        <p class="text-sm text-muted">SMTP Server</p>
-                        <p class="text-secondary">{{.Config.Email.SMTP.Host}}:{{.Config.Email.SMTP.Port}}</p>
-                    </div>
-                </div>
-                {{end}}
+                {{template "partials/info-row.html" (dict "Label" "Provider" "Class" "text-primary font-medium" "Badge" (badge "success" "Active")
+                    "Value" (print (or (and .Config.IsManualSend "Manual (you send)") (providerName .Config.Email.SMTP.Host))))}}
+                {{template "partials/info-row.html" (dict "Label" "From Address" "Value" .Config.Email.From)}}
+                {{if .Config.Email.Configured}}{{template "partials/info-row.html" (dict "Label" "SMTP Server" "Value" (print .Config.Email.SMTP.Host ":" .Config.Email.SMTP.Port) "Last" true)}}{{end}}
             </div>
             {{else}}
-            <p class="text-muted">No email configured.</p>
+            <p class="text-muted">No email account set up yet.</p>
             {{end}}
+            <div class="mt-6"><a href="/setup/email" class="btn btn-secondary">{{icon "pencil" "w-4 h-4"}} Edit Email Settings</a></div>
+        {{endcard}}
 
-            <div class="mt-6">
-                <a href="/setup/email" class="btn btn-secondary">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                    </svg>
-                    Edit Email Settings
-                </a>
+        {{$inboxOn := and .Config .Config.Inbox .Config.Inbox.Enabled}}
+        {{section "inbox" "Inbox Monitoring" "Monitor your inbox for broker responses"}}
+            {{if $inboxOn}}
+            <div class="mb-6 space-y-4">
+                {{template "partials/info-row.html" (dict "Label" "Status" "Value" "Enabled" "Class" "text-primary font-medium" "Center" true "Badge" (badge "success" "Active"))}}
+                {{template "partials/info-row.html" (dict "Label" "Email" "Value" .Config.Inbox.Email)}}
+                {{template "partials/info-row.html" (dict "Label" "IMAP Server" "Value" (print .Config.Inbox.Server ":" .Config.Inbox.Port) "Last" true)}}
             </div>
-        </div>
-
-        <!-- Inbox Monitoring Section -->
-        <div class="card p-6">
-            <div class="flex items-center gap-3 mb-6">
-                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
-                    </svg>
-                <div>
-                    <h2 class="font-display text-lg font-semibold text-primary">Inbox Monitoring</h2>
-                    <p class="text-sm text-muted">Monitor your inbox for broker responses</p>
-                </div>
-            </div>
-
-            {{if and .Config .Config.Inbox .Config.Inbox.Enabled}}
-            <div class="space-y-4 mb-6">
-                <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]">
-                    <div>
-                        <p class="text-sm text-muted">Status</p>
-                        <p class="text-primary font-medium">Enabled</p>
-                    </div>
-                    <span class="badge badge-success">Active</span>
-                </div>
-                <div class="flex items-start justify-between py-3 border-b border-[var(--border-subtle)]">
-                    <div>
-                        <p class="text-sm text-muted">Email</p>
-                        <p class="text-secondary">{{.Config.Inbox.Email}}</p>
-                    </div>
-                </div>
-                <div class="flex items-start justify-between py-3">
-                    <div>
-                        <p class="text-sm text-muted">IMAP Server</p>
-                        <p class="text-secondary">{{.Config.Inbox.Server}}:{{.Config.Inbox.Port}}</p>
-                    </div>
-                </div>
-            </div>
-            <button type="button" onclick="document.getElementById('inbox-form').classList.toggle('hidden')" class="btn btn-secondary w-full">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                </svg>
-                Edit Settings
-            </button>
+            <button type="button" data-toggle="#inbox-form" class="btn btn-secondary w-full">{{icon "pencil" "w-4 h-4"}} Edit Settings</button>
             {{else}}
-            <div class="p-4 rounded-xl mb-6" style="background: var(--bg-elevated);">
-                <p class="text-secondary text-sm">
-                    Enable inbox monitoring to automatically detect broker responses like confirmation links and form requirements.
-                </p>
+            <div class="bg-elevated mb-6 p-4 rounded-xl">
+                <p class="text-secondary text-sm">Enable inbox monitoring to automatically detect broker responses like confirmation links and form requirements.</p>
             </div>
             {{end}}
 
-            <form id="inbox-form" method="POST" action="/settings/inbox" class="{{if and .Config .Config.Inbox .Config.Inbox.Enabled}}hidden {{end}}space-y-4 mt-4">
+            <form id="inbox-form" method="POST" action="/settings/inbox" class="{{if $inboxOn}}hidden {{end}}space-y-4 mt-4">
                 {{.CSRFField}}
-
                 {{template "partials/mail-account.html" .InboxForm}}
-
-                <div class="flex items-center gap-3 pt-2">
-                    <button type="submit" class="btn btn-primary flex-1">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Enable Inbox Monitoring
-                    </button>
-                    {{if and .Config .Config.Inbox .Config.Inbox.Enabled}}
-                    <button type="button" onclick="document.getElementById('inbox-form').classList.add('hidden')" class="btn btn-ghost">
-                        Cancel
-                    </button>
-                    {{end}}
+                <div class="flex gap-3 items-center pt-2">
+                    <button type="submit" class="btn btn-primary flex-1">{{icon "check" "w-4 h-4"}} Enable Inbox Monitoring</button>
+                    {{if $inboxOn}}<button type="button" data-hide="#inbox-form" class="btn btn-ghost">Cancel</button>{{end}}
                 </div>
             </form>
+            {{template "partials/flash.html" (dict "Text" .InboxMessage "OK" .InboxSuccess)}}
+        {{endcard}}
 
-            {{if .InboxMessage}}
-            <div class="mt-4 alert {{if .InboxSuccess}}alert-success{{else}}alert-error{{end}}">
-                {{.InboxMessage}}
-            </div>
-            {{end}}
-        </div>
-
-        <!-- Automation Section -->
         {{with .Automation}}
-        <div class="card p-6" id="automation">
-            <div class="flex items-center gap-3 mb-6">
-                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                <div>
-                    <h2 class="font-display text-lg font-semibold text-primary">Automation</h2>
-                    <p class="text-sm text-muted">Send due requests and check the inbox {{.Every}}, for every profile</p>
-                </div>
-            </div>
-
-            <div class="space-y-4 mb-6">
-                <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]">
+        {{section "clock" "Automation" (print "Send due requests and check the inbox " .Every ", for every profile") "automation"}}
+            {{if .Legacy}}<p class="alert alert-warning mb-4" role="status">An OS schedule installed under the old Eraser name is still set up, but the <code>eraser</code> command is gone in 3.0, so it no longer runs. Use <strong>Schedule with my OS</strong> below to replace it.</p>{{end}}
+            <div class="mb-6 space-y-4">
+                <div class="border-b border-subtle flex items-center justify-between py-3">
                     <div>
-                        <p class="text-sm text-muted">Status</p>
-                        <p class="text-primary font-medium">
-                            {{if .Installed}}Scheduled by your OS - runs even when this web app is closed
-                            {{else if .Enabled}}On while this web app is running
-                            {{else}}Off{{end}}
-                        </p>
+                        <p class="note">Status</p>
+                        <p class="font-medium text-primary">{{if .Installed}}Scheduled by your OS - runs even when this web app is closed{{else if .Enabled}}On while this web app is running{{else}}Off{{end}}</p>
                     </div>
-                    {{if .Running}}<span class="badge badge-warning">Running now</span>
-                    {{else if or .Installed .Enabled}}<span class="badge badge-success">Active</span>
-                    {{else}}<span class="badge badge-neutral">Off</span>{{end}}
+                    {{if .Running}}{{badge "warning" "Running now"}}{{else if or .Installed .Enabled}}{{badge "success" "Active"}}{{else}}{{badge "neutral" "Off"}}{{end}}
                 </div>
-                <div class="flex items-start justify-between py-3 border-b border-[var(--border-subtle)]">
-                    <div>
-                        <p class="text-sm text-muted">Last run</p>
-                        {{if .Last}}
-                        <p class="text-secondary">{{.Last.LastRun.Format "Jan 2, 15:04"}}{{if .LastVia}} via {{.LastVia}}{{end}} - {{.Last.Sent}} sent</p>
-                        {{if .Last.Error}}<p class="text-sm text-error mt-1">{{.Last.Error}}</p>{{end}}
-                        {{else}}
-                        <p class="text-secondary">Never</p>
-                        {{end}}
-                    </div>
-                </div>
-                {{if not .Next.IsZero}}
-                <div class="flex items-start justify-between py-3">
-                    <div>
-                        <p class="text-sm text-muted">Next run</p>
-                        <p class="text-secondary">Around {{.Next.Format "Jan 2, 15:04"}}</p>
-                    </div>
-                </div>
+                {{if .Last}}
+                {{template "partials/info-row.html" (dict "Label" "Last run" "Error" .Last.Error
+                    "Value" (print (.Last.LastRun.Format "Jan 2, 15:04") (or (and .LastVia (print " via " .LastVia)) "") " - " .Last.Sent " sent"))}}
+                {{else}}
+                {{template "partials/info-row.html" (dict "Label" "Last run" "Value" "Never")}}
                 {{end}}
+                {{if not .Next.IsZero}}{{template "partials/info-row.html" (dict "Label" "Next run" "Value" (print "Around " (.Next.Format "Jan 2, 15:04")) "Last" true)}}{{end}}
             </div>
 
             <div class="flex flex-wrap gap-3">
                 {{if .Supported}}
                 <form method="POST" action="/settings/automation#automation">
                     {{$.CSRFField}}
-                    {{if .Installed}}
-                    <button type="submit" name="action" value="remove" class="btn btn-secondary">Remove OS schedule</button>
-                    {{else}}
-                    <button type="submit" name="action" value="install" class="btn btn-primary">Schedule with my OS</button>
-                    {{end}}
+                    {{if .Installed}}<button type="submit" name="action" value="remove" class="btn btn-secondary">Remove OS schedule</button>
+                    {{else}}<button type="submit" name="action" value="install" class="btn btn-primary">Schedule with my OS</button>{{end}}
                 </form>
                 {{end}}
                 {{if not .Installed}}
                 <form method="POST" action="/settings/automation#automation">
                     {{$.CSRFField}}
-                    {{if .Enabled}}
-                    <button type="submit" name="action" value="disable" class="btn btn-secondary">Turn off in-app automation</button>
-                    {{else}}
-                    <button type="submit" name="action" value="enable" class="btn {{if .Supported}}btn-secondary{{else}}btn-primary{{end}}">Run while this app is open</button>
-                    {{end}}
+                    {{if .Enabled}}<button type="submit" name="action" value="disable" class="btn btn-secondary">Turn off in-app automation</button>
+                    {{else}}<button type="submit" name="action" value="enable" class="btn {{if .Supported}}btn-secondary{{else}}btn-primary{{end}}">Run while this app is open</button>{{end}}
                 </form>
                 {{end}}
                 <form method="POST" action="/settings/automation#automation">
@@ -243,30 +109,15 @@
                     <button type="submit" name="action" value="run" class="btn btn-ghost" {{if .Running}}disabled{{end}}>Run now</button>
                 </form>
             </div>
-            <p class="text-xs text-muted mt-3">
+            <p class="mt-3 text-muted text-xs">
                 Each broker is re-sent 25 days after its last request, within your daily limit. {{if .Supported}}The OS schedule keeps working with this app closed; the in-app option only runs while it's open.{{else}}Your OS has no supported scheduler, so automation runs while this app is open (or run <code>delistd auto</code> in a terminal).{{end}}
             </p>
-
-            {{if .Message}}
-            <div class="mt-4 alert {{if .Success}}alert-success{{else}}alert-error{{end}}">
-                {{.Message}}
-            </div>
-            {{end}}
-        </div>
+            {{template "partials/flash.html" (dict "Text" .Message "OK" .Success)}}
+        {{endcard}}
         {{end}}
 
-        <!-- Passphrase Section -->
-        <div class="card p-6" id="passphrase">
-            <div class="flex items-center gap-3 mb-6">
-                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                <div>
-                    <h2 class="font-display text-lg font-semibold text-primary">Passphrase</h2>
-                    <p class="text-sm text-muted">{{if .Passphrase.Protected}}Your mail passwords are protected by a passphrase{{else}}An extra gate on your stored mail passwords{{end}}</p>
-                </div>
-            </div>
-            <p class="text-sm text-secondary mb-3">Mail passwords are always encrypted for this machine and user. A passphrase also stops someone logged in as you from using them.</p>
+        {{section "lock" "Passphrase" (or (and .Passphrase.Protected "Your mail passwords are protected by a passphrase") "An extra gate on your stored mail passwords") "passphrase"}}
+            <p class="mb-3 text-secondary text-sm">Mail passwords are always encrypted for this machine and user. A passphrase also stops someone logged in as you from using them.</p>
             <div class="alert alert-warning mb-4 text-sm">
                 <strong>Heads-up:</strong> with a passphrase, runs with nobody at the keyboard can't unlock your mail password. The OS schedule (<em>Schedule with my OS</em>) is refused, and <code>delistd serve</code> or <code>delistd auto</code> ask once at startup. There is no recovery; if you forget it, re-enter your mail passwords.
             </div>
@@ -278,7 +129,7 @@
                     <input type="password" name="current" id="pp-current" class="input" autocomplete="current-password" required>
                 </div>
                 {{end}}
-                <div class="grid grid-cols-2 gap-4">
+                <div class="gap-4 grid grid-cols-2">
                     <div>
                         <label for="pp-new" class="label">{{if .Passphrase.Protected}}New passphrase{{else}}Passphrase{{end}}</label>
                         <input type="password" name="new" id="pp-new" class="input" autocomplete="new-password" minlength="{{.Passphrase.MinLength}}">
@@ -293,65 +144,24 @@
                     {{if .Passphrase.Protected}}<button type="submit" name="action" value="clear" class="btn btn-secondary" formnovalidate>Remove passphrase</button>{{end}}
                 </div>
             </form>
-            {{if .PassphraseMessage}}
-            <div class="mt-4 alert {{if .PassphraseSuccess}}alert-success{{else}}alert-error{{end}}">{{.PassphraseMessage}}</div>
-            {{end}}
-        </div>
+            {{template "partials/flash.html" (dict "Text" .PassphraseMessage "OK" .PassphraseSuccess)}}
+        {{endcard}}
 
-        <!-- Request Options Section -->
-        <div class="card p-6">
-            <div class="flex items-center gap-3 mb-6">
-                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-                    </svg>
-                <h2 class="font-display text-lg font-semibold text-primary">Request Options</h2>
-            </div>
-
+        {{section "sliders" "Request Options" ""}}
             {{if .Config}}
             <div class="space-y-4">
-                <form method="POST" action="/settings/options" class="space-y-4 py-3 border-b border-[var(--border-subtle)]">
+                <form method="POST" action="/settings/options" class="border-b border-subtle py-3 space-y-4">
                     {{.CSRFField}}
-                    <div>
-                        <label for="opt-template" class="text-sm text-muted">Default Template</label>
-                        <select id="opt-template" name="template" class="input w-full mt-1">
-                            {{range .Templates}}<option value="{{.}}"{{if eq . $.Config.Options.Template}} selected{{end}}>{{.}}</option>{{end}}
-                            <option value="custom"{{if eq $.Config.Options.Template "custom"}} selected{{end}}>custom (your own text, below)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="opt-custom" class="text-sm text-muted">Custom template text</label>
-                        <textarea id="opt-custom" name="custom_template" rows="12" class="input w-full mt-1 font-mono text-xs" placeholder="Subject: Data erasure request&#10;&#10;To {{"{{.BrokerName}}"}},&#10;...&#10;{{"{{.FullName}}"}}">{{.Config.Options.CustomTemplate}}</textarea>
-                        <p class="text-xs text-muted mt-1">Used when the template above is "custom". An optional first line <code>Subject: ...</code> sets the subject. Fields: {{"{{.FullName}} {{.FirstName}} {{.LastName}} {{.Email}} {{.Address}} {{.City}} {{.State}} {{.ZipCode}} {{.Country}} {{.Phone}} {{.DateOfBirth}} {{.OtherNames}} {{.OtherEmails}} {{.OtherAddresses}} {{.OtherPhones}} {{.BrokerName}} {{.BrokerEmail}} {{.BrokerWebsite}} {{.BrokerOptOut}} {{.Date}} {{.Year}} {{.Month}}"}}</p>
-                    </div>
-                    <div>
-                        <label for="opt-rate" class="text-sm text-muted">Rate Limit (ms between emails)</label>
-                        <input id="opt-rate" type="number" name="rate_limit_ms" min="0" value="{{.Config.Options.RateLimitMs}}" class="input w-full mt-1">
-                    </div>
-                    <label class="flex items-start gap-2 text-secondary">
+                    {{range .OptionsBefore}}{{template "partials/opt.html" .}}{{end}}
+                    <label class="flex gap-2 items-start text-secondary">
                         <input type="checkbox" name="manual_send" value="1" class="mt-1"{{if .Config.IsManualSend}} checked{{end}}>
-                        <span>I send the emails myself <span class="block text-xs text-muted">Delistd renders each email for you to send from your own mail client and you mark it sent. No email account needed; any saved one is kept.</span></span>
+                        <span>I send the emails myself <span class="block text-muted text-xs">Delistd renders each email for you to send from your own mail client and you mark it sent. No email account needed; any saved one is kept.</span></span>
                     </label>
-                    <div>
-                        <label for="opt-daily" class="text-sm text-muted">Daily send limit</label>
-                        <input id="opt-daily" type="number" name="daily_send_limit" min="1" value="{{.Config.Options.DailySendLimit}}" class="input w-full mt-1">
-                    </div>
-                    <div>
-                        <label for="opt-list" class="text-sm text-muted">Broker list</label>
-                        <select id="opt-list" name="broker_list" class="input w-full mt-1">
-                            <option value="full"{{if ne .Config.Options.BrokerList "verified"}} selected{{end}}>full (all brokers)</option>
-                            <option value="verified"{{if eq .Config.Options.BrokerList "verified"}} selected{{end}}>verified (hand-checked subset)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="opt-cats" class="text-sm text-muted">Excluded categories (comma-separated, e.g. requires-id)</label>
-                        <input id="opt-cats" type="text" name="excluded_categories" value="{{range $i, $c := .Config.Options.ExcludedCategories}}{{if $i}}, {{end}}{{$c}}{{end}}" class="input w-full mt-1">
-                    </div>
+                    {{range .OptionsAfter}}{{template "partials/opt.html" .}}{{end}}
                     <fieldset>
-                        <legend class="text-sm text-muted">Target Regions <span class="text-xs">(none checked = all brokers)</span></legend>
+                        <legend class="note">Target Regions <span class="text-xs">(none checked = all brokers)</span></legend>
                         <div class="flex gap-4 mt-1">
-                            {{range .Regions}}
-                            <label class="flex items-center gap-2 text-secondary uppercase"><input type="checkbox" name="regions" value="{{.Name}}"{{if .Checked}} checked{{end}}> {{.Name}}</label>
-                            {{end}}
+                            {{range .Regions}}<label class="flex gap-2 items-center text-secondary uppercase"><input type="checkbox" name="regions" value="{{.Name}}"{{if .Checked}} checked{{end}}> {{.Name}}</label>{{end}}
                         </div>
                     </fieldset>
                     <button type="submit" class="btn btn-secondary w-full">Save request options</button>
@@ -359,128 +169,39 @@
                 </form>
             </div>
             {{else}}
-            <p class="text-muted">No options configured.</p>
+            <p class="text-muted">Nothing set here yet.</p>
             {{end}}
-        </div>
+        {{endcard}}
 
-        <!-- Broker List Section: same as `delistd update-brokers` -->
-        <div class="card p-6" id="broker-list">
-            <div class="flex items-center gap-3 mb-6">
-                <svg class="w-5 h-5 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
-                <h2 class="font-display text-lg font-semibold text-primary">Broker List</h2>
-            </div>
-            <div class="flex items-start justify-between py-3 border-b border-[var(--border-subtle)] mb-4">
-                <div>
-                    <p class="text-sm text-muted">In use</p>
-                    <p class="text-secondary">{{.BrokerCount}} brokers{{if .OwnBrokers}}, including {{.OwnBrokers}} you added (kept across updates){{end}}</p>
-                </div>
-            </div>
-            <p class="text-sm text-secondary mb-4">The list ships with Delistd and is updated in the public repository as brokers appear, move or shut down. Fetching it only downloads the list - nothing about you is sent.</p>
+        {{/* the same as `delistd update-brokers` */}}
+        {{section "refresh" "Broker List" "" "broker-list"}}
+            <div class="mb-4">{{template "partials/info-row.html" (dict "Label" "In use" "Value" (print .BrokerCount " brokers" (or (and .OwnBrokers (print ", including " .OwnBrokers " you added (kept across updates)")) "")))}}</div>
+            <p class="mb-4 text-secondary text-sm">The list ships with Delistd and is updated in the public repository as brokers appear, move or shut down. Fetching it only downloads the list - nothing about you is sent.</p>
             <form method="POST" action="/settings/brokers/update">
                 {{.CSRFField}}
                 <button type="submit" class="btn btn-secondary w-full">Check for broker list updates</button>
             </form>
-            {{if .BrokersMessage}}
-            <div class="mt-4 alert {{if .BrokersSuccess}}alert-success{{else}}alert-error{{end}}">{{.BrokersMessage}}</div>
-            {{end}}
-        </div>
+            {{template "partials/flash.html" (dict "Text" .BrokersMessage "OK" .BrokersSuccess)}}
+        {{endcard}}
 
-        <!-- Danger Zone -->
-        <div class="card p-6" style="border-color: rgba(239, 68, 68, 0.3);">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(239, 68, 68, 0.15);">
-                    <svg class="w-5 h-5 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
-                </div>
+        <div class="border-error card p-6">
+            <div class="flex gap-3 items-center mb-6">
+                <div class="flex h-10 items-center justify-center rounded-xl tint-error w-10">{{icon "warning" "w-5 h-5 text-error"}}</div>
                 <div>
-                    <h2 class="font-display text-lg font-semibold text-error">Danger Zone</h2>
-                    <p class="text-sm text-muted">These actions are irreversible</p>
+                    <h2 class="font-display font-semibold text-error text-lg">Danger Zone</h2>
+                    <p class="note">These actions are irreversible</p>
                 </div>
             </div>
-
             <div id="danger-zone-result" class="mb-3"></div>
-
             <div class="space-y-3">
-                <button id="clear-history-btn" onclick="clearAllHistory()" class="btn btn-danger w-full justify-start">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                    Clear All History
-                </button>
-                <!-- "Reset Configuration" was removed here - it rendered as a live danger-zone
-                     button with no handler wired up (clicking it did nothing). Resetting
-                     config.yaml safely needs its own design (does it re-run setup? back up
-                     the old file? what happens to an in-progress send job?) rather than a
-                     silent no-op button, so it's left for a follow-up decision. -->
+                <button id="clear-history-btn" class="btn btn-danger justify-start w-full">{{icon "trash" "w-4 h-4"}} Clear All History</button>
             </div>
         </div>
     </div>
+    <p class="mt-6 note text-center">Using Delistd? A <a href="https://github.com/drumandbytes/delistd" target="_blank" rel="noopener" class="link">star on GitHub</a> or <a href="https://github.com/drumandbytes/delistd/issues/new?template=feedback.yml" target="_blank" rel="noopener" class="link">a few words of feedback</a> helps others find it.</p>
 </div>
-
-<script>
-async function clearAllHistory() {
-    if (!confirm('Delete ALL send history (sent + failed + pending records)? This cannot be undone. Your broker database and settings are not affected.')) return;
-
-    const btn = document.getElementById('clear-history-btn');
-    const resultArea = document.getElementById('danger-zone-result');
-    const originalHTML = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="animate-spin">⏳</span> Clearing...';
-
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-
-    try {
-        const resp = await fetch('/api/history', {
-            method: 'DELETE',
-            headers: { 'X-CSRF-Token': csrfToken }
-        });
-        const data = await resp.json();
-
-        if (resp.ok) {
-            resultArea.innerHTML = `
-                <div class="alert alert-success">
-                    ${data.message}.
-                </div>
-            `;
-        } else {
-            throw new Error(data.error || 'Failed to clear history');
-        }
-    } catch (err) {
-        resultArea.innerHTML = `
-            <div class="alert alert-error">
-                Error: ${err.message}
-            </div>
-        `;
-    }
-
-    btn.disabled = false;
-    btn.innerHTML = originalHTML;
-}
-
-async function deleteProfile(id) {
-    if (!confirm(`Remove profile "${id}"? This does not delete its existing send history - just the profile itself.`)) return;
-
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-
-    try {
-        const resp = await fetch('/settings/profiles/' + encodeURIComponent(id) + '/delete', {
-            method: 'POST',
-            headers: { 'X-CSRF-Token': csrfToken }
-        });
-        if (resp.ok) {
-            window.location.href = '/settings';
-        } else {
-            const text = await resp.text();
-            alert('Failed to delete profile: ' + text);
-        }
-    } catch (err) {
-        alert('Network error: ' + err.message);
-    }
-}
-</script>
+<script>window.clearHistoryLabel = `{{icon "trash" "w-4 h-4"}} Clear All History`;</script>
+<script src="/static/js/settings.js"></script>
 {{end}}
 
 {{template "layout" .}}

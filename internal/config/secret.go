@@ -67,8 +67,14 @@ func randomBytes(n int) []byte {
 	return b
 }
 
-func machineKey() cipher.AEAD {
-	key, _ := hkdf.Key(sha256.New, machineSecret(), []byte("eraser/config-secret/v1"), "aes-256-gcm", 32)
+func machineKey() cipher.AEAD { return machineKeyFor("delistd/config-secret/v1") }
+
+// legacyMachineKey opens passwords stored before the rename; they are
+// re-encrypted under machineKey the next time the config is saved.
+func legacyMachineKey() cipher.AEAD { return machineKeyFor("eraser/config-secret/v1") }
+
+func machineKeyFor(info string) cipher.AEAD {
+	key, _ := hkdf.Key(sha256.New, machineSecret(), []byte(info), "aes-256-gcm", 32)
 	return aeadFor(key)
 }
 
@@ -100,6 +106,9 @@ func decryptSecret(s string) (string, error) {
 		return "", errors.New("corrupt encrypted password")
 	}
 	plain, err := gcm.Open(nil, raw[:gcm.NonceSize()], raw[gcm.NonceSize():], nil)
+	if err != nil {
+		plain, err = legacyMachineKey().Open(nil, raw[:gcm.NonceSize()], raw[gcm.NonceSize():], nil)
+	}
 	if err != nil {
 		return "", errors.New("can't decrypt the stored password on this machine")
 	}
@@ -135,9 +144,9 @@ func (c *Config) secretFields(fn func(*string) error) error {
 	return nil
 }
 
-// cloneForSecrets copies the parts of c that hold passwords, so encrypting
-// them for Save never touches the live config other goroutines read.
-func (c *Config) cloneForSecrets() *Config {
+// Clone copies the parts of the config that hold passwords, so a caller that
+// encrypts or changes them never touches the live config other goroutines read.
+func (c *Config) Clone() *Config {
 	out := *c
 	out.Profiles = append([]NamedProfile(nil), c.Profiles...)
 	for i, p := range out.Profiles {
@@ -303,10 +312,6 @@ func (c *Config) CheckPassphrase(pass string) error {
 		return err
 	})
 }
-
-// Clone copies the parts of the config that hold passwords, for callers that
-// change them without touching the live config others are reading.
-func (c *Config) Clone() *Config { return c.cloneForSecrets() }
 
 // ReplaceSecret swaps every stored password equal to old for new, and reports
 // whether any matched. The OAuth refresh token lives in the password field,

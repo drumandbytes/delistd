@@ -48,9 +48,38 @@ func NextOSRun(now time.Time) time.Time {
 }
 
 const (
-	launchdLabel = "com.drumandbytes.eraser.auto"
-	systemdUnit  = "eraser-auto"
+	launchdLabel = "com.drumandbytes.delistd.auto"
+	systemdUnit  = "delistd-auto"
+
+	// names the job had before the rename; Install and Remove clean them up
+	// so a schedule is never installed twice
+	legacyLaunchdLabel = "com.drumandbytes.eraser.auto"
+	legacySystemdUnit  = "eraser-auto"
 )
+
+// removeLegacy unloads and deletes a job installed under the old names.
+func removeLegacy() {
+	switch goos {
+	case "darwin":
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return
+		}
+		_ = execCommand("launchctl", "bootout", "gui/"+strconv.Itoa(os.Getuid())+"/"+legacyLaunchdLabel).Run()
+		_ = removeFile(filepath.Join(home, "Library", "LaunchAgents", legacyLaunchdLabel+".plist"))
+	case "linux":
+		dir, err := systemdDir()
+		if err != nil {
+			return
+		}
+		if _, err := os.Stat(filepath.Join(dir, legacySystemdUnit+".timer")); err != nil {
+			return
+		}
+		_ = execCommand("systemctl", "--user", "disable", "--now", legacySystemdUnit+".timer").Run()
+		_ = removeFile(filepath.Join(dir, legacySystemdUnit+".timer"))
+		_ = removeFile(filepath.Join(dir, legacySystemdUnit+".service"))
+	}
+}
 
 // Job is what the OS scheduler runs: `<Exe> auto --once --config <ConfigPath>`.
 type Job struct {
@@ -111,8 +140,7 @@ func StableExecutable() (string, error) {
 	if strings.HasPrefix(selfReal, filepath.Clean(tmp)+string(filepath.Separator)) || strings.Contains(selfReal, "go-build") {
 		return "", fmt.Errorf("this is a temporary 'go run' build (%s) - build or install delistd first, then set up the schedule from that binary", selfReal)
 	}
-	// "eraser" is the deprecated alias binary; this process may have been started through it
-	for _, name := range []string{"delistd", "eraser"} {
+	for _, name := range []string{"delistd"} {
 		if onPath, err := exec.LookPath(name); err == nil {
 			if abs, err := filepath.Abs(onPath); err == nil {
 				if real, err := filepath.EvalSymlinks(abs); err == nil && real == selfReal {
@@ -178,6 +206,7 @@ func Installed() bool {
 
 // Install writes and loads the OS job, replacing any earlier one.
 func Install(j Job) error {
+	removeLegacy()
 	switch goos {
 	case "darwin":
 		path, err := launchdPath()
@@ -213,6 +242,7 @@ func Install(j Job) error {
 // Remove unloads and deletes the OS job. Removing a job that isn't
 // installed is not an error.
 func Remove() error {
+	removeLegacy()
 	switch goos {
 	case "darwin":
 		path, err := launchdPath()

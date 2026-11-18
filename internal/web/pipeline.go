@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"net/url"
 	"sort"
@@ -333,5 +334,33 @@ func (s *Server) handlePipeline(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
-	s.renderWithCSRF(w, r, "pipeline.html", map[string]interface{}{"Title": "Pipeline", "Pipeline": v, "InboxConfigured": cfg.InboxForProfile(active).Enabled})
+	s.renderWithCSRF(w, r, "pipeline.html", map[string]interface{}{
+		"Title": "Pipeline", "Pipeline": v, "InboxConfigured": cfg.InboxForProfile(active).Enabled,
+		"InboxActions": inboxActions, "Steps": pipelineSteps,
+	})
+}
+
+// inboxAction is one of the buttons that work on the mailbox. The tip shows on hover.
+type inboxAction struct {
+	ID, Class, Post, Label, Tip, TipWidth string
+	Icon                                  string // "" for a text-only button
+	Spinner                               string // id of the busy indicator, "" for none
+}
+
+var inboxActions = []inboxAction{
+	{ID: "scan-inbox-btn", Class: "btn btn-primary", Post: "/api/inbox/scan", Label: "Scan Inbox", Icon: "mail", Spinner: "scan-spinner", TipWidth: "w-72",
+		Tip: `Fetches new emails from data brokers and extracts opt-out form links. Processed emails are automatically moved to a "Delistd" folder in your inbox.`},
+	{ID: "reclassify-btn", Class: "btn btn-secondary", Post: "/api/inbox/reclassify", Label: "Reclassify", Icon: "refresh", Spinner: "reclassify-spinner", TipWidth: "w-64",
+		Tip: "Re-analyzes previously scanned emails to extract form URLs that may have been missed. Use if forms aren't showing up."},
+	{ID: "bounces-btn", Class: "btn btn-secondary", Post: "/api/inbox/bounces", Label: "Check bounces", TipWidth: "w-64",
+		Tip: "Looks for undeliverable-mail notices for brokers you emailed, and lets you clear their dead addresses."},
+}
+
+// pipelineSteps are the numbered instructions under "How to track broker responses";
+// the markup of a step is its bold lead and the text after it.
+var pipelineSteps = []struct{ Lead, Rest template.HTML }{
+	{"Send removal requests", ` from the <a href="/brokers" class="text-accent hover:underline">Brokers</a> page`},
+	{"Wait for responses", " (usually 1-7 days)"},
+	{`Click "Scan Inbox"`, ` to fetch broker emails and extract opt-out form links (emails are moved to a "Delistd" folder)`},
+	{`Check "Action Required"`, " below for forms that need manual completion"},
 }

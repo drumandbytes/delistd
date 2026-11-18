@@ -21,7 +21,7 @@ import (
 
 func testService(t *testing.T) *Service {
 	t.Helper()
-	testenv.SetHome(t, t.TempDir()) // no stray ~/.eraser/brokers.local.yaml
+	testenv.SetHome(t, t.TempDir()) // no stray ~/.delistd/brokers.local.yaml
 	dir := t.TempDir()
 	bp := filepath.Join(dir, "brokers.yaml")
 	db := &broker.BrokerDatabase{Brokers: []broker.Broker{{ID: "one", Name: "One", Email: "privacy@one.example", Website: "https://8.8.8.8", OptOutURL: "https://8.8.8.8/form", Region: "eu"}, {ID: "two", Name: "Two", Email: "privacy@two.example", Website: "https://8.8.8.8", Region: "eu"}}}

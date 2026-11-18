@@ -411,7 +411,7 @@ period and are candidates for a complaint to a supervisory authority
 
 <h2>Notes</h2>
 <p class="disclaimer">This report is generated from Delistd's local history database
-(<code>~/.eraser/history.db</code>). "Reply received" entries are Delistd's automatic
+(<code>~/.delistd/history.db</code>). "Reply received" entries are Delistd's automatic
 classification of inbound email and may not capture every message. Reconstructed
 emails are regenerated from the request template, not retrieved from a sent-mail
 archive. You are responsible for what you submit to any authority, and this report

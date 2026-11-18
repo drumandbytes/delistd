@@ -40,11 +40,11 @@ func TestRunUpdateBrokers(t *testing.T) {
 	if served != 1 {
 		t.Fatalf("expected one download, got %d", served)
 	}
-	target := filepath.Join(home, ".eraser", "brokers.yaml")
+	target := filepath.Join(home, ".delistd", "brokers.yaml")
 	if _, err := os.Stat(target); err != nil {
 		t.Fatalf("brokers.yaml not written: %v", err)
 	}
-	if etag, _ := os.ReadFile(filepath.Join(home, ".eraser", "brokers.etag")); string(etag) != `"v1"` {
+	if etag, _ := os.ReadFile(filepath.Join(home, ".delistd", "brokers.etag")); string(etag) != `"v1"` {
 		t.Errorf("etag = %q", etag)
 	}
 

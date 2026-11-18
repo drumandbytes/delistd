@@ -190,7 +190,7 @@ func TestFillResults(t *testing.T) {
 	}
 	mustContain(t, out, "Forms to process: 4", "CAPTCHA detected: hcaptcha", "Created CAPTCHA task", "Missing profile data for: phone",
 		"Screenshot: acme.png", "Form submitted!", "Form filled (not submitted)", "Processed 4 forms")
-	if gotCfg.Headless || gotCfg.Timeout != 12*time.Second || !strings.HasSuffix(gotCfg.ScreenshotDir, filepath.Join(".eraser", "screenshots")) {
+	if gotCfg.Headless || gotCfg.Timeout != 12*time.Second || !strings.HasSuffix(gotCfg.ScreenshotDir, filepath.Join(".delistd", "screenshots")) {
 		t.Errorf("browser config = %+v", gotCfg)
 	}
 	if !strings.Contains(strings.Join(gotDomains, ","), "wwwco.example") {
@@ -259,9 +259,9 @@ func TestAutoLoopAndModes(t *testing.T) {
 
 	// The OS job already installed: looping here would double up.
 	home := os.Getenv("HOME") // the last newCLIEnv's
-	unit := filepath.Join(home, "Library", "LaunchAgents", "com.drumandbytes.eraser.auto.plist")
+	unit := filepath.Join(home, "Library", "LaunchAgents", "com.drumandbytes.delistd.auto.plist")
 	if runtime.GOOS == "linux" {
-		unit = filepath.Join(home, ".config", "systemd", "user", "eraser-auto.timer")
+		unit = filepath.Join(home, ".config", "systemd", "user", "delistd-auto.timer")
 	}
 	if schedule.Supported() {
 		_ = os.MkdirAll(filepath.Dir(unit), 0o700)

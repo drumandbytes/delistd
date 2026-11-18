@@ -23,26 +23,10 @@ builds:
     goos: [linux, darwin, windows]
     goarch: [amd64, arm64]
 
-  # Deprecated alias: the same program under its old name, so existing scripts, OS schedules
-  # and muscle memory keep working. It prints a rename notice and goes away in the next
-  # major release. Not built for Windows ('binary' archives can't hold two executables).
-  - id: eraser
-    main: ./cmd/delistd
-    binary: eraser
-    env:
-      - CGO_ENABLED=0
-    flags:
-      - -trimpath
-    ldflags:
-      - -s -w -X main.version={{.Version}}
-    goos: [linux, darwin]
-    goarch: [amd64, arm64]
 
 archives:
   - id: delistd
     formats: [tar.gz]
-    # the eraser alias isn't built for Windows, so its archives hold one binary and the rest two
-    allow_different_binary_count: true
     format_overrides:
       - goos: windows
         formats: [zip, binary]
@@ -94,8 +78,7 @@ homebrew_casks:
       branch: main
     directory: Casks
     homepage: "https://delistd.dev/"
-    # both executables: `eraser` is the deprecated alias (see the build above)
-    binaries: [delistd, eraser]
+    binaries: [delistd]
     description: "Send data removal requests to data brokers"
     license: "MIT"
     commit_author:
@@ -108,13 +91,9 @@ homebrew_casks:
       postflight_steps do
         on_macos do
           run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "delistd"], chdir: "."
-          run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "eraser"], chdir: "."
         end
       end
     caveats: |
-      Eraser is now Delistd. The `eraser` command still works for now, but will be removed
-      in a future major release; use `delistd`.
-
-      Config lives at ~/.eraser/config.yaml (unchanged). Start with:
+      Config lives at ~/.delistd/config.yaml (unchanged). Start with:
         delistd serve      # web UI at http://localhost:8080
       `delistd fill` / `delistd confirm` also need Chrome installed.

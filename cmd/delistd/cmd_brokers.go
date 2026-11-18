@@ -19,15 +19,14 @@ func listBrokersCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "list-brokers",
-		Short: "List all data brokers in the database",
-		Long:  "Show all data brokers that will receive removal requests.",
+		Short: "List the data brokers Delistd knows about",
+		Long:  "Shows every broker a removal request can go to.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runListBrokers(regions, categories, search, missingEmail, allCountries)
 		},
 	}
 
-	cmd.Flags().StringSliceVar(&regions, "region", nil, "Only show brokers in these regions: us, eu, global (comma-separated or repeated)")
-	cmd.Flags().StringSliceVar(&categories, "category", nil, "Only show brokers in these categories (comma-separated or repeated)")
+	addRegionCategoryFlags(cmd, &regions, &categories, "Only show brokers")
 	cmd.Flags().StringVar(&search, "search", "", "Only show brokers whose name or ID contains this text")
 	cmd.Flags().BoolVar(&allCountries, "all-countries", false, "Also show brokers that only handle countries other than your profile's")
 	cmd.Flags().BoolVar(&missingEmail, "missing-email", false, "Only show brokers with no email on file (need manual follow-up)")
@@ -38,8 +37,8 @@ func listBrokersCmd() *cobra.Command {
 func addBrokerCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "add-broker",
-		Short: "Add a new data broker to the database",
-		Long:  "Interactively add a new data broker to the local broker database.",
+		Short: "Add a data broker that is missing from the list",
+		Long:  "Asks for a broker's details and adds it to your own broker list, which list updates never overwrite.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runAddBroker()
 		},
@@ -182,4 +181,11 @@ func runAddBroker() error {
 	fmt.Printf("✅ Added %s to broker database\n", b.Name)
 
 	return nil
+}
+
+// addRegionCategoryFlags adds --region and --category, which every command that
+// works on a slice of the broker list takes; subject completes their help text.
+func addRegionCategoryFlags(cmd *cobra.Command, regions, categories *[]string, subject string) {
+	cmd.Flags().StringSliceVar(regions, "region", nil, subject+" in these regions: us, eu, global (comma-separated or repeated)")
+	cmd.Flags().StringSliceVar(categories, "category", nil, subject+" in these categories (comma-separated or repeated)")
 }

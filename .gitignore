@@ -1,84 +1,56 @@
-# Binaries
+# Build output
 /delistd
+/dist/
 *.exe
 *.dll
 *.so
 *.dylib
-
-# Config files with personal info
-config.yaml
-*.local.yaml
-
-# History database
-*.db
-
-# Test files
 *.test
 *.out
 coverage.txt
 
-# IDE
+# Personal data: never commit any of this
+config.yaml
+*.local.yaml
+*.db
+pending_job.json
+manual_review_*.xlsx
+screenshots/
+browser-data/
+delistd-evidence-*.html
+delistd-evidence-*.json
+_to_delete/
+
+# Editors and OS
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
 Thumbs.db
 
-# Go
+# Dependencies
 vendor/
 
-# GoReleaser
-dist/
-
-# Hugo site: generated content + build output
-/site/public/
-/site/resources/
-/site/.hugo_build.lock
-/site/content/brokers/*.md
-!/site/content/brokers/_index.md
-/site/static/brokers.json
-/site/data/
-
-# Logs
+# Logs, backups, scratch
 *.log
-
-# Backup files
 *.bak
 *.backup
 *.orig
-
-# Firebase
-firebase-debug.log
-.firebase/
-.firebaserc
-
-# Temporary files
 *.tmp
 *.temp
 /tmp/
 
-# Screenshots and browser data
-screenshots/
-browser-data/
+# Hugo site: build output and everything generated for it
+/site/public/
+/site/resources/
+/site/.hugo_build.lock
+/site/data/
+/site/content/docs/*/
 
-# Personal data that might leak
-pending_job.json
-manual_review_*.xlsx
-_to_delete/
-delistd-evidence-*.html
-delistd-evidence-*.json
-
-# import-registries working output
+# scripts/import-registries output
 /scripts/import-registries/candidates.yaml
 /scripts/import-registries/review.md
 /candidates.yaml
 /review.md
-
-# Generated versioned docs (scripts/docs-versions)
-site/content/docs/*/
-site/data/docs_versions.json
-scripts/doc-images/node_modules/

@@ -3,6 +3,7 @@ package browser
 import (
 	"fmt"
 	"net/url"
+	"slices"
 	"strings"
 )
 
@@ -14,27 +15,22 @@ func matchesAllowedDomain(rawURL string, allowedDomains []string) (bool, string,
 		return false, "", fmt.Errorf("invalid URL: %w", err)
 	}
 
-	host := strings.ToLower(parsed.Host)
+	// Hostname drops the port and the brackets of an IPv6 literal; a trailing
+	// dot names the same host
+	host := strings.TrimSuffix(strings.ToLower(parsed.Hostname()), ".")
 
-	if idx := strings.Index(host, ":"); idx != -1 {
-		host = host[:idx]
-	}
-
-	domainSet := make(map[string]bool, len(allowedDomains))
 	for _, d := range allowedDomains {
-		domainSet[strings.ToLower(d)] = true
-	}
-
-	// Check exact match
-	if domainSet[host] {
-		return true, host, nil
-	}
-
-	for domain := range domainSet {
-		if strings.HasSuffix(host, "."+domain) {
-			return true, domain, nil
+		d = strings.ToLower(d)
+		if d == "" {
+			continue
+		}
+		if host == d || strings.HasSuffix(host, "."+d) {
+			return true, d, nil
 		}
 	}
-
 	return false, host, nil
+}
+
+func containsAny(text string, phrases []string) bool {
+	return slices.ContainsFunc(phrases, func(p string) bool { return strings.Contains(text, p) })
 }

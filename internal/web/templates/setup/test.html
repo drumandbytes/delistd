@@ -1,32 +1,32 @@
 {{define "content"}}
-<div class="min-h-[80vh] flex items-center justify-center py-8">
-    <div class="max-w-lg w-full fade-in-up">
+<div class="page-center py-8">
+    <div class="fade-in-up narrow">
         <div class="card p-8">
             {{template "partials/setup-steps.html" 4}}
 
             <!-- Header -->
             <div class="mb-8">
-                <h1 class="font-display text-2xl font-semibold text-primary mb-2">Test Your Setup</h1>
-                <p class="text-secondary">Let's make sure everything works</p>
+                <h1 class="font-display font-semibold mb-2 text-2xl text-primary">Test Your Setup</h1>
+                <p class="text-secondary">One quick check that sending works</p>
             </div>
 
             <!-- Configuration Summary -->
-            <div class="p-4 rounded-xl mb-6" style="background: var(--bg-elevated);">
-                <h3 class="font-medium text-primary mb-3">Your Configuration</h3>
-                <div class="grid grid-cols-2 gap-2 text-sm">
+            <div class="bg-elevated mb-6 p-4 rounded-xl">
+                <h3 class="font-medium mb-3 text-primary">Your Configuration</h3>
+                <div class="gap-2 grid grid-cols-2 text-sm">
                     <span class="text-muted">Name:</span>
-                    <span class="text-primary">{{.Profile.FirstName}} {{.Profile.LastName}}</span>
+                    <span class="text-primary" id="test-name">{{.Profile.FirstName}} {{.Profile.LastName}}</span>
                     <span class="text-muted">Email:</span>
-                    <span class="text-primary">{{.Profile.Email}}</span>
+                    <span class="text-primary" id="test-email">{{.Profile.Email}}</span>
                     <span class="text-muted">Provider:</span>
                     <span class="text-primary">{{providerName .Email.SMTP.Host}}</span>
                 </div>
             </div>
 
             <!-- Test Email Section -->
-            <div class="space-y-4 mb-8">
+            <div class="mb-8 space-y-4">
                 <p class="text-secondary">
-                    We'll send a test email to <strong class="text-primary">{{.Profile.Email}}</strong> to verify your setup.
+                    A test email goes to <strong class="text-primary">{{.Profile.Email}}</strong> so you can confirm it arrives.
                 </p>
 
                 <div id="test-result"></div>
@@ -43,15 +43,15 @@
                     Send Test Email
                 </button>
 
-                <p class="text-sm text-muted">
+                <p class="note">
                     Don't see the email? Check your spam folder.
                 </p>
             </div>
 
             <!-- Skip Option -->
-            <div class="pt-6 border-t border-[var(--border)]">
-                <p class="text-sm text-muted mb-3">Want to skip the test?</p>
-                <a href="/setup/complete" class="text-accent hover:underline font-medium">
+            <div class="border-t pt-6">
+                <p class="mb-3 text-muted text-sm">Want to skip the test?</p>
+                <a href="/setup/complete" class="font-medium hover:underline text-accent">
                     Skip and Complete Setup
                 </a>
             </div>
@@ -59,9 +59,7 @@
             <!-- Navigation -->
             <div class="flex justify-between pt-6">
                 <a href="/setup/email" class="btn btn-ghost">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
+                    {{icon "chevron-left" "w-4 h-4"}}
                     Back
                 </a>
             </div>

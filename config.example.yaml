@@ -1,115 +1,81 @@
-# Delistd Configuration Example
-# Copy this file to ~/.eraser/config.yaml and fill in your details
-
-# Mail passwords are stored encrypted (enc:v1:...). `delistd passphrase set` adds a passphrase
-# on top and sets `passphrase_protected: true` here; do not edit that by hand.
+# Delistd configuration. Copy to ~/.delistd/config.yaml and fill in your details.
+# Mail passwords are stored encrypted (enc:v1:...). `delistd passphrase set` adds a
+# passphrase on top and sets passphrase_protected: true; leave that key alone.
 
 profiles:
-  # One entry per person; most installs only need this one. More via
-  # `delistd profile add` (see docs/multi-profile.md).
+  # One entry per person; most installs need just this one. Add more with
+  # `delistd profile add` (docs/multi-profile.md).
   - id: default
-    # Required: Your personal information for removal requests
+    # Required
     first_name: John
     last_name: Doe
     email: john.doe@example.com
 
-    # Optional: other spellings brokers may have indexed you under -
-    # e.g. a diacritic-free version of your name, a maiden name, a nickname
-    # name_variants:
-    #   - John Doe
-
-    # Optional: other email addresses you've used over the years - brokers
-    # often indexed your record under an old one
-    # additional_emails:
-    #   - old.address@example.com
-
-    # Optional: Additional info helps brokers locate your records
+    # Optional, but the more brokers can match, the more records they find.
     address: "123 Main Street"
     city: "San Francisco"
     state: "CA"
     zip_code: "94102"
-    country: US  # ISO 3166-1 alpha-2 code
-
-    # Optional: places you've lived recently enough (last 5-7 years, say) that
-    # a broker might still have the record. A partial address (no apartment
-    # number) is still worth including - most broker matching keys off
-    # street/city/postal code, not the exact unit.
-    # previous_addresses:
-    #   - Old Street 1, Old City, OC-12345
+    country: US             # ISO 3166-1 alpha-2
     phone: "+1-555-123-4567"
-    date_of_birth: "1990-01-15"  # Format: YYYY-MM-DD
+    date_of_birth: "1990-01-15"   # YYYY-MM-DD
+
+    # Other identities a broker may have indexed you under:
+    # name_variants:        # a version without diacritics, a maiden name, a nickname
+    #   - John Doe
+    # additional_emails:    # addresses you used in the past
+    #   - old.address@example.com
+    # previous_addresses:   # places you lived in the last 5-7 years; a partial
+    #   - Old Street 1, Old City, OC-12345   # address still helps (matching keys off street, city, postal code)
 
 email:
   from: john.doe@example.com
 
-  # Any SMTP provider. Presets the setup wizard knows (host:port):
-  #   Gmail smtp.gmail.com:465, Proton Bridge 127.0.0.1:1025, Fastmail
-  #   smtp.fastmail.com:465, mailbox.org smtp.mailbox.org:465, Posteo
-  #   posteo.de:465, iCloud smtp.mail.me.com:587, Amazon SES
-  #   email-smtp.<region>.amazonaws.com:465 (username = SES SMTP user).
-  # Port 465 uses TLS from the start; any other port requires STARTTLS.
+  # Any SMTP provider. The wizard's presets (host:port): Gmail smtp.gmail.com:465,
+  # Proton Bridge 127.0.0.1:1025, Fastmail smtp.fastmail.com:465, mailbox.org
+  # smtp.mailbox.org:465, Posteo posteo.de:465, iCloud smtp.mail.me.com:587,
+  # Amazon SES email-smtp.<region>.amazonaws.com:465 (username = the SES SMTP user).
+  # Port 465 is TLS from the first byte; any other port must offer STARTTLS.
   smtp:
     host: smtp.fastmail.com
     port: 465
     username: john.doe@example.com
-    password: your-app-password  # Use app password, not your regular password!
-    # use_tls: false  # only for an unauthenticated local relay; TLS is on by default
+    password: your-app-password   # an app password, never your account password
+    # use_tls: false              # only for an unauthenticated local relay
 
 options:
-  # Template to use: "gdpr", "ccpa", or "generic"
-  # Set to gdpr by default here since this copy is configured for an EU resident.
-  template: gdpr
+  template: gdpr                  # gdpr, ccpa, generic or custom (see custom_template)
 
-  # How removal emails leave your machine:
-  #   smtp (default) - Delistd sends them over the `email:` account above.
-  #   manual         - Delistd never sends. It renders the emails for you to
-  #                    send by hand ('delistd draft', 'delistd send --manual',
-  #                    or the web UI's per-broker "Email" page), and you record
-  #                    each with 'delistd mark-sent'. No `email:` block needed.
+  # How the emails leave your machine:
+  #   smtp (default)  Delistd sends them from the email: account above.
+  #   manual          Delistd never sends. It renders the emails for you to send
+  #                   yourself (`delistd draft`, `delistd send --manual`, or a
+  #                   broker's "Email" page in the web UI) and you record each with
+  #                   `delistd mark-sent`. No email: block needed.
   # send_mode: manual
 
-  # Delay between emails in milliseconds (avoid spam filters)
-  rate_limit_ms: 2000
+  rate_limit_ms: 2000             # pause between emails, in milliseconds
 
-  # Max emails `send` will dispatch per rolling 24h window, to stay under
-  # your provider's daily sending cap. Gmail's is ~500/day for a regular
-  # account - default here (450) leaves headroom; other providers differ. Brokers already emailed
-  # in the last 25 days are skipped automatically, so re-running `send` on
-  # a large broker list resumes where it left off without double-emailing.
-  # Override per-run with --ignore-daily-limit or --resend.
+  # Most emails `send` dispatches per rolling 24 hours, to stay under your
+  # provider's cap (Gmail allows about 500 a day; others differ). Brokers emailed
+  # in the last 25 days are skipped, so re-running `send` resumes where it stopped.
+  # `--ignore-daily-limit` and `--resend` override this for one run.
   daily_send_limit: 450
 
-  # Which built-in broker list to use (optional):
-  #   full (default) - the full ~750-entry list
-  #   verified       - a smaller list built from public data-broker registries
-  #                    (US state registries + EU credit bureaus); every entry is
-  #                    a confirmed data broker with a working removal contact.
-  # Override per-run with `delistd send --list verified`.
+  # Which built-in list to use: full (default, 700+ entries) or verified (a smaller
+  # list of confirmed brokers with a working removal contact). `send --list` overrides.
   # broker_list: verified
 
-  # Use your own broker list instead of a built-in one (optional). Same effect
-  # as the global --brokers flag, which still wins if both are set.
-  # broker_file: /home/you/.eraser/my-brokers.yaml
+  # Your own list instead of a built-in one (the global --brokers flag still wins).
+  # broker_file: /home/you/.delistd/my-brokers.yaml
 
-  # Only send to brokers in these regions (optional)
-  # regions:
-  #   - us
-  #   - global
+  # Narrow the brokers (all optional):
+  # regions: [us, global]
+  # excluded_brokers: [spokeo, whitepages]
+  # excluded_categories: [requires-id]   # brokers that insist on a government ID document
 
-  # Skip these brokers (optional)
-  # excluded_brokers:
-  #   - spokeo
-  #   - whitepages
-
-  # Skip every broker in these categories (optional) - e.g. "requires-id" to
-  # skip brokers that demand a government-issued ID document before they'll
-  # act on a request (this tool won't supply one on your behalf)
-  # excluded_categories:
-  #   - requires-id
-
-# Automation (optional). The best option is 'delistd schedule install' (or
-# Settings -> Automation -> "Schedule with my OS"), which runs Delistd every
-# 6 hours even with the web UI closed. Where that isn't available, this makes
-# a running 'delistd serve' do the same while it's open:
+# Run Delistd every 6 hours while `delistd serve` is open. Prefer
+# `delistd schedule install` (or Settings -> Automation), which also works with the
+# web UI closed; use this where the OS can't schedule it.
 # schedule:
 #   enabled: true

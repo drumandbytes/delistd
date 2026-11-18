@@ -1,0 +1,16 @@
+{{/* One labelled form control, from a formField (see formfields.go). */}}
+<div{{if .Span}} class="{{.Span}}"{{end}}>
+    <label for="{{.Name}}" class="label">{{.Label}}{{if .Required}} <span class="text-error">*</span>{{end}}</label>
+    {{if .Options -}}
+    <select name="{{.Name}}" id="{{.Name}}"{{if .Autocomplete}} autocomplete="{{.Autocomplete}}"{{end}} class="input">
+        {{range .Options}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}
+    </select>
+    {{- else if gt .Rows 0 -}}
+    <textarea name="{{.Name}}" id="{{.Name}}" rows="{{.Rows}}" class="input{{if .Error}} border-error{{end}}"{{if .Placeholder}} placeholder="{{.Placeholder}}"{{end}}>{{.Value}}</textarea>
+    {{- else -}}
+    <input type="{{.Type}}" name="{{.Name}}" id="{{.Name}}"{{if .Autocomplete}} autocomplete="{{.Autocomplete}}"{{end}}{{if .Required}} required{{end}}{{if .Attrs}} {{.Attrs}}{{end}}
+        value="{{.Value}}" class="input{{if .Error}} border-error{{end}}"{{if .Placeholder}} placeholder="{{.Placeholder}}"{{end}}>
+    {{- end}}
+    {{if .Error}}<p class="field-error">{{.Error}}</p>{{end}}
+    {{if .Hint}}<p class="{{.HintClass}}">{{.Hint}}</p>{{end}}
+</div>

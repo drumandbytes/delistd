@@ -20,7 +20,7 @@ type BatchApproval struct {
 var ErrNoPendingApproval = errors.New("no pending approval for this batch")
 
 func (s *Store) migrateApprovals() error {
-	_, err := s.db.Exec(`CREATE TABLE IF NOT EXISTS batch_approvals (
+	_, err := s.exec(`CREATE TABLE IF NOT EXISTS batch_approvals (
 		plan_id TEXT PRIMARY KEY, profile_id TEXT NOT NULL, digest TEXT NOT NULL,
 		preview TEXT NOT NULL, created_at DATETIME NOT NULL, expires_at DATETIME NOT NULL,
 		approved_at DATETIME, approved_by TEXT NOT NULL DEFAULT '', consumed_at DATETIME
@@ -29,14 +29,14 @@ func (s *Store) migrateApprovals() error {
 }
 
 func (s *Store) CreateBatchApproval(a BatchApproval) error {
-	_, err := s.db.Exec(`INSERT INTO batch_approvals (plan_id, profile_id, digest, preview, created_at, expires_at)
+	_, err := s.exec(`INSERT INTO batch_approvals (plan_id, profile_id, digest, preview, created_at, expires_at)
 		VALUES (?, ?, ?, ?, ?, ?)`, a.PlanID, normalizeProfileID(a.ProfileID), a.Digest, a.Preview, time.Now().UTC(), a.ExpiresAt.UTC())
 	return err
 }
 
 // ApproveBatch is the web UI / `delistd mcp approve` side: pending and unexpired only, once.
 func (s *Store) ApproveBatch(planID, approver string) error {
-	r, err := s.db.Exec(`UPDATE batch_approvals SET approved_at = ?, approved_by = ?
+	r, err := s.exec(`UPDATE batch_approvals SET approved_at = ?, approved_by = ?
 		WHERE plan_id = ? AND approved_at IS NULL AND consumed_at IS NULL AND expires_at > ?`,
 		time.Now().UTC(), approver, planID, time.Now().UTC())
 	if err != nil {
@@ -50,7 +50,7 @@ func (s *Store) ApproveBatch(planID, approver string) error {
 
 // ConsumeBatchApproval spends an approval for the exact digest. Atomic: one approval, one batch.
 func (s *Store) ConsumeBatchApproval(planID, digest string) error {
-	r, err := s.db.Exec(`UPDATE batch_approvals SET consumed_at = ?
+	r, err := s.exec(`UPDATE batch_approvals SET consumed_at = ?
 		WHERE plan_id = ? AND digest = ? AND approved_at IS NOT NULL AND consumed_at IS NULL AND expires_at > ?`,
 		time.Now().UTC(), planID, digest, time.Now().UTC())
 	if err != nil {
@@ -63,7 +63,7 @@ func (s *Store) ConsumeBatchApproval(planID, digest string) error {
 }
 
 func (s *Store) PendingBatchApprovals() ([]BatchApproval, error) {
-	rows, err := s.db.Query(`SELECT plan_id, profile_id, digest, preview, expires_at FROM batch_approvals
+	rows, err := s.query(`SELECT plan_id, profile_id, digest, preview, expires_at FROM batch_approvals
 		WHERE approved_at IS NULL AND consumed_at IS NULL AND expires_at > ? ORDER BY created_at`, time.Now().UTC())
 	if err != nil {
 		return nil, err

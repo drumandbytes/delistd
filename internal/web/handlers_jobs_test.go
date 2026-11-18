@@ -31,10 +31,7 @@ func requestWithProfileCookie(method, target, profileID string) *http.Request {
 	return req
 }
 
-// TestHandleAPIJobStatus_ProfileScoping verifies fix #3: a job created under
-// one profile must not be visible - not even to look up its status - to a
-// request scoped to a different profile. Before the fix, handleAPIJobStatus
-// looked jobs up purely by ID and ignored the requester's active profile.
+// A job of another profile is a 404, same as a missing one.
 func TestHandleAPIJobStatus_ProfileScoping(t *testing.T) {
 	s := newTestServer(t, testConfig("a", "b"))
 	router := newJobTestRouter(s)
@@ -100,10 +97,7 @@ func TestHandleAPIJobStatus_ProfileScoping(t *testing.T) {
 	})
 }
 
-// TestHandleAPIJobCancel_ProfileScoping verifies the same fix for the
-// cancel endpoint: a cross-profile cancel request must not be able to
-// cancel another profile's job, and must get the same "not found" response
-// a genuinely missing job ID would.
+// Cancel is scoped the same way.
 func TestHandleAPIJobCancel_ProfileScoping(t *testing.T) {
 	s := newTestServer(t, testConfig("a", "b"))
 	router := newJobTestRouter(s)
@@ -145,9 +139,6 @@ func TestHandleAPIJobCancel_ProfileScoping(t *testing.T) {
 	}
 }
 
-// TestHandleAPIJobStatus_UnknownJobID confirms an outright-unknown job ID
-// still behaves the same as before the profile-scoping fix: 404 with the
-// same error body, for either profile.
 func TestHandleAPIJobStatus_UnknownJobID(t *testing.T) {
 	s := newTestServer(t, testConfig("a"))
 	router := newJobTestRouter(s)

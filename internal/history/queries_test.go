@@ -99,7 +99,7 @@ func TestDeleteByStatusAndAllHistory(t *testing.T) {
 func TestDBPaths(t *testing.T) {
 	home := t.TempDir()
 	testenv.SetHome(t, home)
-	if got, want := DefaultDBPath(), filepath.Join(home, ".eraser", "history.db"); got != want {
+	if got, want := DefaultDBPath(), filepath.Join(home, ".delistd", "history.db"); got != want {
 		t.Errorf("DefaultDBPath = %q, want %q", got, want)
 	}
 	if got := DBPathFor(""); got != DefaultDBPath() {

@@ -1,149 +1,91 @@
 {{define "content"}}
 <div class="max-w-4xl mx-auto">
-    <!-- Header -->
     <div class="mb-6">
-        <a href="/tasks" class="text-sm text-accent hover:underline">&larr; Back to Action Needed</a>
-        <h1 class="font-display text-2xl font-bold text-primary mt-2">CAPTCHA Task: {{.Task.BrokerName}}</h1>
-        <p class="text-secondary mt-1">Complete this form manually after solving the CAPTCHA</p>
+        <a href="/tasks" class="hover:underline text-accent text-sm">&larr; Back to Action Needed</a>
+        <h1 class="font-bold font-display mt-2 text-2xl text-primary">CAPTCHA Task: {{.Task.BrokerName}}</h1>
+        <p class="lede">Complete this form manually after solving the CAPTCHA</p>
     </div>
 
-    <!-- Timestamps -->
-    <div class="rounded-lg p-4 mb-6" style="background: var(--bg-elevated);">
+    <div class="bg-elevated mb-6 p-4 rounded-lg">
         <div class="flex flex-wrap gap-6 text-sm">
-            <div>
-                <span class="text-muted">Created:</span>
-                <span class="font-medium text-primary">{{.Task.CreatedAt.Format "Jan 2, 2006 3:04 PM"}}</span>
-            </div>
-            {{if .Task.OpenedAt.Valid}}
-            <div>
-                <span class="text-muted">First Opened:</span>
-                <span class="font-medium text-primary">{{.Task.OpenedAt.Time.Format "Jan 2, 2006 3:04 PM"}}</span>
-            </div>
-            {{end}}
-            {{if .Task.CompletedAt.Valid}}
-            <div>
-                <span class="text-muted">Completed:</span>
-                <span class="font-medium text-success">{{.Task.CompletedAt.Time.Format "Jan 2, 2006 3:04 PM"}}</span>
-            </div>
-            {{end}}
+            <div><span class="text-muted">Created:</span> <span class="emph">{{formatTime .Task.CreatedAt}}</span></div>
+            {{if .Task.OpenedAt.Valid}}<div><span class="text-muted">First Opened:</span> <span class="emph">{{formatTime .Task.OpenedAt.Time}}</span></div>{{end}}
+            {{if .Task.CompletedAt.Valid}}<div><span class="text-muted">Completed:</span> <span class="font-medium text-success">{{formatTime .Task.CompletedAt.Time}}</span></div>{{end}}
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Profile Data Section -->
-        <div class="card p-6">
-            <h2 class="font-display text-lg font-semibold text-primary mb-4">Your Information</h2>
-            <p class="text-sm text-muted mb-4">Click any field to copy it to your clipboard</p>
-
+    <div class="gap-6 grid grid-cols-1 lg:grid-cols-2">
+        {{card "Your Information"}}
+            <p class="mb-4 text-muted text-sm">Click any field to copy it to your clipboard</p>
             <div class="space-y-3">
                 {{range .OrderedProfile}}
-                <div class="copy-field flex items-center justify-between p-3 rounded-lg transition-colors cursor-pointer" data-value="{{.value}}" style="background: var(--bg-elevated);">
+                <div class="bg-elevated copy-field cursor-pointer flex items-center justify-between p-3 rounded-lg transition-colors" data-value="{{.value}}">
                     <div>
-                        <span class="text-xs text-muted uppercase tracking-wide">{{.key}}</span>
-                        <p class="font-medium text-primary">{{.value}}</p>
+                        <span class="text-muted text-xs tracking-wide uppercase">{{.key}}</span>
+                        <p class="emph">{{.value}}</p>
                     </div>
-                    <button class="text-accent hover:bg-[var(--accent-muted)] p-2 rounded-md transition-colors" title="Copy to clipboard">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                        </svg>
-                    </button>
+                    <button class="hover:bg-accent-muted p-2 rounded-md text-accent transition-colors" title="Copy to clipboard">{{icon "clipboard-copy" "w-5 h-5"}}</button>
                 </div>
                 {{end}}
             </div>
-
-            <!-- Open Form Button -->
             <div class="mt-6">
-                <a href="{{.Task.FormURL}}" target="_blank" rel="noopener noreferrer"
-                   class="btn btn-primary w-full justify-center">
-                    Open Form in New Tab
-                </a>
+                <a href="{{.Task.FormURL}}" target="_blank" rel="noopener noreferrer" class="btn btn-primary justify-center w-full">Open Form in New Tab</a>
             </div>
-        </div>
+        {{endcard}}
 
-        <!-- Instructions & Screenshot Section -->
         <div class="space-y-6">
-            <!-- Instructions -->
-            <div class="card p-6">
-                <h2 class="font-display text-lg font-semibold text-primary mb-4">Instructions</h2>
+            {{card "Instructions"}}
                 <ol class="list-decimal list-inside space-y-2 text-secondary">
-                    <li>Click <strong>"Open Form in New Tab"</strong> on the left</li>
+                    <li>Click <strong>"Open Form in New Tab"</strong> under your information</li>
                     <li>Solve the CAPTCHA on the form</li>
-                    <li>Use the copy buttons above to fill in your information</li>
-                    <li>Submit the form on the broker's website</li>
-                    <li>Return here and click <strong>"Mark Complete"</strong></li>
+                    <li>Copy your details from the buttons above into the form</li>
+                    <li>Send the form on the broker's own site</li>
+                    <li>Come back and press <strong>"Mark Complete"</strong></li>
                 </ol>
-            </div>
+            {{endcard}}
 
-            <!-- Screenshot -->
             {{if .Task.ScreenshotPath}}
-            <div class="card p-6">
-                <h2 class="font-display text-lg font-semibold text-primary mb-4">Form Screenshot</h2>
-                <img src="/tasks/{{.Task.ID}}/screenshot" alt="Form screenshot" class="w-full rounded-lg border-[var(--border)]" style="border-width: 1px;">
-            </div>
+            {{card "Form Screenshot"}}
+                <img src="/tasks/{{.Task.ID}}/screenshot" alt="Form screenshot" class="border rounded-lg w-full">
+            {{endcard}}
             {{end}}
 
-            <!-- Actions -->
-            <div class="card p-6">
-                <h2 class="font-display text-lg font-semibold text-primary mb-4">Actions</h2>
+            {{card "Actions"}}
                 {{if eq .Task.Status "pending"}}
                 <div class="flex flex-wrap gap-3">
-                    <form action="/tasks/{{.Task.ID}}/complete" method="POST" class="inline">
-                        {{.CSRFField}}
-                        <button type="submit" class="btn btn-primary">
-                            Mark Complete
-                        </button>
-                    </form>
-                    <form action="/tasks/{{.Task.ID}}/skip" method="POST" class="inline">
-                        {{.CSRFField}}
-                        <button type="submit" class="btn btn-secondary">
-                            Skip
-                        </button>
-                    </form>
+                    <form action="/tasks/{{.Task.ID}}/complete" method="POST" class="inline">{{.CSRFField}}<button type="submit" class="btn btn-primary">Mark Complete</button></form>
+                    <form action="/tasks/{{.Task.ID}}/skip" method="POST" class="inline">{{.CSRFField}}<button type="submit" class="btn btn-secondary">Skip</button></form>
                 </div>
                 {{else if eq .Task.Status "completed"}}
-                <div class="flex items-center gap-2 text-success">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span class="font-medium">This task has been completed</span>
-                </div>
+                <div class="flex gap-2 items-center text-success">{{icon "check" "w-5 h-5"}} <span class="font-medium">This task has been completed</span></div>
                 {{else if eq .Task.Status "skipped"}}
-                <div class="flex items-center gap-2 text-muted">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
-                    </svg>
-                    <span class="font-medium">This task has been skipped</span>
-                </div>
+                <div class="flex gap-2 items-center text-muted">{{icon "chevron-double-right" "w-5 h-5"}} <span class="font-medium">This task has been skipped</span></div>
                 {{end}}
-            </div>
+            {{endcard}}
         </div>
     </div>
 
-    <!-- Notes Section -->
     {{if .Task.Notes}}
-    <div class="card p-6 mt-6">
-        <h2 class="font-display text-lg font-semibold text-primary mb-4">Notes</h2>
+    {{card "Notes" "p-6 mt-6"}}
         <p class="text-secondary whitespace-pre-wrap">{{.Task.Notes}}</p>
-    </div>
+    {{endcard}}
     {{end}}
 </div>
 
-<!-- Copy to Clipboard Script -->
 <script>
-document.querySelectorAll('.copy-field').forEach(field => {
+// clicking a field copies its value and flashes it green for half a second
+for (const field of document.querySelectorAll('.copy-field')) {
     field.addEventListener('click', async () => {
-        const value = field.dataset.value;
         try {
-            await navigator.clipboard.writeText(value);
-            // Show feedback by briefly tinting the field with the success color
-            field.style.background = 'rgba(34, 197, 94, 0.15)';
-            setTimeout(() => {
-                field.style.background = 'var(--bg-elevated)';
-            }, 500);
+            await navigator.clipboard.writeText(field.dataset.value);
+            field.classList.add('tint-success');
+            setTimeout(() => field.classList.remove('tint-success'), 500);
         } catch (err) {
             console.error('Failed to copy:', err);
         }
     });
-});
+}
 </script>
 {{end}}
+
+{{template "layout" .}}

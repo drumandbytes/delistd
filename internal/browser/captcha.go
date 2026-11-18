@@ -6,93 +6,94 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// CaptchaInfo is the result of detectCaptcha.
-type CaptchaInfo struct {
-	Found bool
-	Type  string // one of the CaptchaType constants
-}
-
+// The kinds of CAPTCHA detectCaptcha tells apart. The strings are what the page
+// script returns.
 const (
 	CaptchaTypeRecaptchaV2  = "recaptcha_v2"
 	CaptchaTypeRecaptchaV3  = "recaptcha_v3"
 	CaptchaTypeHCaptcha     = "hcaptcha"
 	CaptchaTypeTurnstile    = "cloudflare_turnstile"
 	CaptchaTypeFunCaptcha   = "funcaptcha"
+	CaptchaTypeCloudflare   = "cloudflare_challenge"
 	CaptchaTypeImageCaptcha = "image_captcha"
 	CaptchaTypeTextCaptcha  = "text_captcha"
-	CaptchaTypeCloudflare   = "cloudflare_challenge"
 	CaptchaTypeUnknown      = "unknown"
 )
 
-// detectCaptchaJS returns the first CAPTCHA type found on the page, checked
-// most specific first, or "" for none.
-const detectCaptchaJS = `(function() {
-	var q = function(sel) { return document.querySelector(sel); };
-	var body = document.body ? document.body.innerText.toLowerCase() : '';
-
-	if (q('iframe[src*="recaptcha"]') || q('.g-recaptcha, [data-sitekey]') || typeof grecaptcha !== 'undefined') return 'recaptcha_v2';
-	var scripts = document.querySelectorAll('script[src*="recaptcha"]');
-	for (var i = 0; i < scripts.length; i++) {
-		if (scripts[i].src.includes('render=')) return 'recaptcha_v3';
-	}
-	if (q('script[src*="enterprise.js"]')) return 'recaptcha_v3';
-	if (q('iframe[src*="hcaptcha"]') || q('.h-captcha, [data-hcaptcha-sitekey]') || typeof hcaptcha !== 'undefined') return 'hcaptcha';
-	if (q('iframe[src*="challenges.cloudflare.com"]') || q('.cf-turnstile, [data-turnstile-sitekey]')) return 'cloudflare_turnstile';
-	if (q('iframe[src*="funcaptcha"], iframe[src*="arkoselabs"]')) return 'funcaptcha';
-	var fc = q('#FunCaptcha, [data-callback]');
-	if (fc && fc.id && fc.id.toLowerCase().includes('funcaptcha')) return 'funcaptcha';
-
-	var title = document.title.toLowerCase();
-	if (title.includes('just a moment') || title.includes('checking your browser') || q('form#challenge-form') ||
-		q('.ray-id, [data-ray]') || (body.includes('ray id') && body.includes('cloudflare'))) return 'cloudflare_challenge';
-
-	var keywords = ['captcha', 'verification code', 'security code', 'enter the code', 'type the characters',
-		'verify you are human', 'prove you are human', 'i am not a robot', 'human verification'];
-	var img = q('img[src*="captcha"], img[alt*="captcha"], .captcha-image');
-	var input = q('input[name*="captcha"], input[id*="captcha"], input[placeholder*="captcha" i]');
-	if ((img || input) && keywords.some(function(k) { return body.includes(k); })) return input ? 'text_captcha' : 'unknown';
-	if (q('img[src*="captcha"], img[alt*="captcha"]')) return 'image_captcha';
-	return '';
-})()`
-
-// detectCaptcha errors only on context failure (browser died or timed out),
-// never for "no CAPTCHA".
-func (b *Browser) detectCaptcha(ctx context.Context) (CaptchaInfo, error) {
-	var captchaType string
-	if err := chromedp.Run(ctx, chromedp.Evaluate(detectCaptchaJS, &captchaType)); err != nil {
-		if isContextErr(err) {
-			return CaptchaInfo{}, err
-		}
-		return CaptchaInfo{}, nil // page script failed: treat as no CAPTCHA
-	}
-	return CaptchaInfo{Found: captchaType != "", Type: captchaType}, nil
+// CaptchaInfo says whether a page has a CAPTCHA and which kind.
+type CaptchaInfo struct {
+	Found bool
+	Type  string // a CaptchaType constant
 }
 
-// IsCaptchaBlocking returns true if the CAPTCHA requires human intervention.
-// reCAPTCHA v3 is invisible and usually doesn't.
+// detectCaptchaJS evaluates to the first CAPTCHA kind found on the page, the
+// most specific checks first, or "" when there is none.
+const detectCaptchaJS = `(function() {
+	const has = (sel) => document.querySelector(sel) !== null;
+	const text = document.body ? document.body.innerText.toLowerCase() : '';
+	const title = document.title.toLowerCase();
+
+	if (has('iframe[src*="recaptcha"]') || has('.g-recaptcha, [data-sitekey]') || typeof grecaptcha !== 'undefined') return 'recaptcha_v2';
+	const v3Script = Array.from(document.querySelectorAll('script[src*="recaptcha"]')).some((s) => s.src.includes('render='));
+	if (v3Script || has('script[src*="enterprise.js"]')) return 'recaptcha_v3';
+	if (has('iframe[src*="hcaptcha"]') || has('.h-captcha, [data-hcaptcha-sitekey]') || typeof hcaptcha !== 'undefined') return 'hcaptcha';
+	if (has('iframe[src*="challenges.cloudflare.com"]') || has('.cf-turnstile, [data-turnstile-sitekey]')) return 'cloudflare_turnstile';
+	if (has('iframe[src*="funcaptcha"], iframe[src*="arkoselabs"]')) return 'funcaptcha';
+	const fun = document.querySelector('#FunCaptcha, [data-callback]');
+	if (fun && fun.id && fun.id.toLowerCase().includes('funcaptcha')) return 'funcaptcha';
+
+	const cfTitle = title.includes('just a moment') || title.includes('checking your browser');
+	if (cfTitle || has('form#challenge-form') || has('.ray-id, [data-ray]') || (text.includes('ray id') && text.includes('cloudflare'))) return 'cloudflare_challenge';
+
+	const phrases = ['captcha', 'verification code', 'security code', 'enter the code', 'type the characters',
+		'verify you are human', 'prove you are human', 'i am not a robot', 'human verification'];
+	const hasImage = has('img[src*="captcha"], img[alt*="captcha"], .captcha-image');
+	const hasInput = has('input[name*="captcha"], input[id*="captcha"], input[placeholder*="captcha" i]');
+	if ((hasImage || hasInput) && phrases.some((p) => text.includes(p))) return hasInput ? 'text_captcha' : 'unknown';
+	return has('img[src*="captcha"], img[alt*="captcha"]') ? 'image_captcha' : '';
+})()`
+
+// detectCaptcha errors only when the context fails (the browser died or timed
+// out); a page whose script throws counts as having no CAPTCHA.
+func (b *Browser) detectCaptcha(ctx context.Context) (CaptchaInfo, error) {
+	kind, err := chromedp.Run(ctx, chromedp.Evaluate[string](detectCaptchaJS))
+	switch {
+	case err != nil && isContextErr(err):
+		return CaptchaInfo{}, err
+	case err != nil:
+		return CaptchaInfo{}, nil
+	}
+	return CaptchaInfo{Found: kind != "", Type: kind}, nil
+}
+
+// IsCaptchaBlocking reports whether the CAPTCHA needs a person. reCAPTCHA v3 is
+// invisible and normally doesn't.
 func (c CaptchaInfo) IsCaptchaBlocking() bool {
 	return c.Found && c.Type != CaptchaTypeRecaptchaV3
 }
 
-var captchaDescriptions = map[string]string{
-	CaptchaTypeRecaptchaV2:  "Google reCAPTCHA v2 - Click the checkbox and/or solve image puzzles",
-	CaptchaTypeRecaptchaV3:  "Google reCAPTCHA v3 - Usually invisible, may auto-pass",
-	CaptchaTypeHCaptcha:     "hCaptcha - Select images matching the description",
-	CaptchaTypeTurnstile:    "Cloudflare Turnstile - Usually auto-passes after brief check",
-	CaptchaTypeFunCaptcha:   "FunCaptcha - Complete interactive puzzles",
-	CaptchaTypeImageCaptcha: "Image CAPTCHA - Type the characters shown in the image",
-	CaptchaTypeTextCaptcha:  "Text CAPTCHA - Enter the verification code",
-	CaptchaTypeCloudflare:   "Cloudflare Challenge - Wait or complete verification",
-	CaptchaTypeUnknown:      "Unknown CAPTCHA type - Manual inspection required",
-}
-
-// GetCaptchaDescription returns a human-readable description
+// GetCaptchaDescription says what the CAPTCHA is and what solving it takes.
 func (c CaptchaInfo) GetCaptchaDescription() string {
 	if !c.Found {
 		return "No CAPTCHA detected"
 	}
-	if desc, ok := captchaDescriptions[c.Type]; ok {
-		return desc
+	switch c.Type {
+	case CaptchaTypeRecaptchaV2:
+		return "Google reCAPTCHA v2: tick the box and/or solve the image puzzle"
+	case CaptchaTypeRecaptchaV3:
+		return "Google reCAPTCHA v3: normally invisible, may pass by itself"
+	case CaptchaTypeHCaptcha:
+		return "hCaptcha: pick the images that match the prompt"
+	case CaptchaTypeTurnstile:
+		return "Cloudflare Turnstile: normally passes after a short check"
+	case CaptchaTypeFunCaptcha:
+		return "FunCaptcha: finish the interactive puzzle"
+	case CaptchaTypeCloudflare:
+		return "Cloudflare challenge: wait for it or complete the verification"
+	case CaptchaTypeImageCaptcha:
+		return "Image CAPTCHA: type the characters shown"
+	case CaptchaTypeTextCaptcha:
+		return "Text CAPTCHA: enter the verification code"
 	}
-	return captchaDescriptions[CaptchaTypeUnknown]
+	return "Unknown CAPTCHA type: needs a manual look"
 }

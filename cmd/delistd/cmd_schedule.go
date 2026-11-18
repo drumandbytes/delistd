@@ -20,7 +20,7 @@ brokers that are due, then check the inbox for replies. Runs missed while the
 machine was asleep or off happen at the next wake.
 
 macOS uses a launchd agent (output in auto.log next to your config), Linux a
-systemd user timer (output in 'journalctl --user -u eraser-auto'). Elsewhere,
+systemd user timer (output in 'journalctl --user -u delistd-auto'). Elsewhere,
 run 'delistd auto' in the foreground, or set schedule.enabled: true and keep
 'delistd serve' running (Settings -> Automation in the web UI does both).`,
 	}
@@ -78,7 +78,7 @@ func runScheduleInstall() error {
 	case "darwin":
 		fmt.Printf("   Output: %s\n", job.LogPath)
 	case "linux":
-		fmt.Println("   Output: journalctl --user -u eraser-auto")
+		fmt.Println("   Output: journalctl --user -u delistd-auto")
 		fmt.Println("   On a server with no login session, run 'loginctl enable-linger' so the timer runs while you're logged out.")
 	}
 	fmt.Println("   Check on it with 'delistd schedule status'.")

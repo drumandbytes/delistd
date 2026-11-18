@@ -1,145 +1,93 @@
-// Package browser provides headless Chrome automation for form filling
 package browser
 
 import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
-	"time"
 
+	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/cdproto/emulation"
 	"github.com/chromedp/chromedp"
+	"github.com/chromedp/chromedp/remote"
 
 	"github.com/drumandbytes/delistd/internal/config"
 )
 
-// Browser wraps chromedp for headless Chrome automation
+// Browser is one Chrome session, started on first use and kept for every page
+// after, as `delistd fill --pending` fills several forms in a row.
 type Browser struct {
-	allocCtx       context.Context
-	allocCancel    context.CancelFunc
-	ctx            context.Context
-	cancel         context.CancelFunc
 	config         BrowserConfig
 	profile        *config.Profile
 	allowedDomains []string
+
+	// the allocator launches or attaches to Chrome; ctx is the browser's own
+	// lifetime, which the first action must run on (see start)
+	allocCtx    context.Context
+	allocCancel context.CancelFunc
+	ctx         context.Context
+	cancel      context.CancelFunc
 }
 
-// BrowserConfig holds browser automation settings
-type BrowserConfig struct {
-	ExecutablePath string // Optional Chrome/Chromium executable override.
-	RemoteURL      string // Attach to an already-running Chrome's DevTools endpoint instead of launching one; defaults to $DELISTD_CHROME_URL.
-	Headless       bool
-	Timeout        time.Duration
-	ScreenshotDir  string
-	UserAgent      string
-	WindowWidth    int
-	WindowHeight   int
-	WaitForUser    bool         // If true, pause when CAPTCHA detected for user to solve
-	WaitCallback   func() error // Called when waiting for user (e.g., to prompt in terminal)
-}
-
-// DefaultConfig returns sensible default browser settings
-func DefaultConfig() BrowserConfig {
-	return BrowserConfig{
-		Headless:      true,
-		Timeout:       60 * time.Second, // Increased from 30s - many broker sites are slow
-		ScreenshotDir: "",
-		UserAgent:     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-		WindowWidth:   1920,
-		WindowHeight:  1080,
-	}
-}
-
-// FormResult represents the outcome of a form fill attempt
-type FormResult struct {
-	Success         bool
-	URL             string
-	BrokerID        string
-	FieldsFilled    []string
-	FieldsMissing   []string
-	CaptchaFound    bool
-	CaptchaType     string
-	ScreenshotPath  string
-	ErrorMessage    string
-	SubmitAttempted bool
-	FillErrors      []string // real (non-"not found") errors hit while filling fields, e.g. context timeouts
-}
-
-// extraAllocatorOptions is appended to every launch; tests use it to run
-// Chrome without its sandbox on CI runners that can't provide one.
+// extraAllocatorOptions is appended to every launch. Tests use it to run Chrome
+// without its sandbox on CI runners that cannot provide one.
 var extraAllocatorOptions []chromedp.ExecAllocatorOption
 
-// chromeStartTimeout is how long a locally launched Chrome gets to open its DevTools
-// socket. chromedp's default is 20s, which a loaded machine (a shared CI runner, a laptop
-// just out of sleep) can miss with "websocket url timeout reached". A Chrome that really
-// can't start still fails, only later.
-const chromeStartTimeout = 60 * time.Second
-
-// New creates a new Browser instance. allowedDomains restricts the hosts
-// NavigateAndFill is willing to navigate to and autofill with profile PII
-// (see matchesAllowedDomain); pass nil/empty to skip that check entirely
-// (e.g. for callers that don't yet have a broker domain list).
+// New prepares a Browser; Chrome itself starts on the first page. A non-empty
+// allowedDomains limits the hosts NavigateAndFill visits and fills with personal
+// data (matchesAllowedDomain); empty means no check.
 func New(cfg BrowserConfig, profile *config.Profile, allowedDomains []string) (*Browser, error) {
-	// An explicit Chrome path (mcp --chrome-path) means launch it locally,
-	// whatever the environment says.
+	// an explicit Chrome path means "launch that one", whatever the environment says
 	if cfg.RemoteURL == "" && cfg.ExecutablePath == "" {
-		cfg.RemoteURL = config.Getenv(config.ChromeURLEnv)
+		cfg.RemoteURL = os.Getenv(config.ChromeURLEnv)
 	}
-
-	var allocCtx context.Context
-	var allocCancel context.CancelFunc
-	if cfg.RemoteURL != "" {
-		// Chrome runs elsewhere (a separate container), so the launch flags
-		// below don't apply; start() sets the user agent and window size
-		// over CDP instead.
-		allocCtx, allocCancel = chromedp.NewRemoteAllocator(context.Background(), cfg.RemoteURL)
-	} else {
-		opts := []chromedp.ExecAllocatorOption{
-			chromedp.NoFirstRun,
-			chromedp.NoDefaultBrowserCheck,
-			chromedp.DisableGPU,
-			chromedp.UserAgent(cfg.UserAgent),
-			chromedp.WindowSize(cfg.WindowWidth, cfg.WindowHeight),
-			chromedp.WSURLReadTimeout(chromeStartTimeout),
-		}
-		if cfg.Headless {
-			opts = append(opts, chromedp.Headless)
-		}
-		opts = append(opts, extraAllocatorOptions...) // after the defaults above, so tests can override them
-		if cfg.ExecutablePath != "" {
-			opts = append(opts, chromedp.ExecPath(cfg.ExecutablePath))
-		}
-		allocCtx, allocCancel = chromedp.NewExecAllocator(context.Background(), opts...)
-	}
-
+	allocCtx, allocCancel := newAllocator(cfg)
 	ctx, cancel := chromedp.NewContext(allocCtx)
-
 	return &Browser{
-		allocCtx:       allocCtx,
-		allocCancel:    allocCancel,
-		ctx:            ctx,
-		cancel:         cancel,
-		config:         cfg,
-		profile:        profile,
-		allowedDomains: allowedDomains,
+		config: cfg, profile: profile, allowedDomains: allowedDomains,
+		allocCtx: allocCtx, allocCancel: allocCancel, ctx: ctx, cancel: cancel,
 	}, nil
 }
 
-// start connects to (or launches) Chrome on b.ctx. The first Run's context
-// owns the browser, so it must be b.ctx and not a per-call timeout context,
-// which would close Chrome when the call returns. Safe to call repeatedly:
-// later runs reuse the connection and just re-apply the (idempotent) emulation.
-func (b *Browser) start() error {
-	var acts []chromedp.Action
-	if b.config.RemoteURL != "" {
-		acts = append(acts,
-			emulation.SetUserAgentOverride(b.config.UserAgent),
-			chromedp.EmulateViewport(int64(b.config.WindowWidth), int64(b.config.WindowHeight)),
-		)
+// newAllocator attaches to a remote Chrome (a container, say) or sets up a local
+// launch. A remote browser takes no launch flags, so start applies the user agent
+// and window size over the protocol instead.
+func newAllocator(cfg BrowserConfig) (context.Context, context.CancelFunc) {
+	root := context.Background()
+	if cfg.RemoteURL != "" {
+		return remote.NewAllocator(root, cfg.RemoteURL)
 	}
-	if err := chromedp.Run(b.ctx, acts...); err != nil {
+	opts := []chromedp.ExecAllocatorOption{
+		chromedp.NoFirstRun,
+		chromedp.NoDefaultBrowserCheck,
+		chromedp.DisableGPU,
+		chromedp.WindowSize(cfg.WindowWidth, cfg.WindowHeight),
+		chromedp.UserAgent(cfg.UserAgent),
+	}
+	if cfg.Headless {
+		opts = append(opts, chromedp.Headless)
+	}
+	opts = append(opts, extraAllocatorOptions...) // after the defaults, so tests can override them
+	if cfg.ExecutablePath != "" {
+		opts = append(opts, chromedp.ExecPath(cfg.ExecutablePath))
+	}
+	return chromedp.NewExecAllocator(root, opts...)
+}
+
+// start connects to or launches Chrome. The first Run's context owns the
+// browser, so it has to be b.ctx and not a per-call timeout context, which
+// would close Chrome when the call returned. Calling it again is harmless:
+// later runs reuse the connection and re-apply the same emulation.
+func (b *Browser) start() error {
+	var setup []chromedp.Action[chromedp.Void]
+	if b.config.RemoteURL != "" {
+		setup = append(setup,
+			chromedp.Func(func(ctx context.Context, t *chromedp.Target) error {
+				_, err := cdp.Call(ctx, t, emulation.SetUserAgentOverride, emulation.SetUserAgentOverrideParams{UserAgent: b.config.UserAgent})
+				return err
+			}),
+			chromedp.EmulateViewport(int64(b.config.WindowWidth), int64(b.config.WindowHeight)))
+	}
+	if err := chromedp.Do(b.ctx, setup...); err != nil {
 		if b.config.RemoteURL == "" && config.InContainer() {
 			return fmt.Errorf("%w (this image has no browser: set %s to a Chrome DevTools endpoint, see docs/docker.md)", err, config.ChromeURLEnv)
 		}
@@ -148,7 +96,7 @@ func (b *Browser) start() error {
 	return nil
 }
 
-// Close cleans up browser resources
+// Close shuts Chrome down.
 func (b *Browser) Close() {
 	if b.cancel != nil {
 		b.cancel()
@@ -156,283 +104,4 @@ func (b *Browser) Close() {
 	if b.allocCancel != nil {
 		b.allocCancel()
 	}
-}
-
-// NavigateAndFill navigates to a URL and attempts to fill any opt-out form
-func (b *Browser) NavigateAndFill(url string, brokerID string, autoSubmit bool) (*FormResult, error) {
-	result := &FormResult{
-		URL:      url,
-		BrokerID: brokerID,
-	}
-
-	// Only fill PII on known broker domains: form URLs can come from untrusted
-	// email. An empty allowlist means not configured.
-	if len(b.allowedDomains) > 0 {
-		valid, domain, err := matchesAllowedDomain(url, b.allowedDomains)
-		if err != nil {
-			result.ErrorMessage = fmt.Sprintf("invalid URL: %v", err)
-			return result, err
-		}
-		if !valid {
-			err := fmt.Errorf("URL domain not in known broker list: %s", domain)
-			result.ErrorMessage = err.Error()
-			return result, err
-		}
-	}
-
-	// Start Chrome on b.ctx, not the per-call timeout ctx below, which would
-	// close it after one form (fill --pending).
-	if err := b.start(); err != nil {
-		result.ErrorMessage = fmt.Sprintf("browser failed to start: %v", err)
-		return result, err
-	}
-
-	ctx, cancel := context.WithTimeout(b.ctx, b.config.Timeout)
-	defer cancel()
-
-	// Navigate to the URL
-	err := chromedp.Run(ctx, chromedp.Navigate(url))
-	if err != nil {
-		result.ErrorMessage = fmt.Sprintf("navigation failed: %v", err)
-		return result, err
-	}
-
-	err = chromedp.Run(ctx, chromedp.WaitReady("body"))
-	if err != nil {
-		result.ErrorMessage = fmt.Sprintf("page load failed: %v", err)
-		return result, err
-	}
-
-	// Small delay for dynamic content
-	time.Sleep(2 * time.Second)
-
-	// PHASE 1: Check for blocking CAPTCHA (e.g., Cloudflare challenge, CAPTCHA gate before form)
-	// Some sites like TruePeopleSearch show CAPTCHA before the actual form is visible
-	blockingCaptcha, err := b.detectCaptcha(ctx)
-	if err != nil {
-		result.ErrorMessage = fmt.Sprintf("captcha detection failed: %v", err)
-		return result, err
-	}
-	if blockingCaptcha.Found && blockingCaptcha.IsCaptchaBlocking() {
-		result.CaptchaFound = true
-		result.CaptchaType = blockingCaptcha.Type
-
-		// Take screenshot of CAPTCHA gate
-		if b.config.ScreenshotDir != "" {
-			screenshotPath, _ := b.takeScreenshot(ctx, brokerID, "captcha_gate")
-			result.ScreenshotPath = screenshotPath
-		}
-
-		// If WaitForUser is enabled, wait for user to solve the blocking CAPTCHA
-		if b.config.WaitForUser && b.config.WaitCallback != nil {
-			fmt.Printf("⚠️  Blocking CAPTCHA detected: %s\n", blockingCaptcha.GetCaptchaDescription())
-			fmt.Println("   Please solve the CAPTCHA in the browser window...")
-
-			// Call the callback (e.g., prompt user in terminal)
-			if err := b.config.WaitCallback(); err != nil {
-				result.ErrorMessage = fmt.Sprintf("user cancelled: %v", err)
-				return result, err
-			}
-
-			// User solved CAPTCHA, wait for page to update and then continue to fill form
-			time.Sleep(2 * time.Second)
-			// Continue to PHASE 2 below (fill form)
-		} else {
-			// No WaitForUser - return with CAPTCHA detected
-			result.ErrorMessage = fmt.Sprintf("Blocking CAPTCHA detected: %s - use --wait flag to solve manually", blockingCaptcha.Type)
-			return result, nil
-		}
-	}
-
-	// PHASE 2: Fill form fields (either no blocking CAPTCHA, or user already solved it)
-	fillResult := b.fillFormFields(ctx)
-	result.FieldsFilled = fillResult.FilledFields
-	result.FieldsMissing = fillResult.MissingFields
-	result.FillErrors = fillResult.Errors
-
-	// Small delay after filling for any dynamic updates
-	time.Sleep(1 * time.Second)
-
-	// PHASE 3: Check for form-level CAPTCHA (e.g., reCAPTCHA on the form itself)
-	formCaptcha, err := b.detectCaptcha(ctx)
-	if err != nil {
-		result.ErrorMessage = fmt.Sprintf("captcha detection failed: %v", err)
-		return result, err
-	}
-	if formCaptcha.Found && formCaptcha.IsCaptchaBlocking() {
-		result.CaptchaFound = true
-		result.CaptchaType = formCaptcha.Type
-
-		// Take screenshot showing filled form + CAPTCHA for human review
-		if b.config.ScreenshotDir != "" {
-			screenshotPath, _ := b.takeScreenshot(ctx, brokerID, "filled_captcha")
-			result.ScreenshotPath = screenshotPath
-		}
-
-		// If WaitForUser is enabled, pause for user to solve CAPTCHA
-		if b.config.WaitForUser && b.config.WaitCallback != nil {
-			fmt.Printf("⚠️  Form CAPTCHA detected: %s\n", formCaptcha.GetCaptchaDescription())
-			fmt.Println("   Form has been pre-filled. Please solve the CAPTCHA...")
-
-			// Call the callback (e.g., prompt user in terminal)
-			if err := b.config.WaitCallback(); err != nil {
-				result.ErrorMessage = fmt.Sprintf("user cancelled: %v", err)
-				return result, err
-			}
-
-			// User solved CAPTCHA, now submit the form
-			if autoSubmit {
-				err = b.submitForm(ctx)
-				if err != nil {
-					result.ErrorMessage = fmt.Sprintf("submit failed after CAPTCHA: %v", err)
-				} else {
-					result.SubmitAttempted = true
-					result.Success = true
-
-					// Take screenshot of result
-					time.Sleep(2 * time.Second)
-					if b.config.ScreenshotDir != "" {
-						_, _ = b.takeScreenshot(ctx, brokerID, "submitted")
-					}
-				}
-			}
-			return result, nil
-		}
-
-		// Form is filled, user just needs to solve CAPTCHA and submit
-		result.ErrorMessage = fmt.Sprintf("CAPTCHA detected: %s - form filled, solve CAPTCHA and submit", formCaptcha.Type)
-		return result, nil
-	}
-
-	// Take screenshot after filling (no CAPTCHA case)
-	if b.config.ScreenshotDir != "" {
-		screenshotPath, _ := b.takeScreenshot(ctx, brokerID, "filled")
-		result.ScreenshotPath = screenshotPath
-	}
-
-	hasFillErrors := len(result.FillErrors) > 0
-
-	// Submit form if requested and no CAPTCHA
-	if autoSubmit && !result.CaptchaFound && len(result.FieldsFilled) > 0 && !hasFillErrors {
-		err = b.submitForm(ctx)
-		if err != nil {
-			result.ErrorMessage = fmt.Sprintf("submit failed: %v", err)
-		} else {
-			result.SubmitAttempted = true
-			result.Success = true
-
-			// Take screenshot of result
-			time.Sleep(2 * time.Second)
-			if b.config.ScreenshotDir != "" {
-				_, _ = b.takeScreenshot(ctx, brokerID, "submitted")
-			}
-		}
-	} else if len(result.FieldsFilled) > 0 && !hasFillErrors {
-		result.Success = true
-	}
-
-	// A real (non-"not found") error during field filling -- e.g. a context
-	// timeout mid-fill -- must not be masked by Success=true just because
-	// some other field happened to fill before the browser died.
-	if hasFillErrors && result.ErrorMessage == "" {
-		result.ErrorMessage = fmt.Sprintf("field fill errors: %s", strings.Join(result.FillErrors, "; "))
-	}
-
-	return result, nil
-}
-
-// fillFormFields detects and fills form fields with profile data
-func (b *Browser) fillFormFields(ctx context.Context) *FillResult {
-	filler := NewFormFiller(b.profile)
-	return filler.Fill(ctx)
-}
-
-// submitForm attempts to submit the form
-func (b *Browser) submitForm(ctx context.Context) error {
-	// Try common submit button CSS selectors first (fast, precise).
-	submitSelectors := []string{
-		"button[type='submit']",
-		"input[type='submit']",
-		".submit-button",
-		"#submit",
-		"#submit-btn",
-	}
-
-	for _, selector := range submitSelectors {
-		var exists bool
-		err := chromedp.Run(ctx, chromedp.Evaluate(
-			fmt.Sprintf(`document.querySelector("%s") !== null`, selector),
-			&exists,
-		))
-		if err == nil && exists {
-			err = chromedp.Run(ctx, chromedp.Click(selector, chromedp.NodeVisible))
-			if err == nil {
-				return nil
-			}
-		}
-	}
-
-	// match buttons by text in one JS snippet (the old ":contains()" selectors
-	// aren't valid CSS and never matched)
-	const clickByTextJS = `(() => {
-		const re = /submit|remove|opt.?out|delete|request/i;
-		const btn = Array.from(document.querySelectorAll('button, input[type="submit"], input[type="button"]'))
-			.find(b => re.test(b.textContent || b.value || ''));
-		if (btn) {
-			btn.click();
-			return true;
-		}
-		return false;
-	})()`
-
-	var clicked bool
-	err := chromedp.Run(ctx, chromedp.Evaluate(clickByTextJS, &clicked))
-	if err == nil && clicked {
-		return nil
-	}
-
-	// Try pressing Enter on the last input field
-	err = chromedp.Run(ctx,
-		chromedp.KeyEvent("\r"),
-	)
-	if err != nil {
-		return fmt.Errorf("could not find or click submit button")
-	}
-
-	return nil
-}
-
-// takeScreenshot captures the current page state
-func (b *Browser) takeScreenshot(ctx context.Context, brokerID, suffix string) (string, error) {
-	return b.takeScreenshotQuality(ctx, brokerID, suffix, 90)
-}
-
-// takeScreenshotQuality: 100 makes Chrome return PNG, anything lower JPEG.
-func (b *Browser) takeScreenshotQuality(ctx context.Context, brokerID, suffix string, quality int) (string, error) {
-	var buf []byte
-	err := chromedp.Run(ctx, chromedp.FullScreenshot(&buf, quality))
-	if err != nil {
-		return "", err
-	}
-
-	// Create screenshot directory if needed. 0700/0600, not 0755/0644 -
-	// screenshots can capture personal data mid-form-fill, so restrict them
-	// to the owner like the history DB and config file already are.
-	if err := os.MkdirAll(b.config.ScreenshotDir, 0700); err != nil {
-		return "", err
-	}
-
-	// Chrome returns JPEG below quality 100, and these used to be named .png.
-	ext := "jpg"
-	if quality >= 100 {
-		ext = "png"
-	}
-	filename := fmt.Sprintf("%s_%s_%d.%s", brokerID, suffix, time.Now().Unix(), ext)
-	filepath := filepath.Join(b.config.ScreenshotDir, filename)
-
-	if err := os.WriteFile(filepath, buf, 0600); err != nil {
-		return "", err
-	}
-
-	return filename, nil
 }

@@ -7,8 +7,8 @@ sharing the pod's network. Read [docker.md](docker.md) first: the volume,
 `machine-id`, passphrase and browser notes there apply unchanged.
 
 Every release publishes the image to `ghcr.io/drumandbytes/delistd` for
-`linux/amd64` and `linux/arm64`, tagged with the exact release (`v2.2.0`), the minor
-line (`2.2`) and `latest`. Pin the full tag in the manifest below; `latest` moves on
+`linux/amd64` and `linux/arm64`, tagged with the exact release (`v3.0.0`), the minor
+line (`3.0`) and `latest`. Pin the full tag in the manifest below; `latest` moves on
 every release. The package is public, so the cluster needs no pull secret.
 
 ## Manifest
@@ -17,7 +17,7 @@ every release. The package is public, so the cluster needs no pull secret.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: eraser-data
+  name: delistd-data
 spec:
   accessModes: [ReadWriteOnce]   # block storage; see the notes below
   resources:
@@ -46,7 +46,7 @@ spec:
         seccompProfile: {type: RuntimeDefault}
       containers:
         - name: delistd
-          image: ghcr.io/drumandbytes/delistd:v2.2.0
+          image: ghcr.io/drumandbytes/delistd:v3.0.0
           ports:
             - {name: http, containerPort: 8080}
           env:
@@ -57,9 +57,9 @@ spec:
             # proxy that authenticates, add its hostname:
             # - {name: DELISTD_ALLOWED_HOSTS, value: "lan,local,delistd.example.com"}
           volumeMounts:
-            - {name: data, mountPath: /home/nonroot/.eraser}
+            - {name: data, mountPath: /home/nonroot/.delistd}
           readinessProbe:
-            httpGet: {path: /setup, port: http, httpHeaders: [{name: Host, value: localhost}]}
+            httpGet: {path: /healthz, port: http, httpHeaders: [{name: Host, value: localhost}]}
           securityContext:
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
@@ -77,7 +77,7 @@ spec:
             runAsNonRoot: false
       volumes:
         - name: data
-          persistentVolumeClaim: {claimName: eraser-data}
+          persistentVolumeClaim: {claimName: delistd-data}
         - name: shm              # Chromium needs more than the default 64 MB
           emptyDir: {medium: Memory, sizeLimit: 1Gi}
         - name: tmp
