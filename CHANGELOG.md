@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.2](https://github.com/drumandbytes/delistd/compare/v2.7.1...v2.7.2) (2026-11-20)
+
+
+### Bug Fixes
+
+* **browser:** give Chrome 60s to accept the DevTools connection, not chromedp's 10s ([#326](https://github.com/drumandbytes/delistd/issues/326)) ([0c1e9c2](https://github.com/drumandbytes/delistd/commit/0c1e9c207307b843ce8f437ddfb0bab9830c29fb))
+
 ## [2.7.1](https://github.com/drumandbytes/delistd/compare/v2.7.0...v2.7.1) (2026-11-20)
 
 
