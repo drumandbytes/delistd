@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.1](https://github.com/drumandbytes/delistd/compare/v2.7.0...v2.7.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* **brokers:** update the Grata privacy email ([#319](https://github.com/drumandbytes/delistd/issues/319)); docs(oauth): app is publisher-verified ([#324](https://github.com/drumandbytes/delistd/issues/324)) ([1e5e4c6](https://github.com/drumandbytes/delistd/commit/1e5e4c64a6bf23a3f587f497f1f1b3d86c9c24f8))
+
 ## [2.7.0](https://github.com/drumandbytes/delistd/compare/v2.6.1...v2.7.0) (2026-11-16)
 
 
