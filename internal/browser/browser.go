@@ -72,9 +72,10 @@ type FormResult struct {
 var extraAllocatorOptions []chromedp.ExecAllocatorOption
 
 // chromeStartTimeout is how long a locally launched Chrome gets to open its DevTools
-// socket. chromedp's default is 20s, which a loaded machine (a shared CI runner, a laptop
-// just out of sleep) can miss with "websocket url timeout reached". A Chrome that really
-// can't start still fails, only later.
+// socket, and then to accept the connection to it. chromedp's defaults are 20s for the
+// socket and 10s for the dial, which a loaded machine (a shared CI runner, a laptop just
+// out of sleep) can miss with "websocket url timeout reached" or "could not dial ...
+// context deadline exceeded". A Chrome that really can't start still fails, only later.
 const chromeStartTimeout = 60 * time.Second
 
 // New creates a new Browser instance. allowedDomains restricts the hosts
@@ -114,7 +115,7 @@ func New(cfg BrowserConfig, profile *config.Profile, allowedDomains []string) (*
 		allocCtx, allocCancel = chromedp.NewExecAllocator(context.Background(), opts...)
 	}
 
-	ctx, cancel := chromedp.NewContext(allocCtx)
+	ctx, cancel := chromedp.NewContext(allocCtx, chromedp.WithBrowserOption(chromedp.WithDialTimeout(chromeStartTimeout)))
 
 	return &Browser{
 		allocCtx:       allocCtx,
