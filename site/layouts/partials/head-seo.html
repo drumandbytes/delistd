@@ -41,7 +41,7 @@
 {{- else if and .IsPage (eq .Section "guides") -}}
   {{- $ld = dict
       "@context" "https://schema.org"
-      "@type" "TechArticle"
+      "@type" "Article"
       "headline" .Title
       "description" $desc
       "url" .Permalink
@@ -54,7 +54,7 @@
   {{- /* the versioned docs are technical documentation */ -}}
   {{- $ld = dict
       "@context" "https://schema.org"
-      "@type" "TechArticle"
+      "@type" "Article"
       "headline" .Title
       "description" $desc
       "url" .Permalink
