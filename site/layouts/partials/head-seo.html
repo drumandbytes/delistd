@@ -63,6 +63,19 @@
       "publisher" $org
   -}}
   {{- if not .Lastmod.IsZero -}}{{- $ld = merge $ld (dict "dateModified" (.Lastmod.Format "2006-01-02")) -}}{{- end -}}
+{{- else if or (and .IsPage (eq .Section "brokers")) (eq .RelPermalink "/compare/") -}}
+  {{- /* opt-out guides per broker and the comparison page read as articles to crawlers */ -}}
+  {{- $ld = dict
+      "@context" "https://schema.org"
+      "@type" (cond (eq .Section "brokers") "TechArticle" "Article")
+      "headline" .Title
+      "description" $desc
+      "url" .Permalink
+      "inLanguage" "en"
+      "author" $org
+      "publisher" $org
+  -}}
+  {{- if not .Lastmod.IsZero -}}{{- $ld = merge $ld (dict "dateModified" (.Lastmod.Format "2006-01-02")) -}}{{- end -}}
 {{- else -}}
   {{- $ld = dict
       "@context" "https://schema.org"
