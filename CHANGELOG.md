@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.4](https://github.com/drumandbytes/delistd/compare/v2.7.3...v2.7.4) (2026-11-21)
+
+
+### Bug Fixes
+
+* **site:** Article JSON-LD on broker guides and the comparison page ([#330](https://github.com/drumandbytes/delistd/issues/330)) ([bbbe2e9](https://github.com/drumandbytes/delistd/commit/bbbe2e9ad2c7d807ca457ecda16ec78ba4292053))
+
 ## [2.7.3](https://github.com/drumandbytes/delistd/compare/v2.7.2...v2.7.3) (2026-11-21)
 
 
