@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.6](https://github.com/drumandbytes/delistd/compare/v2.7.5...v2.7.6) (2026-11-21)
+
+
+### Bug Fixes
+
+* **site:** plain Article for the docs and guides too ([#334](https://github.com/drumandbytes/delistd/issues/334)) ([e87305e](https://github.com/drumandbytes/delistd/commit/e87305e8a0d89e06af901126f3a1756913308be9))
+
 ## [2.7.5](https://github.com/drumandbytes/delistd/compare/v2.7.4...v2.7.5) (2026-11-21)
 
 
