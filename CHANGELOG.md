@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.5](https://github.com/drumandbytes/delistd/compare/v2.7.4...v2.7.5) (2026-11-21)
+
+
+### Bug Fixes
+
+* **site:** use plain Article for the broker guides ([#332](https://github.com/drumandbytes/delistd/issues/332)) ([e7ee66e](https://github.com/drumandbytes/delistd/commit/e7ee66e9ed6a819515d1e49cd4818a2865f4f5a9))
+
 ## [2.7.4](https://github.com/drumandbytes/delistd/compare/v2.7.3...v2.7.4) (2026-11-21)
 
 
