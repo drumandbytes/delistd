@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.3](https://github.com/drumandbytes/delistd/compare/v2.7.2...v2.7.3) (2026-11-21)
+
+
+### Bug Fixes
+
+* **site:** mark guides and docs as og:type website, not article ([#328](https://github.com/drumandbytes/delistd/issues/328)) ([e773afa](https://github.com/drumandbytes/delistd/commit/e773afa75c26ba263e94512e5b0dc7ced608c319))
+
 ## [2.7.2](https://github.com/drumandbytes/delistd/compare/v2.7.1...v2.7.2) (2026-11-20)
 
 
