@@ -207,7 +207,7 @@ func applyAuditFix(db *broker.BrokerDatabase, results []auditResult) int {
 }
 
 // auditConcurrently runs auditOne for each broker with a bounded worker
-// pool - checking 700+ brokers one at a time over DNS/HTTP would be slow.
+// pool - checking 1,000+ brokers one at a time over DNS/HTTP would be slow.
 func auditConcurrently(targets []broker.Broker, checker *auditChecker, workers int) []auditResult {
 	results := make([]auditResult, len(targets))
 	sem := make(chan struct{}, workers)

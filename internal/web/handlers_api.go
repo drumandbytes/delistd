@@ -43,7 +43,7 @@ func (s *Server) handleAPIBrokers(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleAPIBrokerStatus returns one broker's status badge (plus the mobile OOB
-// swap), so an active send refreshes one row instead of the 700+ row table.
+// swap), so an active send refreshes one row instead of the 1,000+ row table.
 func (s *Server) handleAPIBrokerStatus(w http.ResponseWriter, r *http.Request) {
 	brokerID := chi.URLParam(r, "brokerID")
 	if s.brokers().FindByID(brokerID) == nil {

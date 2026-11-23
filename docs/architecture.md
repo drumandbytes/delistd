@@ -27,7 +27,7 @@ internal/
                    data; templates/ and static/ are embedded
   bounces, country, dpa, datadir, fsutil, reclassify   small helpers
   imaptest, smtptest, testenv                          test-only servers and helpers
-data/              brokers.yaml (700+, embedded via embed.go), brokers-verified.yaml,
+data/              brokers.yaml (1,000+, embedded via embed.go), brokers-verified.yaml,
                    authorities.yaml
 scripts/           covgate (CI coverage gate), docs-versions, import-registries,
                    stylesnap (CSS regression tool), a11y/ (axe scan)

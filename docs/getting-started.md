@@ -129,7 +129,7 @@ Brokers re-list people over time, so repeat every few weeks. To have Delistd do 
 
 ## Sending by hand
 
-With the Skip option chosen, Delistd never sends anything. On the **Brokers** page each broker has an **Email** link showing the ready-to-send message with an **Open in mail app** button. Send it from your normal mail app, then press **Mark sent** so Delistd tracks it. It is slower for 700+ brokers, so many people use it for a handful of important ones and let Delistd send the rest.
+With the Skip option chosen, Delistd never sends anything. On the **Brokers** page each broker has an **Email** link showing the ready-to-send message with an **Open in mail app** button. Send it from your normal mail app, then press **Mark sent** so Delistd tracks it. It is slower for 1,000+ brokers, so many people use it for a handful of important ones and let Delistd send the rest.
 
 ## Troubleshooting
 

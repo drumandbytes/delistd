@@ -9,7 +9,9 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-**Your data is traded. You can ask for it back.** Delistd sends removal requests to 700+ data brokers from your own mailbox: free, open source, and your details stay on your computer.
+**Your data is traded. You can ask for it back.** Delistd sends removal requests to 1,000+ data brokers worldwide from your own mailbox: free, open source, and your details stay on your computer.
+
+Coverage is worldwide, not only the US and EU/EEA: the list now includes regional brokers, directories and people-search sites across Europe, the UK, Canada, Latin America, Africa, Asia and Oceania. Many entries only apply to people in one country (the list hides the rest for your profile), and credit bureaus are listed so you can ask for access and correction, not because they will delete real credit history.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset=".github/images/dashboard-dark.png">
@@ -29,7 +31,7 @@ Brokers such as Spokeo, BeenVerified and Whitepages collect home addresses, phon
 
 ## What to expect
 
-Many brokers act on the email alone. Others reply with a confirmation link, an opt-out form or an identity check. Delistd sends the emails, reads the replies, and shows exactly what needs you (the Pipeline and Tasks pages, or `delistd pipeline`). It is not fully automated, but it does the tedious part: 700+ emails and tracking every reply.
+Many brokers act on the email alone. Others reply with a confirmation link, an opt-out form or an identity check. Delistd sends the emails, reads the replies, and shows exactly what needs you (the Pipeline and Tasks pages, or `delistd pipeline`). It is not fully automated, but it does the tedious part: 1,000+ emails and tracking every reply.
 
 - **Most brokers comply.** GDPR and CCPA oblige them, and many honour requests anyway.
 - **It takes time.** Brokers have 30-45 days depending on the law.
@@ -102,7 +104,7 @@ Setup, the fake-data demo, the tool list and how approval works: [docs/mcp.md](d
 | `delistd monitor` | Read your inbox (IMAP) for broker replies; `--reclassify` re-runs the classifier over saved replies, `--watch` keeps running |
 | `delistd confirm` / `fill` | Click confirmation links from broker emails; fill opt-out forms with a browser |
 | `delistd export` | Evidence report (HTML/JSON) of every request and reply, for a DPA or noyb complaint |
-| `delistd list-brokers` | Show the 700+ brokers minus those that only handle other countries than your profile's (`--all-countries` shows all) |
+| `delistd list-brokers` | Show the 1,000+ brokers minus those that only handle other countries than your profile's (`--all-countries` shows all) |
 | `delistd add-broker` / `update-brokers` | Add a broker of your own; refresh the list from this repo |
 | `delistd mark-bounced` / `cleanup-bounces` | Correct the record for brokers whose email bounced; clear dead addresses (keeps the entry) |
 | `delistd audit-brokers` / `validate-brokers` | Check broker sites and domains for signs of life; structural check of a list |
@@ -195,7 +197,7 @@ The Pipeline page (or `delistd pipeline`) lists what needs attention. Select a s
 | Price | $95.88/year (Standard) or $179.88/year (Unlimited), billed annually | $129/year for one person | Free, MIT licence |
 | Who sends the requests | Incogni | DeleteMe | You, from your own email account |
 | Where your details are kept | With the service | With the service | On your machine only |
-| Coverage | 420+ broker sites | Automated plus manual custom removals | 700+ brokers in a published list you can extend |
+| Coverage | 420+ broker sites | Automated plus manual custom removals | 1,000+ brokers worldwide in a published list you can extend |
 
 A paid service saves you time and handles replies and ID checks for you; Delistd gives you control and costs nothing. Prices checked 10 November 2026; the [full comparison](https://delistd.dev/compare/?ref=delistd-readme) has the details, sources and when a paid service is the better choice.
 

@@ -89,7 +89,7 @@ func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// brokerPageSize is how many broker rows the list renders at a time. All 700+
+// brokerPageSize is how many broker rows the list renders at a time. All 1,000+
 // rendered twice (table and phone cards) made a 2 MB page that phones took
 // seconds to lay out; "Show more" asks for another page.
 const brokerPageSize = 50

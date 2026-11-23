@@ -15,7 +15,7 @@ Incogni and DeleteMe are services that remove your data for you. Delistd is a to
 | Price | $95.88/year (Standard) or $179.88/year (Unlimited) when billed annually; $15.98 or $29.98 a month when billed monthly | $129/year for one person on a one-year plan ($209 for two years) | Free, MIT licence |
 | Who sends the requests | Incogni, on your behalf | DeleteMe, with human privacy advisors for custom removals | You, from your own email account on your own machine |
 | Where your details are kept | With the service, under its privacy policy | With the service, under its privacy policy | On your machine only |
-| Coverage | 420+ data broker sites; custom removals on the Unlimited plans only | Automated opt-outs plus manual custom removals; coverage figures vary by source | 700+ brokers in a published list you can read and add to, with a focus on the US and the EU/EEA |
+| Coverage | 420+ data broker sites; custom removals on the Unlimited plans only | Automated opt-outs plus manual custom removals; coverage figures vary by source | 1,000+ brokers worldwide in a published list you can read and add to, mostly the US and the EU/EEA, with regional entries elsewhere |
 | Progress reporting | Recurring removals on every plan; the Unlimited plans add an exposure scanner and a privacy score | Quarterly privacy reports | A local dashboard of each broker's reply, and an evidence report you can export |
 | Replies, ID checks and confirmation links | Handled by the service | Handled by the service and its advisors | Flagged to you as tasks that need action |
 | Support | Live phone support on the Unlimited plans | From the vendor | Community, through GitHub issues; [paid setup help](/support/) is optional |
@@ -47,7 +47,7 @@ Being honest about the trade-off:
 - **You do some of the work.** You set up a mail account for sending (an app password), and you handle the "needs action" items: confirmation links, ID checks and replies that ask a question.
 - **It doesn't scan for you.** Delistd sends requests to the brokers in its list. It doesn't search the web for where your data appears, and it can't verify that a broker actually deleted it, only record what the broker replied.
 - **No guarantee, and support is optional.** Brokers decide how they respond. Delistd re-sends on a schedule, because brokers re-list people. Help is community-based through GitHub, or [paid setup and support](/support/) if you want a person.
-- **Coverage is its own list.** 700+ brokers is a large list, but it isn't the same list as the services above. You can add brokers yourself.
+- **Coverage is its own list.** 1,000+ brokers is a large list, but it isn't the same list as the services above. You can add brokers yourself.
 
 ## Which should you choose?
 

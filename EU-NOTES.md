@@ -10,7 +10,7 @@ Delistd suits an EU/EEA resident exercising GDPR rights (Article 17, erasure); C
 
 ## Brokers
 
-The list is mostly US-region on purpose: US platforms, ad-tech and breach-sourced people-search sites hold EU residents' data too. EU and UK entries with a direct opt-out address are added as they are found (`delistd list-brokers --region eu` shows them), among them credit bureaus (SCHUFA, Creditreform, CRIF, Creditsafe, Dun & Bradstreet), address-marketing data (Deutsche Post Direkt) and ad-tech (Adform, Criteo, RTB House, Teads, Equativ). The exact count moves as entries are added and dead ones removed, so the docs quote a round floor ("700+"); `grep -c '^    - id:' data/brokers.yaml` gives the true one. Most EU entries are also in the smaller `data/brokers-verified.yaml` (`send --list verified`; see [architecture.md](docs/architecture.md)).
+The list is mostly US-region on purpose: US platforms, ad-tech and breach-sourced people-search sites hold EU residents' data too. EU and UK entries with a direct opt-out address are added as they are found (`delistd list-brokers --region eu` shows them), among them credit bureaus (SCHUFA, Creditreform, CRIF, Creditsafe, Dun & Bradstreet), address-marketing data (Deutsche Post Direkt) and ad-tech (Adform, Criteo, RTB House, Teads, Equativ). The exact count moves as entries are added and dead ones removed, so the docs quote a round floor ("1,000+"); `grep -c '^    - id:' data/brokers.yaml` gives the true one. Most EU entries are also in the smaller `data/brokers-verified.yaml` (`send --list verified`; see [architecture.md](docs/architecture.md)).
 
 **Country-scoped brokers.** A few entries carry `countries:` (`schufa`: `[DE]`, `regis24`: `[DE, AT]`, `192-com`: `[GB]`, plus Mexican, Colombian, Argentine, New Zealand and Kenyan credit bureaus). They hold one market's data, and requests from elsewhere only produce no-match replies, so Delistd skips them for profiles whose `country` is outside the list. Most US brokers are deliberately not scoped. If you lived in a scoped country before, name the broker: `send --broker <id>`.
 
@@ -33,7 +33,7 @@ Expect DPAs to be slow: noyb.eu shows some of its own complaints pending for yea
 
 A request sent from your own mail client is exactly as valid as one Delistd sends. To avoid configuring an app password, set `options.send_mode: manual` (or choose "Skip" in the web setup): `delistd draft` and `delistd send --manual` render the emails, you send them, and `delistd mark-sent` records them so `export` and `pipeline` still work.
 
-## Sending 700+ emails safely
+## Sending 1,000+ emails safely
 
 `send` caps itself at `options.daily_send_limit` (450 by default, under Gmail's ~500/day; lower it if your provider caps lower) per rolling 24 hours, and skips any broker it already emailed successfully in the last 25 days. So just run `delistd send` again, the same day or the next, until it reports nothing left, or let `delistd schedule install` run it every 6 hours. It resumes where it stopped without double-emailing anyone. `--ignore-daily-limit` sends everything in one run (only if your provider can take that volume); `--resend` re-sends even inside the 25-day cooldown.
 

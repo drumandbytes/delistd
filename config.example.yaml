@@ -62,7 +62,7 @@ options:
   # `--ignore-daily-limit` and `--resend` override this for one run.
   daily_send_limit: 450
 
-  # Which built-in list to use: full (default, 700+ entries) or verified (a smaller
+  # Which built-in list to use: full (default, 1,000+ entries) or verified (a smaller
   # list of confirmed brokers with a working removal contact). `send --list` overrides.
   # broker_list: verified
 

@@ -11,7 +11,7 @@ enableGitInfo = true
   lastmod = ["last_checked", ":git", "lastmod", "date"]
 
 [params]
-  description = "Send removal requests to 700+ data brokers from your own mailbox. Free, open source, and your details stay on your computer."
+  description = "Send removal requests to 1,000+ data brokers worldwide from your own mailbox. Free, open source, and your details stay on your computer."
   repo = "https://github.com/drumandbytes/delistd"
   # Drumandbytes OÜ support inbox; shown on /support/
   supportEmail = "support@drumandbytes.com"
