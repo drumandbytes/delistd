@@ -41,7 +41,7 @@ services:
     profiles: [browser]
     # Stock headless Chromium (chromedp's headless-shell), pinned by tag and
     # digest. Dependabot's docker-compose ecosystem bumps both.
-    image: chromedp/headless-shell:158.0.8127.18@sha256:830fa77e0602cb42e5cb2cbd9237ba27b649ad69d5fb82b54713aac8b7ab4f29
+    image: chromedp/headless-shell:159.0.8144.0@sha256:691a2f658d68e9855d4be3611b6818378c40bb92a0381a1a239db5c021117e9f
     container_name: delistd-chrome
     # No published port: the DevTools endpoint controls the browser, and only
     # the delistd container on this compose network may reach it.

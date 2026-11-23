@@ -1,5 +1,47 @@
 # Changelog
 
+## [2.7.6](https://github.com/drumandbytes/delistd/compare/v2.7.5...v2.7.6) (2026-11-21)
+
+
+### Bug Fixes
+
+* **site:** plain Article for the docs and guides too ([#334](https://github.com/drumandbytes/delistd/issues/334)) ([e87305e](https://github.com/drumandbytes/delistd/commit/e87305e8a0d89e06af901126f3a1756913308be9))
+
+## [2.7.5](https://github.com/drumandbytes/delistd/compare/v2.7.4...v2.7.5) (2026-11-21)
+
+
+### Bug Fixes
+
+* **site:** use plain Article for the broker guides ([#332](https://github.com/drumandbytes/delistd/issues/332)) ([e7ee66e](https://github.com/drumandbytes/delistd/commit/e7ee66e9ed6a819515d1e49cd4818a2865f4f5a9))
+
+## [2.7.4](https://github.com/drumandbytes/delistd/compare/v2.7.3...v2.7.4) (2026-11-21)
+
+
+### Bug Fixes
+
+* **site:** Article JSON-LD on broker guides and the comparison page ([#330](https://github.com/drumandbytes/delistd/issues/330)) ([bbbe2e9](https://github.com/drumandbytes/delistd/commit/bbbe2e9ad2c7d807ca457ecda16ec78ba4292053))
+
+## [2.7.3](https://github.com/drumandbytes/delistd/compare/v2.7.2...v2.7.3) (2026-11-21)
+
+
+### Bug Fixes
+
+* **site:** mark guides and docs as og:type website, not article ([#328](https://github.com/drumandbytes/delistd/issues/328)) ([e773afa](https://github.com/drumandbytes/delistd/commit/e773afa75c26ba263e94512e5b0dc7ced608c319))
+
+## [2.7.2](https://github.com/drumandbytes/delistd/compare/v2.7.1...v2.7.2) (2026-11-20)
+
+
+### Bug Fixes
+
+* **browser:** give Chrome 60s to accept the DevTools connection, not chromedp's 10s ([#326](https://github.com/drumandbytes/delistd/issues/326)) ([0c1e9c2](https://github.com/drumandbytes/delistd/commit/0c1e9c207307b843ce8f437ddfb0bab9830c29fb))
+
+## [2.7.1](https://github.com/drumandbytes/delistd/compare/v2.7.0...v2.7.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* **brokers:** update the Grata privacy email ([#319](https://github.com/drumandbytes/delistd/issues/319)); docs(oauth): app is publisher-verified ([#324](https://github.com/drumandbytes/delistd/issues/324)) ([1e5e4c6](https://github.com/drumandbytes/delistd/commit/1e5e4c64a6bf23a3f587f497f1f1b3d86c9c24f8))
+
 ## [2.7.0](https://github.com/drumandbytes/delistd/compare/v2.6.1...v2.7.0) (2026-11-16)
 
 

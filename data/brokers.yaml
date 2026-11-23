@@ -2069,11 +2069,15 @@ brokers:
       category: marketing
     - id: grata
       name: Grata Inc
-      email: hello@grata.com
+      email: privacy.grata@grata.com
       website: https://www.grata.com/
       opt_out_url: https://grata.com/legal/do-not-sell-my-information
       region: us
       category: marketing
+      notes: 'Grata is now part of Grata Intelligence (Grata and Blueflame, under Datasite). Its trust center lists privacy.grata@grata.com as the privacy contact. The old hello@grata.com inbox now auto-replies that it is no longer monitored and points to Support@Grata.com for product questions and the privacy policy for privacy ones, so requests there go unread (reported in issue #319).'
+      sources:
+        - https://github.com/drumandbytes/delistd/issues/319
+      researched: "2026-11-20"
     - id: grayhair-software
       name: Grayhair Software LLC
       email: privacy@grayhairsoftware.com

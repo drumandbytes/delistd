@@ -7,7 +7,7 @@
       "sameAs" (slice "https://github.com/drumandbytes")
       "address" (dict "@type" "PostalAddress" "streetAddress" "Uus-Sadama tn 21-207" "postalCode" "10120" "addressLocality" "Tallinn" "addressCountry" "EE")
       "contactPoint" (dict "@type" "ContactPoint" "contactType" "privacy" "email" "privacy@drumandbytes.com") -}}
-<meta property="og:type" content="{{ cond (and .IsPage (in (slice "guides" "docs") .Section)) "article" "website" }}">
+<meta property="og:type" content="website">
 <meta property="og:site_name" content="Delistd">
 <meta property="og:title" content="{{ $title }}">
 <meta property="og:description" content="{{ $desc }}">
@@ -41,7 +41,7 @@
 {{- else if and .IsPage (eq .Section "guides") -}}
   {{- $ld = dict
       "@context" "https://schema.org"
-      "@type" "TechArticle"
+      "@type" "Article"
       "headline" .Title
       "description" $desc
       "url" .Permalink
@@ -54,7 +54,20 @@
   {{- /* the versioned docs are technical documentation */ -}}
   {{- $ld = dict
       "@context" "https://schema.org"
-      "@type" "TechArticle"
+      "@type" "Article"
+      "headline" .Title
+      "description" $desc
+      "url" .Permalink
+      "inLanguage" "en"
+      "author" $org
+      "publisher" $org
+  -}}
+  {{- if not .Lastmod.IsZero -}}{{- $ld = merge $ld (dict "dateModified" (.Lastmod.Format "2006-01-02")) -}}{{- end -}}
+{{- else if or (and .IsPage (eq .Section "brokers")) (eq .RelPermalink "/compare/") -}}
+  {{- /* opt-out guides per broker and the comparison page read as articles to crawlers; Ahrefs only accepts plain Article here, TechArticle did not clear the check */ -}}
+  {{- $ld = dict
+      "@context" "https://schema.org"
+      "@type" "Article"
       "headline" .Title
       "description" $desc
       "url" .Permalink
