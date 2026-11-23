@@ -53,4 +53,5 @@ Much of the internals was rewritten (the reply classifier and link parser, the w
 - **Mail in ISO-8859-x and windows-125x** is decoded (those bodies used to arrive empty). Outgoing mail has a `Date` header, RFC 2047 subjects and quoted-printable bodies for non-ASCII text.
 - **Archiving without IMAP MOVE** removes only the messages it archived when the server supports UIDPLUS; without it, other mail you flagged `\Deleted` can still go with them and Delistd warns.
 - **`config.yaml` and the broker lists are written atomically**, so a crash or a full disk can't truncate them.
+- **The broker list grew from 722 to 1,000+ entries and now covers people worldwide**: more US, UK and EU controllers, plus credit bureaus, directories and people-search sites in Canada, Latin America, Africa, Asia and Oceania. About a hundred are scoped to one country with `countries:` and skipped for profiles elsewhere; credit bureaus are listed for access and correction, and `list-brokers --all-countries` shows everything.
 - **The Brokers page** lists 50 brokers at a time with "Show more" (about 200 KB instead of 2 MB).
