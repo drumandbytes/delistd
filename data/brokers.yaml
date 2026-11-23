@@ -35,7 +35,7 @@ brokers:
       opt_out_url: https://app.intelius.com/privacy-center/
       region: us
       category: people-search
-      notes: Second INTELIUS LLC entry (mailer-unsubscribe variant) merged into this one on 2026-09-12. Intelius LLC also owns/operates ZabaSearch and US Search - requests via the Intelius Privacy Center cover those brands.
+      notes: Second INTELIUS LLC entry (mailer-unsubscribe variant) merged into this one on 2026-09-12. Intelius LLC also owns/operates ZabaSearch and US Search - requests via the Intelius Privacy Center cover those brands. ZabaSearch links to the same Privacy Center, and its footer says "powered by Intelius" with © Intelius LLC (checked 2026-11-22). Its Right to Delete form deletes only your account or User Data (email confirmation, may close your account) and says it will not stop other users finding your Public Data; to suppress your record from background reports use the Suppression Request on the same page. It keeps some data for fraud, billing, legal evidence and backups. The US Search privacy policy (revised 29 September 2026) confirms Intelius LLC owns US Search and names privacy@ussearch.com for access and Nevada do-not-sell requests (answered within 30 days) and support@ussearch.com for account help.
       parent: Intelius, LLC
       verification: Takes reasonable steps to verify your identity before responding to certain requests
       response_time: Access requests within 30 days; appeals within 45 days
@@ -3136,7 +3136,10 @@ brokers:
       opt_out_url: https://www.merkle.com/en/privacy-policy/data-product-privacy-notice/control-your-personal-information.html
       region: us
       category: marketing
-      notes: Merkle is a dentsu brand for privacy-request purposes (confirmed via dentsu's privacy request form, which lists Merkle as a selectable brand) - contact routed to the group DPO rather than an individual employee address. The separate dentsu-inc entry was merged into this one.
+      notes: Merkle is a dentsu brand for privacy-request purposes (confirmed via dentsu's privacy request form, which lists Merkle as a selectable brand) - contact routed to the group DPO rather than an individual employee address. The separate dentsu-inc entry was merged into this one. The dentsu privacy policy (updated 28 September 2026) says the controller is the dentsu company in your country (for example Merkle in the UK) and that dpo@dentsu.com will route requests to the correct entity, so this entry also covers Merkle UK. Other dentsu markets list their own mailboxes in the same policy.
+      sources:
+        - https://www.merkle.com/en/privacy-policy.html
+      researched: "2026-11-23"
     - id: message-digital
       name: MESSAGE DIGITAL LLC
       email: ""
@@ -4121,11 +4124,15 @@ brokers:
       category: marketing
     - id: salesintel-research
       name: Salesintel Research Inc.
-      email: privacy@salesintel.io
+      email: support@salesintel.io
       website: https://www.salesintel.io/
       opt_out_url: https://salesintel.io/opt-out/
       region: us
       category: marketing
+      notes: 'US B2B sales-intelligence database (SalesIntel Research, Inc., Vienna, Virginia). Its privacy policy (updated 2026-10-26) names support@salesintel.io as the contact for GDPR, CCPA and deletion requests and as the data protection officer address (Gary Holtz); the opt-out form at salesintel.io/opt-out/ also takes requests. It holds business contact data (name, job title, employer, business email and phone), sold or licensed to business clients, relies on legitimate interest, and says it removes home addresses and numbers. It certifies to the EU-U.S. Data Privacy Framework, so unresolved EU complaints can go to JAMS and your national authority. Responses are promised within 30 to 45 days. It is also a registered California data broker and publishes its 2025 deletion statistics: 761,431 requests, all complied with, median one day. The earlier address privacy@salesintel.io came from the broker registry and does not appear in the policy.'
+      sources:
+        - https://salesintel.io/privacy-policy/
+      researched: "2026-11-19"
     - id: salutary-data
       name: SALUTARY DATA LLC
       email: privacy@salutarydata.com
@@ -5096,11 +5103,15 @@ brokers:
       notes: Zenleads was folded into/rebranded as Apollo.io - its own contact and opt-out URL already route there directly (confirmed via Apollo.io's privacy-removal page).
     - id: zeotap-gmbh
       name: Zeotap GmbH
-      email: team.legal@zeotap.com
+      email: privacy@zeotap.com
       website: https://www.zeotap.com/
-      opt_out_url: https://privacyportal-de.onetrust.com/webform/bdcc4a2f-2458-4e17-96c3-cf88f7115dfc/2c5e70e5-643a-4c1e-b9c2-1e71584d04ad
-      region: us
+      opt_out_url: https://privacy.zeotap.com/optout/authentication
+      region: global
       category: marketing
+      notes: 'Berlin customer-data platform, zeotap GmbH, Stresemannstraße 123, 10963 Berlin (UK representative zeotap UK Limited, London; external DPO ePrivacy GmbH, Hamburg). It holds advertising profiles keyed to mobile ad IDs, cookie IDs and hashed emails or phone numbers, not names. Its privacy policy (website policy last modified April 2026) names privacy@zeotap.com and says access and deletion requests should use its portal for cookie-ID data (privacy.zeotap.com/optout/authentication) or its Data Protection Rights App for ad-ID data. It says it cannot find your data without your ad ID or cookie ID; a hashed email or phone number only finds data stored under that hash. It also tells you to contact your mobile operator or other data partner. Retention: unused profiles are deleted after 3 months. Earlier entry (California data-broker registry) used team.legal@zeotap.com and a OneTrust privacy form; the policy mailbox replaces it. No response deadline is stated.'
+      sources:
+        - https://zeotap.com/privacy-policy/
+      researched: "2026-11-22"
     - id: zipstorm
       name: Zipstorm LLC
       email: ""
@@ -5133,9 +5144,12 @@ brokers:
       opt_out_url: https://www.creditreform.de/datenschutz
       region: eu
       category: financial-b2b
-      notes: Replied "no data stored about you" (2026-08-21) - no further action taken.
+      notes: 'Replied "no data stored about you" (2026-08-21) - no further action taken. Re-read 2026-11-22 on the Creditreform data-protection page (creditreform.com/en/navigations/footer/data-protection): the controller is Verband der Vereine Creditreform e.V., Hammfelddamm 13, 41460 Neuss, tel +49 2131 109-0, creditreform@verband.creditreform.de, and the data protection officer is Datenschutz@verband.creditreform.de. It lists access, rectification, erasure, restriction and consent withdrawal; objection only for a special situation that you must prove, except for advertising, where it is unconditional. Credit data is kept three years and then reviewed, debtor-register entries are deleted three years after the order (ZPO section 882e), so early erasure is limited to wrong entries. Complaints about deletion periods go to the Tigges DCO arbitration board (beschwerde-auskunfteien@tigges-dco.de).'
       countries:
         - DE
+      sources:
+        - https://www.creditreform.com/en/navigations/footer/data-protection
+      researched: "2026-11-22"
     - id: regis24
       name: Regis24
       email: datenschutz@regis24.de
@@ -5197,7 +5211,7 @@ brokers:
       website: https://www.crif.com/
       region: eu
       category: financial-b2b
-      notes: 'Added 2026-09-12 from their privacy policy - pan-EU credit/business-information bureau (Italy HQ). Country-specific DPO contacts exist too (UK: dpo.uk@crif.com; Austria: auskunft@crif.com) if the Italian address does not respond.'
+      notes: 'Added 2026-09-12 from their privacy policy - pan-EU credit/business-information bureau (Italy HQ). The website privacy policy (last modified 9 July 2021, re-read 2026-11-22) names CRIF SpA, Via della Beverara 21, 40131 Bologna, as controller and dirprivacy@crif.com (also the DPO) and crif@pec.crif.com for rights requests; it covers website visitors only and says each service has its own notice. Country-specific DPO contacts exist too (UK: dpo.uk@crif.com; Austria: auskunft@crif.com) if the Italian address does not respond.'
       parent: CRIF S.p.A.
       hq: Bologna, Italy
       sources:
@@ -5765,7 +5779,10 @@ brokers:
       opt_out_url: https://www.leadfeeder.com/privacy/privacy-notice/
       region: global
       category: marketing
-      notes: From the California data-broker registry (2026); contact details as the broker filed them.
+      notes: Dealfront Finland Oy runs Leadfeeder; dealfront.com redirects to leadfeeder.com. Contact as filed in the California data-broker registry (2026). Its privacy notice, sections E4 and E5 (the U.S. state-rights part), gives privacy@leadfeeder.com and the web tool https://privacycockpit.com/ for access, deletion, correction and opt-out of sale or sharing, with no account needed, and says an authorized agent may file for you. The EU-side section with the data protection officer contact was not read, so dpo@leadfeeder.com is still the registry address; try both. Leadfeeder identifies companies visiting its customers' sites and sells business contact data, so it holds mostly business-contact data.
+      sources:
+        - https://www.leadfeeder.com/privacy/privacy-notice/
+      researched: "2026-11-19"
     - id: dealfront-group-gmbh
       name: Dealfront Group GmbH
       email: legal@dealfront.com
@@ -6430,13 +6447,16 @@ brokers:
       category: marketing
       notes: From the Oregon data-broker registry (2026); contact details as the broker filed them.
     - id: peanuts-saas-studio-sas
-      name: Peanuts SaaS Studio SAS
-      email: valentin@findymail.com
+      name: Peanuts SaaS Studio SAS (Findymail)
+      email: privacy@findymail.com
       website: https://www.findymail.com
       opt_out_url: https://www.findymail.com/ccpa/
       region: global
       category: marketing
-      notes: From the California data-broker registry (2026); contact details as the broker filed them.
+      notes: B2B email-finder service (Findymail) operated by Peanuts SaaS Studio. Its privacy policy names privacy@findymail.com for questions and for GDPR requests (access, rectification, deletion, objection, restriction, portability, consent withdrawal; it may verify your identity first) and offers no response deadline; the policy covers users of its service and does not say whether it also covers the contact records it sells, so say in the request that you want your own business contact data removed from its database. The California data-broker registry (2026) listed valentin@findymail.com and the CCPA page at /ccpa/ as its contact; the policy mailbox replaces the personal address.
+      sources:
+        - https://www.findymail.com/privacy-policy/
+      researched: "2026-11-22"
     - id: pebblepost-inc
       name: PEBBLEPOST INC
       email: privacy@pebblepost.com
@@ -7385,18 +7405,18 @@ brokers:
       opt_out_url: https://www.experian.es/legal/marketing-preferences.html
       region: eu
       category: financial-b2b
-      notes: Spanish arm of Experian (credit bureau/business data); notice lists erasure and objection and says to write to the DPO mailbox, which Axesor shares; the marketing-preferences page only covers business marketing email.
+      notes: Spanish arm of Experian (Experian España S.L.U. and Experian Bureau de Crédito S.A.U., C/ Príncipe de Vergara 132, Madrid). The website and marketing privacy policy (effective 22 May 2018, updated June 2026) says to write to dpospain@experian.com, or by post to the registered address, to withdraw consent or ask for access, correction, restriction, objection or erasure. That mailbox is for the website and marketing data only; the BADEXCUG credit-default registers say it is not the channel for their rights (see the badexcug entries). The marketing-preferences page only covers business marketing email.
       parent: Experian Bureau de Crédito, S.A.U.
       sources:
-        - https://www.experian.es/politica-de-privacidad
-      researched: "2026-11-18"
+        - https://www.experian.es/legal/politica-privacidad
+      researched: "2026-11-23"
     - id: axesor
       name: Axesor
       email: bcatcliente@experian.com
       website: https://www.axesor.es
       region: eu
       category: financial-b2b
-      notes: Spanish business-information and credit-risk database (now Experian-run); rights requests in writing with ID copy, the shared DPO mailbox dpospain@experian.com is covered by the experian-espana entry.
+      notes: Spanish business-information and credit-risk database (now Experian-run); rights requests in writing with ID copy to the customer-service mailbox above. Experian España's own website mailbox (dpospain@experian.com) is on the experian-espana entry; it was not checked as a rights channel for Axesor data.
       parent: Axesor Conocer para Decidir, S.A.U.
       sources:
         - https://www.axesor.es/politica-privacidad.aspx
@@ -7490,11 +7510,12 @@ brokers:
       opt_out_url: https://privacy.italiaonline.it/dpo/form-contatto-dpo
       region: eu
       category: people-search
-      notes: Operator of the Italian phone and business directories; rights under GDPR arts. 15-21 via the info mailbox or the DPO contact form.
+      notes: 'Operator of the Italian phone and business directories (PagineGialle, PagineBianche business section, Virgilio Aziende, reverse phone search), Italiaonline S.p.A., Via del Bosco Rinnovato 8, 20057 Assago (MI). Its directory privacy notice (updated July 2026, re-read 2026-11-22) says rights under GDPR arts. 15-21 go to info@italiaonline.it or the DPO contact form; PEC italiaonline@pec-italiaonline.it. Important limit: listings that come from the single national telephone database (DBU) can only be changed or deleted by your telephone operator, which is the controller there; Italiaonline acts only after the operator updates the DBU, and the change then flows into the directory automatically. So send DBU-sourced removals to your operator, and use Italiaonline for listings it published from other sources (list providers, company website, social pages) or collected itself. Deletion follows revocation or objection within the legal time limits; no deadline is stated.'
       parent: Italiaonline S.p.A.
       sources:
         - https://www.italiaonline.it/archivio/wp-content/uploads/sites/3/2026/05/Informativa-privacy-corporate-Italiaonline_05.2026.pdf
-      researched: "2026-11-18"
+        - https://www.paginegialle.it/termini-condizioni/dati_personali
+      researched: "2026-11-22"
     - id: experian-ireland
       name: Experian Ireland
       email: info@experian.ie
@@ -7570,28 +7591,30 @@ brokers:
         - https://telefoonboek.nl/privacy-statement
       researched: "2026-11-18"
     - id: youvia-telefoongids
-      name: Youvia (De Telefoongids)
+      name: Youvia (De Telefoongids / Gouden Gids)
       email: privacy@youvia.nl
       website: https://www.detelefoongids.nl
       opt_out_url: https://www.detelefoongids.nl/privacy/
       region: eu
       category: people-search
-      notes: Dutch phone directory; the DPO mailbox handles removal requests, but private numbers are removed only through mijnnummervermelding.nl (the central number-listing database).
+      notes: Dutch phone directory and business directory run by Youvia B.V. (Herikerbergweg 88, Amsterdam, KvK 27198207) under the De Telefoongids and Gouden Gids brands, plus the 1819 subscriber information service. The DPO mailbox handles removal requests, but private numbers are removed only through mijnnummervermelding.nl (the central number-listing database). The Gouden Gids privacy statement (version 1.6.5, 7 October 2026) says business listings are edited or removed through the removal page on goudengids.nl (privacy-avg/zakelijke-bedrijfsvermelding-verwijderen), and anything else goes to the DPO at privacy@youvia.nl; its data comes from the Chamber of Commerce, other public sources and telecom operators (via COIN), and it states it only processes business data there. No response deadline is stated.
       parent: Youvia
       sources:
         - https://www.detelefoongids.nl/privacy/
-      researched: "2026-11-18"
+        - https://www.goudengids.nl/nl/privacy/
+      researched: "2026-11-23"
     - id: kompass
       name: Kompass
       email: dpo@kompass.com
       website: https://www.kompass.com
       region: eu
       category: marketing
-      notes: B2B directory and lead database holding professional contact details; the data-use policy says rights, including objection and erasure, are exercised by email to the DPO with identity details.
+      notes: B2B directory and lead database run by KOMPASS INTERNATIONAL SASU (Nanterre register no. 823 374 137), 6/10 rue Troyon, 92310 Sevres, France, holding professional contact details (name, position, training, phone, email) scraped from company sites, open data, directories and social networks. Its general policy (updated 22 January 2025, re-read 2026-11-22 on nl.kompass.com) says rights, including objection and erasure, are exercised by email to dpo@kompass.com or by post to Kompass, service DPO, at that address, giving surname, first name, email, postal address and phone; access, portability and rights for heirs also need an ID copy. It says objection is unavailable for contract-, legal- or vital-interest processing, keeps database entries until you object, and reminds listed people every 20 months by email; a complaint goes to the CNIL. No response deadline is stated. The same policy applies to every country site (nl., gb., and so on).
       parent: Kompass (Sevres, France)
       sources:
         - https://gb.kompass.com/l/general-data-use-policy
-      researched: "2026-11-18"
+        - https://nl.kompass.com/en/l/general-data-use-policy
+      researched: "2026-11-22"
     - id: cegedim
       name: Cegedim (professional health-sector database CEGDB)
       email: cnil@cegedim.fr
@@ -7962,12 +7985,14 @@ brokers:
         - https://www.experian.com.au/privacy-policy-terms-conditions/software-solutions-privacy-policy
       researched: "2026-11-18"
     - id: experian-south-africa
-      name: Experian South Africa
+      name: Experian South Africa (formerly Compuscan)
       email: informationofficerafrica@experian.com
       website: https://www.experian.co.za
       region: global
       category: financial-b2b
-      notes: South African credit bureau; its consumer trust centre names the Information Officer mailbox for POPIA data-subject rights and complaints. National Credit Act requests go to eza.consumer@experian.com.
+      notes: 'South African credit bureau; Compuscan has been integrated into Experian. Its privacy notice (February 2026, version 5.1) names the Data Protection Office at informationofficerafrica@experian.com for access, correction, erasure, consent withdrawal and objection under POPIA: each right has its own form, to be filled in and emailed there, free unless a request is unfounded or excessive. Credit bureau data is governed by the National Credit Act and must go through the NCA consumer dispute process (requests go to eza.consumer@experian.com), and erasure of NCA-governed data may be refused. Unresolved complaints can go to its General Counsel (africalegal@experian.com), the Credit Bureau Association, or the Information Regulator. Use it for access and corrections to credit data, and for erasure only of non-credit data.'
+      countries:
+        - ZA
       parent: Experian
       sources:
         - https://www.experian.co.za/legal/trust-centre/consumer-trust-centre
@@ -8144,3 +8169,1321 @@ brokers:
       sources:
         - https://www.dnb.com/content/dam/web/company/about/content/pdaits/DnB_Privacy-Data-AI-Transparency-Statement.pdf
       researched: "2026-11-18"
+    - id: ratsit
+      name: Ratsit
+      email: ""
+      website: https://www.ratsit.se
+      opt_out_url: https://www.ratsit.se/tabort
+      region: eu
+      category: people-search
+      notes: No removal email. Removal is a BankID web flow (takes up to 24 hours), so it needs a Swedish BankID; without one, the only route is the customer service form at https://www.ratsit.se/kontakt. Holds name, address, age and income and also sells credit information.
+      countries:
+        - SE
+      sources:
+        - https://www.ratsit.se/tabort
+        - https://www.ratsit.se/kontakt
+      researched: "2026-11-18"
+    - id: merinfo
+      name: Merinfo
+      email: info@merinfo.se
+      website: https://www.merinfo.se
+      opt_out_url: https://www.merinfo.se/privacy-policy
+      region: eu
+      category: people-search
+      notes: Swedish people-search site run by Merinfo Sverige AB (org. no. 556825-8601). The privacy policy (section 9) recognises the right to have data deleted, restricted or kept out of direct marketing, section 3 says to email info@merinfo.se to withdraw consent (or use the logged-in pages in the service to object to marketing), and section 13 gives the same address as the only contact for questions about personal data processing. No dedicated removal mailbox or form found, and no publishing-exemption (utgivningsbevis) claim seen on the policy page.
+      countries:
+        - SE
+      sources:
+        - https://www.merinfo.se/privacy-policy
+      researched: "2026-11-18"
+    - id: eniro-se
+      name: Eniro Sverige
+      email: privacy.se@eniro.com
+      website: https://www.eniro.se
+      opt_out_url: https://static5.eniro.com/rfi/RTBF_SE.pdf
+      region: eu
+      category: people-search
+      notes: Swedish directory. Erasure goes through a signed Article 17 request form (RTBF_SE.pdf) sent by email to privacy.se@eniro.com or by post to Eniro Sverige AB, Box 4085, SE-169 04 Solna, Att. Dataskyddsansvarig. You can only request removal of your own data. Data tied to a past or current Eniro customer relationship is not deleted, as other rules apply.
+      countries:
+        - SE
+      parent: Eniro Sverige AB
+      verification: The form must be signed and sent with a copy of a photo ID (driving licence or passport); an unsigned email request without ID will probably be held back
+      response_time: Says requests are handled within 3-4 days, with a new date if that is not possible
+      sources:
+        - https://static5.eniro.com/rfi/RTBF_SE.pdf
+        - https://www.eniro.se/integritetspolicy
+      researched: "2026-11-18"
+    - id: krak-dk
+      name: Krak (Eniro Danmark, also De Gule Sider)
+      email: Privacy@krak.dk
+      website: https://www.krak.dk
+      opt_out_url: https://static5.eniro.com/rfi/RTBF_DK.pdf
+      region: eu
+      category: people-search
+      notes: Danish directory; eniro.dk is the same service as Krak. Erasure goes through a signed Article 17 request form (RTBF_DK.pdf) sent by email to Privacy@krak.dk or by post to Krak A/S, Vesterbrogade 149, 1620 København V, Att. Dataansvarlig. You can only request removal of your own data. Data tied to a past or current advertiser relationship is not covered, as other rules apply. Same Eniro group and same form process as Eniro Sverige. De Gule Sider (degulesider.dk) serves the same Krak A/S privacy policy, so it is covered by this entry. The policy also names the group data protection advisor at dataprotectionoffice@krak.dk (Eniro Sweden AB, Box 4085, 169 04 Solna) and offers separate access and deletion forms.
+      countries:
+        - DK
+      parent: Krak A/S
+      verification: The form must be signed and sent with a copy of a photo ID (driving licence or passport); an unsigned email request without ID will probably be held back
+      response_time: Says deletion is done within 3-5 working days of receipt, with a new deadline if that is not possible
+      sources:
+        - https://static5.eniro.com/rfi/RTBF_DK.pdf
+        - https://www.degulesider.dk/hjaelp/vilkaar/privatlivspolitik
+      researched: "2026-11-18"
+    - id: mrkoll
+      name: Mrkoll
+      email: hej@nusvar.se
+      website: https://mrkoll.se
+      opt_out_url: https://mrkoll.se
+      region: eu
+      category: people-search
+      notes: Swedish people-search site. Section 8 of the privacy policy says to email hej@nusvar.se to exercise any of your rights, and points to IMY (imy@imy.se, 08-657 61 00) for complaints. The site blocks non-Swedish IPs with a Cloudflare page, so the policy was read through a Swedish connection. A noyb complaint says Mrkoll claims GDPR does not apply to it (publishing exemption); the policy page itself was not checked for that claim, so expect a refusal and see docs/broker-replies.md if one arrives.
+      countries:
+        - SE
+      sources:
+        - https://mrkoll.se/om/integritetspolicy/
+      researched: "2026-11-18"
+    - id: birthday-se
+      name: Birthday.se
+      email: info@birthday.se
+      website: https://www.birthday.se
+      opt_out_url: https://www.birthday.se
+      region: eu
+      category: people-search
+      notes: Swedish birthday and people-search site. The privacy page ("Deletion and correction") says to email info@birthday.se to have your data removed from both the public search and internal systems. For corrections it says it updates or deletes "in line with our publishing rights", so it may hold a publishing exemption; treat a refusal citing that as a broker-replies.md case.
+      countries:
+        - SE
+      sources:
+        - https://www.birthday.se/integritet
+      researched: "2026-11-18"
+    - id: bolagsfakta
+      name: Bolagsfakta
+      email: ""
+      website: https://www.bolagsfakta.se
+      opt_out_url: https://www.bolagsfakta.se/contact
+      region: eu
+      category: financial-b2b
+      notes: Swedish company-information site. No email published; the privacy page says to use the web form at /contact for access or removal requests (it also lets account holders edit or delete their own profile, which does not cover listings about you). Swedish company data usually names owners and board members, so this is where your name would appear.
+      countries:
+        - SE
+      sources:
+        - https://www.bolagsfakta.se/contact
+      researched: "2026-11-18"
+    - id: gule-sider-no
+      name: Gule Sider
+      email: privacy@gulesider.no
+      website: https://www.gulesider.no
+      opt_out_url: https://static5.eniro.com/rfi/RTBF_NO.pdf
+      region: eu
+      category: people-search
+      notes: Norwegian directory in the Eniro group. Erasure goes through a signed Article 17 request form (RTBF_NO.pdf) sent by email to privacy@gulesider.no or by post to Gule Sider AS, Langkaia 1, 0150 Oslo, Att. Dataansvarlig. You can only request removal of your own data. Data tied to a past or current advertiser relationship is not covered, as other rules apply. Same form process as Eniro Sverige and Krak.
+      countries:
+        - "NO"
+      parent: Gule Sider AS
+      verification: The form must be signed and sent with a copy of a photo ID (driving licence or passport); an unsigned email request without ID will probably be held back
+      response_time: Says deletion is done within 3-5 working days of receipt, with a new deadline if that is not possible
+      sources:
+        - https://static5.eniro.com/rfi/RTBF_NO.pdf
+      researched: "2026-11-18"
+    - id: hitta-se
+      name: Hitta.se
+      email: ""
+      website: https://www.hitta.se
+      opt_out_url: https://www.hitta.se/kontakta-oss/ta-bort-kontaktsida
+      region: eu
+      category: people-search
+      notes: 'Swedish phone and people directory (also branded finda.se) run by Hittapunktse AB, org. no. 556663-0348. It claims a certificate of publication (utgivningsbevis) under the Freedom of Expression Act, so it says GDPR erasure does not apply and offers to hide your listing instead ("Hide all my information from Hitta.se"). Hide routes: search for yourself and choose remove, logged in with Mobile BankID (needs a Swedish BankID); or post a copy of valid ID with a description of what to remove to Hittapunktse AB, Customer Service, Sankt Eriksgatan 119, 113 43 Stockholm; or email customer service with the ID copy (no address published on the pages read). It tells you to fix the underlying subscriber record with your telecom operator to make the removal permanent. Data comes from SPAR, Dun & Bradstreet AB, Bolagsverket, Valu8, Valueguard and Bildätter Sverige AB. Treat a hide as the best outcome; a refusal of erasure is expected.'
+      countries:
+        - SE
+      parent: Hittapunktse AB
+      verification: Removal needs Mobile BankID or a copy of valid photo ID; without either it says it cannot help
+      sources:
+        - https://www.hitta.se/kontakta-oss/ta-bort-kontaktsida
+        - https://support.hitta.se/faq
+        - https://www.hitta.se/din-integritet
+      researched: "2026-11-18"
+    - id: syna
+      name: Syna
+      email: dso@syna.se
+      website: https://www.syna.se
+      opt_out_url: https://upplysningar.syna.se/publicarticle/integritetspolicy
+      region: eu
+      category: people-search
+      notes: Swedish person and company lookup service run by AB Syna. The privacy policy (section 8.1) gives the data protection officer's mailbox dso@syna.se, or post to Syna Data Protection Officer, Box 244, 201 22 Malmö, for questions about personal data. No dedicated removal form exists (confirmed on the policy page), so email is the route. No publishing-exemption claim read yet, so check the reply for one.
+      countries:
+        - SE
+      parent: AB Syna
+      sources:
+        - https://upplysningar.syna.se/publicarticle/integritetspolicy
+      researched: "2026-11-18"
+    - id: suomen-numeropalvelu
+      name: Suomen Numeropalvelu
+      email: tietosuoja@fonecta.com
+      website: https://www.suomennumeropalvelu.fi
+      opt_out_url: https://www.suomennumeropalvelu.fi/tietosuojaseloste
+      region: eu
+      category: people-search
+      notes: Finnish number directory run by Suomen Numeropalvelu Oy (Finlands Nummertjänst Ab). The privacy notice says to contact the data protection officer at tietosuoja@fonecta.com or by post to PL 6, 00521 Helsinki to exercise rights, including access and deletion. The "Right to delete data" section confirms you can request deletion when the data is no longer needed for its purpose or was processed unlawfully. The fonecta.com mailbox suggests a link to the Fonecta group, but the notice read does not say so.
+      countries:
+        - FI
+      parent: Suomen Numeropalvelu Oy
+      verification: A copy of an identity document (passport, driving licence or identity card) must accompany the request so the controller can confirm who you are
+      sources:
+        - https://www.suomennumeropalvelu.fi/tietosuojaseloste
+      researched: "2026-11-18"
+    - id: svensk-adressandring
+      name: Svensk Adressändring and AddressPoint
+      email: dpo@adressandring.se
+      website: https://www.adressandring.se
+      opt_out_url: https://www.adressandring.se/publicfiles/integritetspolicy.pdf
+      region: eu
+      category: marketing
+      notes: Swedish change-of-address service (Svensk Adressändring AB, org. no. 556476-3562) and its sister company AddressPoint AB (org. no. 556587-5597), which passes address and contact data to partner companies and sends marketing. The policy (May 2026, section 20) says to email dpo@adressandring.se or write to Svensk Adressändring AB / AddressPoint AB, Landsvägen 37, 172 63 Sundbyberg, or call 0771-97 98 99. It lists the right to erasure (when data is no longer needed or has no legal basis), objection to legitimate-interest processing and to direct marketing, and consent withdrawal; no publishing-exemption claim. Section 3 says people registered as residents of Sweden are kept in the register on a legitimate-interest basis, using SPAR data, so it will likely refuse erasure for a Swedish resident. Section 7.2 says AddressPoint shares data with partners whether or not you ask, so name both companies in the request.
+      countries:
+        - SE
+      parent: Svensk Adressändring AB
+      sources:
+        - https://www.adressandring.se/publicfiles/integritetspolicy.pdf
+      researched: "2026-11-18"
+    - id: creditreform-ee
+      name: Creditreform Eesti
+      email: info@creditreform.ee
+      website: https://www.creditreform.ee
+      opt_out_url: https://www.creditreform.ee/et/ettevottest/andmekaitsed
+      region: eu
+      category: financial-b2b
+      notes: Estonian credit-information company, Creditreform Eesti OÜ (registry code 10887820), holding name, ID code and debt data. Section 7.2 of its data protection notice says rights requests, including deletion, go to the general mailbox info@creditreform.ee as a digitally signed application, answered within one month (extendable). Deletion is refused where the data is needed for a legal obligation, a contract or legal claims, which credit data often is, so expect a refusal or partial reply.
+      countries:
+        - EE
+      parent: Creditreform Eesti OÜ
+      verification: The application must be digitally signed (for example with an Estonian eID or other qualified e-signature); an unsigned email will probably be held back
+      response_time: Answers within one month of receipt, with an extension possible for complex requests
+      sources:
+        - https://www.creditreform.ee/et/ettevottest/andmekaitsed
+      researched: "2026-11-18"
+    - id: dun-bradstreet-hungary
+      name: Dun & Bradstreet Hungary (formerly Bisnode Magyarország)
+      email: ""
+      website: https://www.dnb.com/hu-hu/
+      opt_out_url: https://submit-irm.trustarc.eu/services/validation/ba81b98f-997d-4216-b4cc-d64cf261b082
+      region: eu
+      category: financial-b2b
+      notes: The "Adatvédelmi beállítások" (privacy settings) link in the Hungarian D&B site footer opens this TrustArc privacy request form, so the route is the web form. Not email; the old dpo.hu@bisnode.com address appears only in 2019-2021 third-party documents. The group EU DPO mailbox in the dun-bradstreet-eu entry is a fallback for a failed form. The form fields and the Adatkezelési tájékoztató (data processing notice) were not read.
+      countries:
+        - HU
+      parent: Dun & Bradstreet
+      sources:
+        - https://dnb.com/hu-hu/aszf
+        - https://bisnode.hu/aszf
+      researched: "2026-11-18"
+    - id: rekvizitai-lt
+      name: Rekvizitai.lt
+      email: duomenubaze@verslozinios.lt
+      website: https://rekvizitai.vz.lt
+      opt_out_url: https://rekvizitai.vz.lt
+      region: eu
+      category: financial-b2b
+      notes: Lithuanian company directory run by UAB "Verslo žinios" (code 110682810, J. Jasinskio g. 16A, LT-03163 Vilnius). It publishes company officers' names, positions, emails and phone numbers from public registers and company sites, on a legitimate-interest basis, and says it deletes or updates data that is wrong, outdated or should be removed on the data subject's or the source's information. duomenubaze@verslozinios.lt is named as both the company and DPO contact. The notice (updated 2026-10-06) says rights requests go through the form under "Kontaktai" (sent from the company's own email, naming the company representative) or by post with a notary- or advocate-certified ID copy; answered within 30 days, in Lithuanian. A plain email to the DPO address is not the stated route, so it may be redirected to the form.
+      countries:
+        - LT
+      parent: UAB Verslo žinios
+      verification: Form must come from the company's email address with the representative named; by post it needs a notary- or advocate-certified ID copy and a signed request
+      response_time: Answers within 30 calendar days, in Lithuanian
+      sources:
+        - https://rekvizitai.vz.lt/privatumo-politika/
+      researched: "2026-11-18"
+    - id: creditinfo-eesti
+      name: Creditinfo Eesti (Krediidiinfo)
+      email: dpocigroup@creditinfo.com
+      website: https://www.creditinfo.ee
+      opt_out_url: https://www.creditinfo.com/legal/privacy-policy
+      region: eu
+      category: financial-b2b
+      notes: Estonian credit bureau in the Creditinfo Group. No Estonia-specific privacy contact was found, so this is the group data protection mailbox from the group privacy policy (creditinfo.com/legal/privacy-policy, "Your Rights"), which says rights requests go there and that data is erased when the purpose ceases or consent is withdrawn. The group policy may cover only the group's own website, so confirm in the reply that it handles the Estonian register; if it redirects, send the request to the local entity. Credit data is held under statutory duties, so expect a refusal or partial reply.
+      countries:
+        - EE
+      parent: Creditinfo Group
+      sources:
+        - https://www.creditinfo.com/legal/privacy-policy
+      researched: "2026-11-18"
+    - id: cncb-nrki
+      name: Czech Non-Banking Credit Bureau (NRKI / NBCIR)
+      email: poverenec@cncb.cz
+      website: https://www.cncb.cz
+      opt_out_url: https://www.cncb.cz/en/gdpr
+      region: eu
+      category: financial-b2b
+      notes: Czech register of clients of non-banking creditors (NRKI in Czech, NBCIR in English), run by CNCB. Its rights page says erasure is available when the GDPR conditions are met (data no longer needed or processed unlawfully), and that you can object on grounds relating to your situation, in which case it stops unless it shows compelling grounds or needs the data for legal claims. Access is free; portability is not available. The data protection officer address poverenec@cncb.cz comes from the earlier research of the same site and was not visible in the rights-page screenshot, so confirm it on the page. Credit data is held for creditors' risk checks, so expect a refusal unless the retention period is exceeded or the entry is wrong.
+      countries:
+        - CZ
+      parent: Czech Non-Banking Credit Bureau
+      sources:
+        - https://www.cncb.cz/en/gdpr
+      researched: "2026-11-18"
+    - id: bizi-si
+      name: Bizi.si (TSmedia)
+      email: dpo@tsmedia.si
+      website: https://www.bizi.si
+      opt_out_url: https://www.bizi.si
+      region: eu
+      category: financial-b2b
+      notes: Slovenian business directory published by TSmedia, d.o.o., Ljubljana. Its rights section says users can request access, correction, deletion or restriction, object to processing on legitimate-interest grounds or for direct marketing, and ask for portability, by written request to dpo@tsmedia.si or info@tsmedia.si, or by post to TSmedia, d.o.o., Cigaletova ulica 15, 1000 Ljubljana. You must identify yourself and define the request clearly; it replies within one month, at most three. The directory lists people through their company roles (officers, owners), and the underlying register data comes from the state, so expect a refusal where the entry is a statutory record.
+      countries:
+        - SI
+      parent: TSmedia
+      sources:
+        - https://www.bizi.si/informacije/pravila-in-pogoji/
+      researched: "2026-11-19"
+    - id: apis-bg
+      name: APIS
+      email: dpo@apis.bg
+      website: https://www.apis.bg
+      opt_out_url: https://apis.bg/bg/privacy-notice-bg
+      region: eu
+      category: financial-b2b
+      notes: Bulgarian business-information provider. Its privacy page (section III, "Your rights to protect your personal data") lists access, correction, erasure, objection (including to direct marketing and profiling), restriction, portability and consent withdrawal, and says to send a free-text request to the data protection officer at dpo@apis.bg or by post to Sofia 1111, Slatina region, Geo Milev sq. (street address as shown in the English translation, ul. "Persistence" no. 67B, entrance B). APIS says it does not correct data taken from a public source that matches it, and does not delete data it must keep by law, so expect a refusal for register-sourced entries.
+      countries:
+        - BG
+      sources:
+        - https://apis.bg/bg/privacy-notice-bg
+      researched: "2026-11-19"
+    - id: finstat
+      name: FinStat
+      email: dpo@finstat.sk
+      website: https://finstat.sk
+      opt_out_url: https://finstat.sk/ochrana-osobnych-udajov/pre-dotknute-osoby
+      region: eu
+      category: financial-b2b
+      notes: Slovak company-data service. Controller is FinStat, s. r. o. (written "p. r. o." in the machine translation), company ID 47 165 367, registered at the City Court of Bratislava III, section Sro, insert 89268/B, Bratislava-Rosinov; the notice names its designated data protection person as DataWitch s. r. o.. Its "FinStat and GDPR" page says it works mainly with corporate data but also processes personal data of natural persons from public registers (partners, members of statutory and supervisory bodies, liquidators, end-users of benefits). Its rights page lists access, rectification, erasure, restriction and objection, and says to contact the responsible person at dpo@finstat.sk, by phone on +421 903 531 533, at podnety@finstat.sk, or through the electronic form linked as opt_out_url. On objection it stops unless it can show the need after a proportionality test. Data comes from public registers, so expect a refusal or a partial reply for register entries.
+      countries:
+        - SK
+      sources:
+        - https://finstat.sk/ochrana-osobnych-udajov/pre-dotknute-osoby
+      researched: "2026-11-19"
+    - id: zoznam-sk
+      name: Zoznam (firma.zoznam.sk)
+      email: ochrana.udajov@firma.zoznam.sk
+      website: https://www.zoznam.sk
+      opt_out_url: https://www.zoznam.sk
+      region: eu
+      category: financial-b2b
+      notes: Slovak web portal and company directory run by Zoznam, s.r.o. (the translated page writes "List, s.r.o."), Bratislava-Ružinov; the street address came through garbled, so the email is the route. Its data-subject page lists objection, consent withdrawal, access, correction, erasure, restriction, portability and the right to complain to the Slovak data protection office, and says to write to ochrana.udajov@firma.zoznam.sk (orally, in writing or electronically); it replies within 30 days, extendable, and may charge for or refuse unfounded or repeated requests. It may ask for more proof of identity. Erasure does not apply where processing is needed for freedom of expression, a legal duty, archiving or legal claims, and the same page covers its news sites, where journalism exceptions apply. The directory lists businesses and the people behind them, so a refusal is possible for register-sourced entries.
+      countries:
+        - SK
+      sources:
+        - https://media.zoznam.sk/pravne-informacie/ochrana-sukromia/podmienky-ochrany-sukromia-a-spracuvania-udajov
+      researched: "2026-11-19"
+    - id: zlatestranky-sk
+      name: Zlaté stránky (WeNet SK)
+      email: gdpr@wenetonline.sk
+      website: https://www.zlatestranky.sk
+      opt_out_url: https://wenetonline.sk/zasady-ochrany-osobnych-udajov/
+      region: eu
+      category: people-search
+      notes: Slovak Golden Pages phone directory (print catalog and zlatestranky.sk); zlatestranky.sk redirects to the privacy policy of WeNet SK, s.r.o., Miletičova 21, 821 08 Bratislava, company ID 35 859 415, Commercial Register of the City Court of Bratislava III, section Sro, insert 28991/B (parent WeNet Group S.A., Warsaw). It lists sole traders, contact persons of companies, and subscriber name, address and number received from telephone operators under the subscriber's consent. The policy says to exercise access, correction, erasure, restriction, objection and portability in writing to the contact person, Ladislav Varga, at gdpr@wenetonline.sk (same address by post). Erasure applies where the data is no longer needed, consent is withdrawn, you object, or processing is unlawful. Where its data comes from a telephone operator's subscriber list, withdraw your directory consent with your operator too.
+      countries:
+        - SK
+      parent: WeNet Group
+      sources:
+        - https://wenetonline.sk/zasady-ochrany-osobnych-udajov/
+      researched: "2026-11-19"
+    - id: 11880-de
+      name: 11880 (11880 Internet Services AG)
+      email: bdsb@11880.com
+      website: https://www.11880.com
+      opt_out_url: https://unternehmen.11880.com/datenschutz
+      region: eu
+      category: people-search
+      notes: 'German phone book and business directory (11880.com, telefonbuch24.de, werkenntdenBESTEN.de, postleitzahlen.de and many 11880-<trade>.com sites; also the 11880/11890 phone directory services). The policy names two controllers at Baumstraße 23, 45128 Essen: 11880 Solutions AG (datenschutz.solutions@11880.com) and 11880 Internet Services AG (datenschutz.internet-services@11880.com); the group data protection officer is bdsb@11880.com, used here because it covers both. Listings come from Deutsche Telekom (§ 47 TKG) for people who had themselves entered in subscriber directories (§ 104 TKG), plus public sources and credit-agency data, and 11880 says it markets and sells data, for example on its CD/DVD phone books. The policy lists access, rectification, erasure, restriction, portability and objection (Art. 21, informal, by email), with the limits of §§ 34 and 35 BDSG; complaints go to the NRW data protection authority. Because the entry rests on a Telekom feed, ask your telephone provider to remove you from subscriber directories as well, or it can reappear.'
+      countries:
+        - DE
+      sources:
+        - https://unternehmen.11880.com/datenschutz
+      researched: "2026-11-19"
+    - id: lead-forensics
+      name: Lead Forensics
+      email: data-compliance@leadforensics.com
+      website: https://www.leadforensics.com
+      opt_out_url: https://www.leadforensics.com
+      region: eu
+      category: marketing
+      notes: UK B2B sales-lead tool that identifies companies visiting its customers' websites; its own marketing database holds business decision-makers (name, business email and phone, LinkedIn URL, job function, business IP and address), bought from third-party suppliers or found online, on a legitimate-interest basis. Its policy says to send access, rectification, erasure, restriction and objection requests to data-compliance@leadforensics.com or by post to Data Compliance, Lead Forensics, Building 3000, Lakeside, North Harbour, Portsmouth, PO6 3EN; it replies within 30 days, free of charge, and may ask for identity proof. After an erasure request it keeps a minimal suppression record (name, business phone and email, LinkedIn URL) so you are not contacted again, which is why restriction is offered as an alternative. Phone numbers are checked daily against TPS and CTPS, and you can also object by unsubscribing or telling a caller. Complaints go to the ICO.
+      sources:
+        - https://www.leadforensics.com/compliance/privacy-policy/
+      researched: "2026-11-19"
+    - id: yell-uk
+      name: Yell (Yell Limited)
+      email: dpo@yell.com
+      website: https://www.yell.com
+      opt_out_url: https://www.yell.com/legal/data-protection-privacy-policy/
+      region: eu
+      category: financial-b2b
+      notes: 'UK business directory (Yell.com, Yellow Pages), run by Yell Limited, company 4205228, Davidson House, The Forbury, Reading RG1 3EU. Its privacy policy names dpo@yell.com for access, rectification, erasure, restriction, portability, objection (including to direct marketing and profiling) and consent withdrawal; the same address is the data protection officer. Other routes: post to the Reading address, 0800 777 445, or the Help & Support form at yell.com/contactus. Complaints go to the ICO. The policy covers website and app users, marketing and competition entrants; it does not describe how business listings, including sole traders, are sourced or removed, so name the listing (business name, number, address) in the request. Yell shares some data with its US group company Hibu and with processors in India and the Philippines.'
+      countries:
+        - GB
+      sources:
+        - https://www.yell.com/legal/data-protection-privacy-policy/
+      researched: "2026-11-19"
+    - id: dun-bradstreet-croatia
+      name: Dun & Bradstreet Croatia (Poslovna.hr)
+      email: dpo.hr@dnb.com
+      website: https://www.dnb.com/hr-hr/
+      opt_out_url: https://www.dnb.com/hr-hr/
+      region: eu
+      category: financial-b2b
+      notes: Dun & Bradstreet d.o.o., Zagreb, publisher of the Poslovna.hr business directory (Finance Analytics). Its Croatian privacy notice names dpo.hr@dnb.com as the data protection officer and CustomerService.HR@dnb.com as the general contact; use the DPO address. Rights (access, correction, erasure, objection, restriction, portability) are exercised by post or email with your name, address, email or phone and any extra identification it asks for. The notice describes clients, contract contacts, newsletter subscribers and website visitors; it does not describe how persons in the business directory are listed. For data it takes from public registers it asks you to correct the register first, and it may refuse unfounded or repeated requests. Group-wide requests may also go to the existing dun-bradstreet-eu entry.
+      countries:
+        - HR
+      parent: Dun & Bradstreet
+      sources:
+        - https://www.dnb.com/hr-hr/
+      researched: "2026-11-19"
+    - id: transunion-canada
+      name: TransUnion Canada
+      email: TUCPrivacy@transunion.com
+      website: https://www.transunion.ca
+      opt_out_url: https://www.transunion.ca/legal/privacy-policy
+      region: global
+      category: financial-b2b
+      notes: 'Trans Union of Canada, Inc., a licensed Canadian consumer credit reporting agency (3115 Harvester Road, Suite 201, Burlington ON L7N 3N8; Quebec requests go to the Quebec Privacy Delegate at the same address). Its privacy notice (updated November 2025) names TUCPrivacy@transunion.com for access, correction and complaints, plus a Privacy Officer by post and 1 800 663 9980; it may ask for access and correction requests in writing. Credit files hold identity data (including SIN), payment history, public records and inquiries, supplied by lenders under their own consent, so erasure is not available in practice: the notice says rights such as ceasing dissemination are generally prohibited by law, and that it can only correct information found wrong, incomplete or inaccurate. Business credit reports also list principals (name, address, phone, ownership share). Use it to correct entries or to review your file, not to delete.'
+      countries:
+        - CA
+      sources:
+        - https://www.transunion.ca/legal/privacy-policy
+      researched: "2026-11-19"
+    - id: transunion-hong-kong
+      name: TransUnion Hong Kong
+      email: dpotuhk@transunion.com
+      website: https://www.transunion.hk
+      opt_out_url: https://www.transunion.hk/legal/privacy-policy
+      region: global
+      category: financial-b2b
+      notes: TransUnion Limited (TUHK), Suite 811, 8th Floor, Tower 5, The Gateway, 15 Canton Road, Tsim Sha Tsui, Kowloon; it runs the TransUnion Hong Kong app and website and supports TransUnion Credit Information Services Limited (TUCIS), the credit reference agency, which is a separate company (its web address redirects to transunion.hk, so there is no separate privacy page and the same contact applies). The policy (updated 1 November 2026) names the data protection officer at dpotuhk@transunion.com (or by post) and offers only access and rectification under the Personal Data (Privacy) Ordinance; it lists no erasure or objection right. Consumer credit data reaches TUHK from TUCIS with your consent, so a request about credit data should name TUCIS. Complaints go to the Office of the Privacy Commissioner for Personal Data.
+      countries:
+        - HK
+      parent: TransUnion
+      sources:
+        - https://www.transunion.hk/legal/privacy-policy
+      researched: "2026-11-19"
+    - id: transunion-south-africa
+      name: TransUnion South Africa
+      email: TUAPrivacy@transunion.com
+      website: https://www.transunion.co.za
+      opt_out_url: https://www.transunion.co.za/legal/privacy-policy/transunion-credit-bureau-privacy-notice
+      region: global
+      category: financial-b2b
+      notes: 'TransUnion Africa (Pty) Limited and its subsidiaries, including TransUnion Credit Bureau (registered with the National Credit Regulator as NCRCB4). Its privacy policy (effective 1 June 2026) names TUAPrivacy@transunion.com for questions about how your information is processed, plus PO Box 4522, Johannesburg 2000 and the contact centre on 0861 482 482, and says it supports access and correction rights under POPIA. It is a credit bureau governed by the National Credit Act: adverse listings are removed only where the law allows (debt settled, judgment capital settled, or the listing is incorrect, fraudulent or duplicated), and it does not remove them outside those processes. Reports on businesses can include their directors and principals. Use it for access and corrections, not general deletion.'
+      countries:
+        - ZA
+      parent: TransUnion
+      sources:
+        - https://www.transunion.co.za/legal/privacy-policy/transunion-credit-bureau-privacy-notice
+      researched: "2026-11-19"
+    - id: transunion-cibil
+      name: TransUnion CIBIL (India)
+      email: nodalofficer@transunion.com
+      website: https://www.transunioncibil.com
+      opt_out_url: https://www.transunioncibil.com/legal/privacy-policy
+      region: global
+      category: financial-b2b
+      notes: TransUnion CIBIL Limited, One World Centre, Tower 2A, 19th Floor, Senapati Bapat Marg, Lower Parel, Mumbai 400 013. Its privacy policy (updated 11 August 2026) sends requests, questions and grievances about personal information to the Grievance Officer (named as Mr. N Pohare) at nodalofficer@transunion.com or on 1800 209 0209 (Monday to Friday, 10 am to 6 pm); include your name and postal or email address, and it aims to resolve grievances within 30 days. You can withdraw consent by unsubscribing or by written notice, after which it says it will not use or retain the information shared by you, but it must keep credit information for at least 7 years from collection under the Credit Information Companies (Regulation) Act (CICRA). As an Indian credit bureau, deletion of credit records is not available; use it to correct a record or to withdraw consent for website and marketing data.
+      countries:
+        - IN
+      parent: TransUnion
+      sources:
+        - https://www.transunioncibil.com/legal/privacy-policy
+      researched: "2026-11-19"
+    - id: transunion-colombia
+      name: TransUnion Colombia (CIFIN S.A.S.)
+      email: notificaciones@transunion.com
+      website: https://www.transunion.co
+      opt_out_url: https://www.transunion.co
+      region: global
+      category: financial-b2b
+      notes: CIFIN S.A.S. (brand TransUnion), NIT 900.572.445-2, Calle 100 No. 7A-81 Piso 8, Bogotá, a Colombian credit information operator. Its data-processing policy (December 2025 version) lists notificaciones@transunion.com as the company contact and says requests (consulta, reclamo) go to the Legal Management (Gerencia Jurídica) by post at that address or through the SQR portal on transunion.co, after registering the data subject; requests need written reasons, a copy of your ID, and for an agent a power of attorney. Queries are answered in 10 business days (up to 5 more), claims for correction or deletion in 15 business days (up to 8 more), with a "reclamo en trámite" flag meanwhile. It states that this policy does not cover financial and credit data, which fall under Law 1266 of 2008 (the credit habeas data law); it also says it will not delete data or revoke authorisation where you have a legal or contractual duty that requires the data to stay, and deletion needs a Superintendencia de Industria y Comercio finding of misuse. Complaints go to the SIC.
+      countries:
+        - CO
+      parent: TransUnion
+      sources:
+        - https://www.transunion.co/content/dam/transunion/co/consumer/collateral/manual-politicas-y-procedimientos-tratamiento-datos-personales.pdf
+      researched: "2026-11-19"
+    - id: equifax-boavista
+      name: Equifax BoaVista (Brazil)
+      email: bvs_dpo@equifax.com
+      website: https://www.boavistaservicos.com.br
+      opt_out_url: https://www.boavistaservicos.com.br/privacidade/
+      region: global
+      category: financial-b2b
+      notes: 'Brazilian credit bureau (formerly Boa Vista Serviços, boavistaservicos.com.br redirects to Equifax Brazil), a subsidiary of Equifax Inc. that runs the Cadastro Positivo, the SCPC debt database and credit scores, with data on more than 282 million CPFs and CNPJs from protest registries, commercial boards, courts, the central bank cheque register and lenders. Its privacy notice (updated May 2026) names its data protection officer at bvs_dpo@equifax.com and the phone line 3003-0201 (08:00 to 20:00); replies within 15 days, and it needs a copy of an official ID plus a clear selfie holding the ID. LGPD rights listed: confirmation, access, correction, anonymisation or deletion of unnecessary or unlawfully processed data, portability, deletion of data processed on consent, and withdrawal of consent. Opposing marketing use or withdrawing consent stops that use, but it keeps data for credit protection, legal duties and legal defence, so debt and credit-history records are not removed on request. The photo ID you send may be used in its identity and fraud products. Note that SPC Brasil is a different company.'
+      countries:
+        - BR
+      parent: Equifax
+      sources:
+        - https://www.boavistaservicos.com.br/privacidade/
+      researched: "2026-11-19"
+    - id: spc-brasil
+      name: SPC Brasil
+      email: lgpd.encarregado@spcbrasil.com.br
+      website: https://www.spcbrasil.com.br
+      opt_out_url: https://portalcadastropositivo.spcbrasil.org.br/
+      region: global
+      category: financial-b2b
+      notes: 'Brazilian credit protection service (SPC Brasil, a different company from Equifax BoaVista and its SCPC). Its privacy policy names the data protection officer at lgpd.encarregado@spcbrasil.com.br, and says requests can also be made through the Contact Us channel or the Cadastro Positivo portal at portalcadastropositivo.spcbrasil.org.br. LGPD rights listed: confirmation, access, correction, anonymisation, blocking or deletion of unnecessary or unlawful data, portability, deletion of data processed on consent, information on who data was shared with, consent withdrawal, objection to processing under the consent exceptions, review of automated decisions, and opt-out of data used for its or partners'' legitimate interest. It may keep data or keep processing even after a deletion, objection or blocking request, for legal, contractual and regulatory duties, to defend rights, prevent unlawful acts and for legal proceedings, so debt and credit-history records are not removed on request. No response deadline is stated.'
+      countries:
+        - BR
+      sources:
+        - https://www.spcbrasil.com.br/privacidade
+      researched: "2026-11-19"
+    - id: ctos-malaysia
+      name: CTOS (CTOS Data Systems Sdn Bhd)
+      email: privacynotice@ctos.com.my
+      website: https://ctoscredit.com.my
+      opt_out_url: https://ctoscredit.com.my/privacy-statement/
+      region: global
+      category: financial-b2b
+      notes: Malaysian credit reporting agency (CTOS Data Systems Sdn Bhd and its group, under CTOS Digital Bhd). Its privacy policy (updated 20 March 2023) names privacynotice@ctos.com.my, or any CTOS Service Centre, for opting out, withdrawing or revoking consent, access and correction. On withdrawal of consent it says all collected information will be permanently deleted, except what it is required or permitted by law to keep, which for a credit bureau covers the credit records. It may charge a fee for access or correction requests and reserves the right to refuse a correction as the law provides. It also asks that you say if you do not want your data shared with third parties; your latest written instruction prevails. The policy covers data collected through its portal, sites, apps, forms, events and call centres. No response deadline is stated.
+      countries:
+        - MY
+      parent: CTOS Digital
+      sources:
+        - https://ctoscredit.com.my/privacy-statement/
+      researched: "2026-11-19"
+    - id: xds-south-africa
+      name: XDS (South Africa)
+      email: informationofficer@xds.co.za
+      website: https://www.xds.co.za
+      opt_out_url: https://www.splendi.co.za
+      region: global
+      category: financial-b2b
+      notes: South African registered credit bureau, a subsidiary of Mettus, with group companies Managed Integrity Evaluation (MIE, background screening) and Zenaptix (the Splendi consumer service). Its privacy policy names informationofficer@xds.co.za for access (free credit report through splendi.co.za at any time, or annually by email or on 0860 937 000), and Dispute@xds.co.za for disputes about inaccurate information, which it investigates with the information source. You can withdraw consent for intra-group sharing by contacting MIE, Zenaptix or XDS. The XDS policy lists no erasure right for credit data, which is kept under the National Credit Act retention periods. The Splendi privacy policy (Splendi is an XDS product and the Zenaptix consumer service, which has no policy of its own) adds the right to access, dispute incorrect information and request deletion of your Splendi profile, with requests to informationofficer@xds.co.za (give your name, address, the email you used on the site, and the circumstances). Use it for access, disputes, consent withdrawal and deleting a Splendi profile, not for deleting credit records.
+      countries:
+        - ZA
+      parent: Mettus
+      sources:
+        - https://www.xds.co.za/wp-content/uploads/2023/10/XDS-Privacy-Statement.pdf
+      researched: "2026-11-19"
+    - id: mie-south-africa
+      name: Managed Integrity Evaluation (MIE, South Africa)
+      email: mieinformationofficer@mie.co.za
+      website: https://www.mie.co.za
+      opt_out_url: https://www.mie.co.za
+      region: global
+      category: financial-b2b
+      notes: 'South African registered credit bureau and background screening company (education, qualification and employment checks) in the XDS group. Its privacy policy (version 1.5, 25 May 2026) names the Information Officer at mieinformationofficer@mie.co.za, and gives a subject line per request: "Data subject access request" (free, also on 0860 937 000 or a credit report via splendi.co.za), "Objection to Processing request", and "Request deletion". Corrections and disputes use Form 2, emailed to miedispute@mie.co.za. It asks for proof of identity, and detail beyond the credit report needs Form 1 to its call centre, possibly for a fee and up to 20 business days. Deletion applies to personal data that has no lawful retention reason: outside any legal retention period it keeps data 20 years, then de-identifies and archives it, and consumer credit information follows the National Credit Act. Marketing withdrawal takes up to 30 working days. It shares data with XDS and Zenaptix.'
+      countries:
+        - ZA
+      parent: Mettus
+      sources:
+        - https://www.mie.co.za/wp-content/uploads/2026/05/MIE-PRIVACY-POLICY-2026.pdf
+      researched: "2026-11-19"
+    - id: al-etihad-credit-bureau
+      name: Al Etihad Credit Bureau (UAE)
+      email: ""
+      website: https://etihadbureau.ae
+      opt_out_url: https://etihadbureau.ae/Support/DataCorrectionPersonal
+      region: global
+      category: financial-b2b
+      notes: 'Al Etihad Credit Bureau PJSC, the UAE federal credit bureau (postal address Abu Dhabi 111212 or Dubai 6566). Its privacy policy publishes no email: rights under the UAE PDPL (Federal Decree Law No. 45 of 2021) are exercised by phone on 800-287328 (+971 800 287328), and corrections through its channels, including the personal data correction form at etihadbureau.ae/Support/DataCorrectionPersonal, which is the opt_out_url here. The PDPL rights listed are access, correction, erasure, objection, restriction, portability and withdrawal of consent, but credit information is governed by Federal Law No. 6 of 2010 and Central Bank rules instead; it must keep credit-report applications and related records for at least five years, cannot edit data itself (providers supply it, so it asks the provider to correct), and may refuse erasure for legal reasons. It says it does not transfer data outside the UAE without explicit consent. Use it for corrections, not deletion.'
+      countries:
+        - AE
+      sources:
+        - https://etihadbureau.ae/Support/DataCorrectionPersonal
+      researched: "2026-11-19"
+    - id: equifax-argentina
+      name: Equifax Argentina (Veraz)
+      email: ""
+      website: https://www.veraz.com.ar
+      opt_out_url: https://gestion.latam.equifax.com/AR/home
+      region: global
+      category: financial-b2b
+      notes: 'Equifax Argentina S.A. (formerly Organización Veraz S.A.), Av. Leandro N. Alem 815, piso 11, Buenos Aires, the Argentine credit bureau. Its privacy statement (November 2025) publishes no email: rights under Law 25.326 (access, rectification, erasure, objection, withdrawal of consent) and the right to withdraw or block your name from its databases for promotional purposes are exercised through the "Gestión" option on the web portal at gestion.latam.equifax.com/AR/home, or by phone on (011) 5352-4800 (Monday to Friday, 9 to 18). Access is free, once every six months unless you show a legitimate interest, through the "Derecho de Acceso" tab at veraz.com.ar. Erasure applies where storage has no legal basis or the data is no longer needed, but debt data stays for five years under article 26 of the law, reduced to two years once the debt is paid, and corrections need documents (proof of settlement from the reporting entity, court papers, ID theft complaint). Complaints go to the AAIP (info@aaip.gob.ar). Only the data subject can file; no reports go to third parties.'
+      countries:
+        - AR
+      parent: Equifax
+      sources:
+        - https://gestion.latam.equifax.com/AR/home
+      researched: "2026-11-19"
+    - id: teikoku-databank
+      name: Teikoku Databank (TDB)
+      email: privacy@mail.tdb.co.jp
+      website: https://www.tdb.co.jp
+      region: global
+      category: financial-b2b
+      notes: 'Teikoku Databank, Ltd. (株式会社帝国データバンク), 2-5-20 Minami-Aoyama, Minato-ku, Tokyo 107-8680, the Japanese corporate credit-research company; it holds executive and owner profiles (name, title, date of birth, address, career, shareholdings, home ownership) and sells them to third parties under the opt-out procedure of Article 27(2) of the APPI (notified to the Personal Information Protection Commission on 30 March 2022, no. 2021-100145). Its privacy policy says it stops third-party provision of your personal data on request and that the Personal Information Consultation Office (Resource Management Department, Business Operations Division) guides the procedure: privacy@mail.tdb.co.jp or tel 03-5775-3119 (weekdays 9:00 to 18:00). Disclosure requests are by post only (the request form PDF, ID copy and a 500-yen postal money order); correction and suspension of use go to the same desk. Written for Japanese speakers, so send the request in Japanese. Expect a stop to third-party provision rather than full erasure of its own records.'
+      countries:
+        - JP
+      sources:
+        - https://www.tdb.co.jp/privacy/
+      researched: "2026-11-22"
+    - id: sentinel-peru
+      name: Sentinel (Mi Sentinel, Experian Perú)
+      email: servicioalclienteperu@experian.com
+      website: https://www.misentinel.com.pe
+      opt_out_url: https://www.misentinel.com.pe/politicas/PoliticaTratamientodeDatosPersonales-16112026.pdf
+      region: global
+      category: financial-b2b
+      notes: Sentinel is the credit bureau (CEPIR) of Experian Perú S.A.C. (RUC 20525138985), Av. Canaval y Moreyra 480, piso 19, San Isidro, Lima; Mi Sentinel is its consumer platform. The data processing policy (dated 16 November 2026) names servicioalclienteperu@experian.com as one channel for consultations, complaints and requests to access, correct, cancel or object, besides the virtual complaints book on its site and a written request at the Lima office. A request needs full name, ID number (DNI, CE or passport) with a copy of the ID unless it carries a certified digital signature, a precise description of what to change, supporting documents where relevant, a reply address and a dated, signed request. Credit-risk information (Law 27489, the CEPIR law) is handled under that law, so entries are corrected or removed only when illegal, inexact, erroneous or expired; it states a 7-calendar-day answer for those requests and 10 working days for erasure or objection on other data. Profiling and marketing use of your data stops when you revoke consent.
+      countries:
+        - PE
+      parent: Experian
+      verification: ID copy required unless the request has a certified digital signature (INDECOPI-accredited, not a scanned signature)
+      response_time: 7 calendar days under the CEPIR law, 10 working days for erasure or objection on other data, extendable once
+      sources:
+        - https://www.misentinel.com.pe/politicas/PoliticaTratamientodeDatosPersonales-16112026.pdf
+      researched: "2026-11-22"
+    - id: crc-credit-bureau-nigeria
+      name: CRC Credit Bureau (Nigeria)
+      email: ezekiel.agbonifo@crccreditbureau.net
+      website: https://crccreditbureau.com
+      opt_out_url: https://crccreditbureau.com/privacy-policy/
+      region: global
+      category: financial-b2b
+      notes: 'CRC Credit Bureau Limited, a Nigerian credit bureau set up by eleven financial institutions and Dun & Bradstreet, holding consumer and corporate credit profiles. Its privacy notice names the data protection officer by name, Ezekiel Agbonifo, at ezekiel.agbonifo@crccreditbureau.net, for questions and for exercising rights under the Nigeria Data Protection Act 2023 and the GAID 2025: withdraw consent, access, rectification, deletion, portability, objection to direct marketing and automated decisions. The notice itself covers data collected from visitors and registered users of its site (contact details, date of birth, gender, login and payment data, usage data), not the credit files it holds on behalf of lenders, which it keeps as the law requires; for credit-file errors expect to be sent to the lender that reported the entry. It publishes no response deadline. The mailbox is a named person, so it may change; complaints go to the Nigeria Data Protection Commission.'
+      countries:
+        - NG
+      sources:
+        - https://crccreditbureau.com/privacy-policy/
+      researched: "2026-11-22"
+    - id: creditregistry-nigeria
+      name: CreditRegistry (Nigeria)
+      email: disputes@creditregistry.ng
+      website: https://creditregistry.ng
+      opt_out_url: https://creditregistry.ng/contact-us/
+      region: global
+      category: financial-b2b
+      notes: CreditRegistry Credit Bureau, a Nigerian credit bureau licensed by the Central Bank of Nigeria under the Credit Reporting Act 2017, serving lenders since 2003. Its contact page lists info@, support@, sales@ and disputes@creditregistry.ng, phone +234 1 454 8700 and offices in Lagos (17A Ozumba Mbadiwe Ave, Eti-Osa; 6 Ashabi Cole St, Alausa, Ikeja). Its FAQ says to write to disputes@creditregistry.ng about any discrepancy in your credit file, with a formal review request and supporting documents; it then asks the lender that supplied the data to substantiate it and reports back. The bureau says it does not create, modify or delete data without the information provider's instruction, so this is a correction route, not erasure. You can order your own report through CreditConnection (creditconnection.creditregistry.ng) or sales@creditregistry.ng. The site also links a Privacy and Personal Data Protection Policy, not read for this entry, which may name a data protection contact for other rights.
+      countries:
+        - NG
+      sources:
+        - https://creditregistry.ng/contact-us/
+      researched: "2026-11-22"
+    - id: firstcentral-nigeria
+      name: FirstCentral Credit Bureau (Nigeria)
+      email: dpo@firstcentralcreditbureau.com
+      website: https://firstcentralcreditbureau.com
+      opt_out_url: https://firstcentralcreditbureau.com/privacy-policy-2/
+      region: global
+      category: financial-b2b
+      notes: FirstCentral Credit Bureau, a Nigerian credit bureau, 37/37A Raymond Njoku Street, Ikoyi, Lagos (also Abuja, 1 Rima Street, Maitama). It names itself data controller and publishes its data protection officer at dpo@firstcentralcreditbureau.com, tel +234 817 837 7643 (info@firstcentralcreditbureau.com is listed too). The privacy policy grants access, rectification, erasure or restriction of processing where the data protection laws allow it, objection to direct marketing, portability and information on automated decisions, after an identity check. It also says the Credit Reporting Act and the Central Bank of Nigeria guidelines require it to keep your name, address and contact details for up to 12 years in total, so expect erasure of credit data to be limited. It states no response deadline.
+      countries:
+        - NG
+      sources:
+        - https://firstcentralcreditbureau.com/privacy-policy-2/
+      researched: "2026-11-22"
+    - id: dun-bradstreet-israel
+      name: Dun & Bradstreet Israel (BDI)
+      email: info@dbisrael.co.il
+      website: https://dbisrael.co.il
+      opt_out_url: https://dbisrael.co.il/en/terms/
+      region: global
+      category: financial-b2b
+      notes: Dun & Bradstreet Israel, a business-information and credit-data company. Its privacy policy (section 1 of the terms page) says the company keeps a database of personal details users submit through the site and manages it under Israeli law, and that a user who accepted those terms may exercise their Israeli privacy rights in writing or by email to info@dbisrael.co.il. The policy covers data users give through the website, not the business-credit files it sells; it names no response deadline, ID requirement or specific rights, so write in English or Hebrew and say which right you invoke under the Protection of Privacy Law 1981.
+      countries:
+        - IL
+      parent: Dun & Bradstreet
+      sources:
+        - https://dbisrael.co.il/en/terms/
+      researched: "2026-11-22"
+    - id: cyber-background-checks
+      name: Cyber Background Checks
+      email: ""
+      website: https://www.cyberbackgroundchecks.com
+      opt_out_url: https://www.cyberbackgroundchecks.com/removal
+      region: us
+      category: people-search
+      notes: US people-search site built from public records (names, addresses, phone numbers, relatives, property data). Its privacy notice publishes no rights mailbox (support@cyberbackgroundchecks.com is for accessibility requests only). Opt out of sale and sharing through the form at /removal or by phone on 800-760-1821; know, delete and correct requests go through the Privacy Request page at /privacy-rights or by phone on (773) 666-4759; appeals use the same page or 800-760-1821. Opt-out requests need no identity verification; other requests match two or three data points you give. It says it applies an opt-out to public-record data only as a courtesy, that the data stays at its original source, and that new records can bring you back, so repeat the opt-out periodically. State privacy-law rights depend on where you live.
+      countries:
+        - US
+      sources:
+        - https://www.cyberbackgroundchecks.com/privacy
+      researched: "2026-11-22"
+    - id: smartbackgroundchecks
+      name: SmartBackgroundChecks
+      email: ""
+      website: https://www.smartbackgroundchecks.com
+      opt_out_url: https://www.smartbackgroundchecks.com/optout
+      region: us
+      category: people-search
+      notes: 'US people-search site built from public records. Its Notice of Right to Opt-Out of Sale and Sharing publishes no email: opt out through the form at /optout or by phone on 800-571-0614, and use the Contact page for other questions. The notice says opt-outs are applied to public-record data only as a courtesy, that the data stays at its original source, and that new records can bring you back, so repeat the opt-out periodically. It also says to adjust cookie settings or send the Global Privacy Control signal to stop sale or sharing through tracking technologies. Its full privacy notice (/privacy) and state supplemental notice (/notice-at-collection) were not read, so know, delete and correct routes are not recorded here.'
+      countries:
+        - US
+      sources:
+        - https://www.smartbackgroundchecks.com/do-not-sell
+      researched: "2026-11-22"
+    - id: fastbackgroundcheck
+      name: Fast Background Check
+      email: ""
+      website: https://www.fastbackgroundcheck.com
+      opt_out_url: https://www.fastbackgroundcheck.com/optout
+      region: us
+      category: people-search
+      notes: 'US people-search site built from public records. Its Notice of Right to Opt-Out of Sale and Sharing (last updated 4 March 2025) publishes no email: opt out through the form at /optout or by phone on 888-747-4094, and use the Contact page for other questions. It says opt-outs are applied to public-record data only as a courtesy, that the data stays at its original source, and that new records can bring you back, so repeat the opt-out periodically. Cookie settings or the Global Privacy Control signal are needed to stop sale or sharing through tracking technologies. The full privacy notice (/privacy) and state supplemental notice (/notice-at-collection) were not read, so know, delete and correct routes are not recorded.'
+      countries:
+        - US
+      sources:
+        - https://www.fastbackgroundcheck.com/do-not-sell
+      researched: "2026-11-22"
+    - id: infotracer
+      name: InfoTracer
+      email: privacy@infotracer.com
+      website: https://infotracer.com
+      opt_out_url: https://infotracer.com/privacy/
+      region: us
+      category: people-search
+      notes: US public-records search service run by InfoPay, Inc. (see the infopay entry), Infotracer.com, 227 Lewis Wharf, Boston, MA 02110. Its privacy policy (effective 19 August 2026) names privacy@infotracer.com, phone (800) 791-1427 and a "Your Privacy Choices" form for requests to know, access, correct or delete and for options on your publicly available information (the form address is not in the pasted text). Only you or an authorized agent can file; it may ask for details to verify your identity. It says it does not sell or share your personal information and honours the Global Privacy Control signal. Appeals use the same contacts. Public-record data it aggregates is handled through the Your Privacy Choices form, so use that rather than the mailbox when you are not a customer.
+      countries:
+        - US
+      parent: InfoPay, Inc.
+      verification: May require information to verify your identity, and written permission if an authorized agent files
+      sources:
+        - https://infotracer.com/privacy/
+      researched: "2026-11-22"
+    - id: veripages
+      name: Veripages
+      email: support@veripages.com
+      website: https://veripages.com
+      opt_out_url: https://veripages.com/inner/removal-service?s=footer
+      region: us
+      category: people-search
+      notes: US people-search site. Its privacy policy (updated 4 June 2026) says any individual, account or not, can ask for access, deletion (blocking of records from its search results) or opt-out through the online privacy portal at /inner/removal-service, by email to support@veripages.com or through its contact form (/page/contact). It does not accept removal requests by fax or post. Requests must come from you or a registered authorized agent and are verified; an authorized agent sends proof of authority and your name, age, address, profile page URL, phone and email to removal@veripages.com, and the same address takes appeals (Colorado, Connecticut, Delaware, Iowa, Montana, Nebraska, New Hampshire, New Jersey, Oregon, Texas, Tennessee, Virginia) with your state and supporting documents. An opt-out also counts as a request to delete your profile. It cannot remove data from third-party databases or public records, some data stays in backups, and search-engine caches can show a stale listing for a while.
+      countries:
+        - US
+      verification: Matches your details against its records; may ask for name, email and phone to verify; agents need signed authorization
+      sources:
+        - https://veripages.com/page/privacy
+      researched: "2026-11-22"
+    - id: peoplebyname
+      name: PeopleByName
+      email: support@peoplebyname.com
+      website: https://www.peoplebyname.com
+      opt_out_url: http://www.peoplebyname.com/remove.php
+      region: us
+      category: people-search
+      notes: US people-search directory that aggregates public information (phone books, social networks, marketing surveys, real estate listings, business websites). Its privacy policy section 4 says to remove your listing from the People Directory through the removal page at /remove.php. Section 8 (CCPA) and section 9 (GDPR, for the EEA, UK and Switzerland) name support@peoplebyname.com and the contact page (/contact.php) for access, correction, deletion and objection requests, with answers within 45 days (CCPA) or 30 days (GDPR) and a right to complain to your data protection authority. It says it does not sell your information and does not verify the accuracy of the public data. The third-party services it names are Google Analytics, Google Ads, Facebook and Bing.
+      sources:
+        - https://www.peoplebyname.com/privacy.php
+      researched: "2026-11-22"
+    - id: ancientfaces
+      name: AncientFaces
+      email: ""
+      website: https://www.ancientfaces.com
+      opt_out_url: https://www.ancientfaces.com/contact
+      region: us
+      category: people-search
+      notes: 'US genealogy and memorial site with collaborative biographies and photos of mostly deceased people, which can include living people someone added. Its privacy policy section 11 says personal data is deleted on request through Contact Us > Request to Remove Information at /contact, and that an account or a biography about you can be removed the same way; it publishes no email. Postal address: AncientFaces, Attn: Data Privacy Manager, 1101 S. Winchester Blvd, Suite H-185, San Jose, CA 95128, but it asks for the online form because post is slow. Closing an account removes uploads and some public posts from view or dissociates them from your profile; it may keep other information for legal or anti-abuse reasons.'
+      countries:
+        - US
+      sources:
+        - https://www.ancientfaces.com/privacy
+      researched: "2026-11-22"
+    - id: canada411
+      name: Canada411 (Yellow Pages Digital & Media Solutions)
+      email: privacy@yp.ca
+      website: https://www.canada411.ca
+      opt_out_url: https://corporate.yp.ca/privacy-statement
+      region: global
+      category: people-search
+      notes: Canadian phone directory run by Yellow Pages Digital & Media Solutions Limited (YP), 1751 Richardson St., Suite 8.300, Montreal, Quebec H3K 1G6; the Canada411 privacy page redirects to the YP privacy statement (amended September 2025). The statement names privacy@yp.ca, with the Privacy Officer (General Counsel and Corporate Secretary), for access, correction, withdrawing consent and for deletion or de-indexation requests; access is on written request. It says a name, address and number in a public directory fall outside personal information because a person can refuse to be listed, so ask to be removed from the listing explicitly and mention Canada411. It gives no deadline or ID rule. The complaint authority is the Office of the Privacy Commissioner of Canada.
+      countries:
+        - CA
+      parent: Yellow Pages Digital & Media Solutions Limited
+      sources:
+        - https://corporate.yp.ca/privacy-statement
+      researched: "2026-11-22"
+    - id: skrapp
+      name: Skrapp
+      email: support@skrapp.io
+      website: https://skrapp.io
+      opt_out_url: https://skrapp.io/privacy
+      region: global
+      category: marketing
+      notes: 'B2B email-finder service run by Skrapp PTE. LTD, 160 Robinson Road, #14-04 Singapore Business Federation Centre, Singapore 068914. Its data policy (in force 1 January 2024) says it applies GDPR rules worldwide and names support@skrapp.io (also on its contact page) for access, correction, deletion, restriction, objection and portability requests, with data kept up to three years after the last contact. It lists the data of its own users (account, billing, usage) and does not say whether it also covers the contact records it sells, so say in the request that you want your own business contact data removed from its database. It says it keeps an objection list for at least three years and passes corrections and erasures on to recipients where possible; no response deadline is stated.'
+      sources:
+        - https://skrapp.io/privacy
+      researched: "2026-11-22"
+    - id: getprospect
+      name: GetProspect
+      email: personal-data@getprospect.com
+      website: https://getprospect.com
+      opt_out_url: https://getprospect.com/personal-data
+      region: global
+      category: marketing
+      notes: 'B2B contact database run by GetProspect LLC, 30 N Gould St, STE R, Sheridan, WY 82801, USA, the sole controller of the contact records (name, job title, employer, city-level location, LinkedIn profile link, a business email it generates and verifies, sometimes a phone number). Removal is free for anyone, wherever they live: use the Personal Data page at /personal-data (enter your business email and confirm the link it sends) or email personal-data@getprospect.com with your full name and your LinkedIn profile URL or business email at your current or former employer. It cannot find a record from a personal email address (Gmail, Outlook, iCloud) or a name alone, so such a request gets a "no matching record" reply; do not send ID documents, birth dates or home addresses. It deletes the record, notifies customers who saved it, and keeps a minimal suppression record so the data is not added again. On request it tells you which customers received your data. Answers within one month (GDPR) or 45 days (US states); an EU representative (EU Rep, Ireland) is available for EU residents.'
+      verification: Request from the email address in the record, or confirm a link sent to the business email in the record
+      response_time: One month under the GDPR, 45 days under US state laws
+      sources:
+        - https://getprospect.com/privacy
+      researched: "2026-11-22"
+    - id: locatefamily
+      name: Locate Family
+      email: ""
+      website: https://www.locatefamily.com
+      opt_out_url: https://www.locatefamily.com/removal.html
+      region: global
+      category: people-search
+      notes: 'Worldwide people-and-address directory (entries from the US, Indonesia, Morocco and elsewhere). Its removal page publishes no email: each listing line has a small grey garbage-can icon on the right, and you go to the page where your entry appears and click that icon to file a removal request. If a line or a whole page has no icon, use the fallback form at /removal2.html. A list of rejected removal requests is published at /removal-errors.html. Removal works per listing, so you need the URL of each page that shows you.'
+      sources:
+        - https://www.locatefamily.com/removal.html
+      researched: "2026-11-22"
+    - id: compass-verlag
+      name: Compass-Verlag
+      email: datenschutz@compass.at
+      website: https://compass.at
+      opt_out_url: https://compass.at/en/data-privacy-statement
+      region: eu
+      category: financial-b2b
+      notes: Austrian business-directory publisher and credit agency (trade licences under sections 151 and 152 of the Austrian Trade Code), Compass-Verlag GmbH, Schönbrunner Strasse 231, 1120 Vienna, tel +43 1 981 16-0, office@compass.at. It builds paid databases of Austrian businesses from public registers (Firmenbuch, trade register, chambers, sanctions lists) and keeps entries for natural persons such as owners, managing directors and sole traders (name, title, sex, date of birth, contact details, official ID). The privacy statement (revised September 2026) names data protection officer Dr. Georg Hittmair at datenschutz@compass.at for access, rectification, erasure, restriction and objection under the GDPR. It relies on legitimate interest and says almost all data comes from public databases, and it stores data permanently because historical data is part of its products, so expect erasure to be refused or limited for register-sourced data; objection to direct marketing is unconditional. No response deadline is stated.
+      countries:
+        - AT
+      sources:
+        - https://compass.at/en/data-privacy-statement
+      researched: "2026-11-22"
+    - id: creditreform-at-vienna
+      name: Creditreform Wirtschaftsauskunftei Kubicki (Austria, Vienna)
+      email: creditreform@dataprotect.at
+      website: https://www.creditreform.at
+      opt_out_url: https://www.creditreform.at/wien/eu-dsgvo
+      region: eu
+      category: financial-b2b
+      notes: 'Austrian credit-information company, Creditreform Wirtschaftsauskunftei Kubicki KG, Muthgasse 36-40 (Bauteil 4), 1190 Vienna, tel +43 1 218 62 20-0, info@wien.creditreform.at; not the German association (creditreform-de). Its GDPR page names its data protection officer as dp dataprotect gmbh (Dr. Thomas Schweiger, Linz) at creditreform@dataprotect.at. It stores company-related data about names, address, economic activity, assets and payment behaviour, from public registers (Firmenbuch, GISA, ZMR, Ediktsdatei), the internet, the press and data from business partners, and also uses part of it for direct marketing and for supplying other company databases. Rights: access, rectification or erasure of wrong data, blocking while accuracy is unclear, completion, consent withdrawal; objection only for a special situation you must prove, except for advertising, where it is unconditional. Data is kept three years, then reviewed; settled matters are deleted three years after settlement, Ediktsdatei entries three years after the proceedings end. Complaints go to the Austrian Datenschutzbehörde, Barichgasse 40-42, 1030 Vienna. It publishes separate notices for data subjects (PDF, Art. 14) that were not read.'
+      countries:
+        - AT
+      parent: Creditreform
+      sources:
+        - https://www.creditreform.at/wien/eu-dsgvo
+      researched: "2026-11-22"
+    - id: acxiom-germany
+      name: Acxiom Deutschland GmbH
+      email: datenschutz@acxiom.com
+      website: https://www.acxiom.de
+      opt_out_url: https://www.acxiom.de/datenschutzanfragen/
+      region: eu
+      category: marketing
+      notes: German marketing-data company, Acxiom Deutschland GmbH, Speicherstraße 57-59, 60327 Frankfurt am Main, a separate controller from the US and UK Acxiom entries (it passes data to Acxiom LLC in the US and Acxiom Ltd in the UK). Its website privacy notice names its data protection officer, Dr. Sachiko Scheuing, at datenschutz@acxiom.com, and a general contact info-germany@acxiom.com; it says rights requests (objection, consent withdrawal, access) go by post to Acxiom Deutschland GmbH, Datenschutz, Speicherstraße 59, 60327 Frankfurt, or through its online form at /datenschutzanfragen/. It gives access information by post only, to be sure only the right person gets it, so do not expect a reply by email. The notice covers website visitors; it does not describe its marketing database or give retention periods for it, so say in the request that you want your data deleted from any marketing data it holds. Complaints go to the Hessian data protection commissioner in Wiesbaden.
+      countries:
+        - DE
+      parent: Acxiom
+      sources:
+        - https://www.acxiom.de/datenschutz/datenschutzrichtlinie/
+      researched: "2026-11-22"
+    - id: experian-business-dach
+      name: Experian business data Germany, Austria and Switzerland (incl. Informa)
+      email: businessdach@experian.com
+      website: https://www.experian.de
+      opt_out_url: https://www.experian.de/legal/datenschutz
+      region: eu
+      category: financial-b2b
+      notes: 'Experian''s business-information arm for the DACH region; per the user it includes the former Informa business (Informa IRFP), whose data-protection information is integrated into Experian Germany, which the pasted excerpt itself does not state. The excerpt, from the data-protection page at experian.de/legal/datenschutz, names businessdach@experian.com (or the company address listed under "who is Experian and how can you contact us") for withdrawing consent and for asserting rights: access, correction, restriction, stopping or deleting processing, and portability. It says it is not always obliged to comply and explains the reason in its reply, and it may ask for information to confirm your identity. It states no response deadline. Not read in full: the controller company name, its address and the data categories were not in the excerpt, so confirm them from the page. Separate from experian-icd-de, which covers the consumer credit data of infoscore Consumer Data (Boniversum).'
+      countries:
+        - DE
+        - AT
+        - CH
+      parent: Experian
+      verification: May ask for information to confirm your identity
+      sources:
+        - https://www.experian.de/legal/datenschutz
+      researched: "2026-11-22"
+    - id: visable-wlw
+      name: Visable GmbH (wlw.de, Wer liefert was)
+      email: datenschutz@visable.com
+      website: https://www.wlw.de
+      opt_out_url: https://www.wlw.de/de/unternehmen/rechtliche-hinweise/datenschutz-20230720
+      region: eu
+      category: marketing
+      notes: Hamburg B2B supplier marketplace and company directory, Visable GmbH, ABC-Straße 21, 20354 Hamburg, tel +49 40 2 54 40-0. Its privacy policy names Visable as controller and its data protection officer, Christoph Curvers, at datenschutz@visable.com for access, correction, deletion, restriction, portability and objection (including to direct marketing); no response deadline is stated. The policy covers website visitors, registered users and customers; it also says it hires a scraping contractor (data-hands, Hamburg) to update and enrich customer profiles, and uses OpenAI to process supplier profile texts, so contact and supplier records of people at companies may be held beyond the account data. Ask in the request for any supplier or contact profile naming you to be deleted. Complaints go to a German supervisory authority.
+      countries:
+        - DE
+      parent: Visable GmbH
+      sources:
+        - https://www.wlw.de/de/unternehmen/rechtliche-hinweise/datenschutz-20230720
+      researched: "2026-11-22"
+    - id: stepstone-de
+      name: Stepstone (The Stepstone Group Deutschland GmbH)
+      email: datenschutz@stepstone.de
+      website: https://www.stepstone.de
+      opt_out_url: https://www.stepstone.de/e-recruiting/rechtliches/datenschutzerklarung/
+      region: eu
+      category: marketing
+      notes: German job platform, The Stepstone Group Deutschland GmbH, Völklinger Straße 1, 40219 Düsseldorf, tel +49 211 93493-0 (general info@stepstone.de). Its privacy policy (as of 21 July 2026) names its data protection contact at datenschutz@stepstone.de, also by post to "Datenschutz" at that address, for access, rectification, restriction, erasure, portability, objection and consent withdrawal; the supervisory authority is the North Rhine-Westphalia data protection commissioner. It holds job-seeker profiles and CVs (kept while the account exists), application history (up to 2 years), and business contact data of recruiters and customer employees (kept until the purpose ends or deletion is requested). Candidate profiles can be shown to its customers, so ask for the profile, CV data and any recruiter contact record naming you to be deleted. No response deadline is stated.
+      countries:
+        - DE
+      parent: The Stepstone Group
+      sources:
+        - https://www.stepstone.de/e-recruiting/rechtliches/datenschutzerklarung/
+      researched: "2026-11-22"
+    - id: dun-bradstreet-germany
+      name: Dun & Bradstreet Deutschland (formerly Bisnode, Hoppenstedt)
+      email: ""
+      website: https://www.dnb.com/de-de/
+      opt_out_url: https://submit-irm.trustarc.eu/services/validation/ba81b98f-997d-4216-b4cc-d64cf261b082
+      region: eu
+      category: financial-b2b
+      notes: German business-information company of Dun & Bradstreet (successor of Bisnode Deutschland and the Hoppenstedt group). Its rights page publishes no email; per the user, deleting information requires filling in the TrustArc privacy request form at this address, the same EU form the Hungarian D&B site uses (see dun-bradstreet-hungary). The group EU data protection mailbox in the dun-bradstreet-eu entry is a fallback if the form fails. The form fields and the German notice behind the rights page (dnb.com/de-de/warum-dnb/datenschutz/ihre-rechte-als-betroffener/selbstauskunft-widerspruch.html) were not read.
+      countries:
+        - DE
+      parent: Dun & Bradstreet
+      sources:
+        - https://submit-irm.trustarc.eu/services/validation/ba81b98f-997d-4216-b4cc-d64cf261b082
+      researched: "2026-11-22"
+    - id: infojobs
+      name: InfoJobs (Adevinta Jobs)
+      email: privacidad@infojobs.net
+      website: https://www.infojobs.net
+      opt_out_url: https://ayuda.infojobs.net/hc/es/requests/new
+      region: eu
+      category: marketing
+      notes: Spanish job portal run by Adevinta Jobs S.L.U., C/ Hernani 59, 1a planta, 28020 Madrid (NIF B-70813365). Its privacy policy (updated September 2024) names privacidad@infojobs.net, also its data protection officer, and the help-centre contact form for access, rectification, erasure, restriction, objection, portability and consent withdrawal; you can also use your account profile or write to "Atención al Usuario, Protección de Datos" at the Madrid address. It asks for your name and the email address of the account. Rights are free of charge. Candidate CVs are shown to companies (applications and, if you allow it, a searchable CV database), and those companies are separate controllers, so also ask them directly. Accounts inactive for 7 years may be deleted. No response deadline is stated; complaints go to the Spanish AEPD.
+      countries:
+        - ES
+      parent: Adevinta
+      sources:
+        - https://www.infojobs.net/privacy-policy/extended.xhtml
+      researched: "2026-11-22"
+    - id: paginas-amarillas-es
+      name: Páginas Amarillas Spain (Beedigital AI)
+      email: protecciondatos@beedigital.es
+      website: https://www.paginasamarillas.es
+      opt_out_url: https://www.paginasamarillas.es/politica-privacidad
+      region: eu
+      category: marketing
+      notes: 'Spanish business and professional directory run by Beedigital AI, S.A.U. (NIF A84619485), Avda. Isla Graciosa 7, planta 2, 28703 San Sebastián de los Reyes, Madrid. Its privacy policy says it publishes the personal data of traders, businesses and professionals in its directories on a legitimate-interest basis. Rights (access, rectification, erasure, restriction, objection, portability) go by written request to protecciondatos@beedigital.es or to Apartado Postal no. 9, 28700 San Sebastián de los Reyes, with a copy of your DNI or another valid ID. The data protection officer is dpd@beedigital.es and general contact is clientes@beedigital.es. Marketing objection: write to protecciondatos@beedigital.es with BAJA in the subject. It keeps data while the processing continues and until you ask for erasure, and states no response deadline; complaints go to the Spanish AEPD.'
+      countries:
+        - ES
+      parent: Beedigital AI
+      verification: Copy of DNI or another valid identity document
+      sources:
+        - https://www.paginasamarillas.es/politica-privacidad
+      researched: "2026-11-22"
+    - id: guru-paginas-amarillas-chile
+      name: gurú, Páginas Amarillas Chile (Publicar)
+      email: clientes@gurusoluciones.cl
+      website: https://www.gurusoluciones.cl
+      opt_out_url: https://www.gurusoluciones.com/legaleschile
+      region: global
+      category: marketing
+      notes: Chilean arm of the gurú / Publicar group that runs the Páginas Amarillas directories in Latin America. Its Chile legal page (gurusoluciones.com/legaleschile) says users can exercise information, modification, deletion, cancellation and blocking rights over personal data under Chilean Law 19.628 and names clientes@gurusoluciones.cl as the address for requests. It covers customers and website users; it does not describe directory listings of businesses or people. The network has separate entries for Argentina, Colombia, Ecuador, El Salvador, Guatemala, Panama and Peru; Nicaragua names no data-protection mailbox and is not listed.
+      countries:
+        - CL
+      parent: Publicar
+      sources:
+        - https://www.gurusoluciones.com/legaleschile
+      researched: "2026-11-22"
+    - id: guru-paginas-amarillas-argentina
+      name: gurú, Páginas Amarillas Argentina (Soluciones Multimedia)
+      email: clientes@gurusoluciones.com.ar
+      website: https://www.gurusoluciones.com
+      opt_out_url: https://www.gurusoluciones.com/legalesargentina
+      region: global
+      category: marketing
+      notes: Soluciones Multimedia S.A., Colectora Panamericana Oeste 1804, Villa Adelina, San Isidro, Buenos Aires. Páginas Amarillas business directory run by the gurú / Publicar group. The country legal page names this mailbox for personal-data matters and for requests to correct or remove your data. Under Law 25.326, requests go by written letter to that address, by email to clientes@gurusoluciones.com.ar or by phone on 0810-333-8080, with identification; access must be answered within 10 calendar days of a formal request, and you can ask to withdraw or block your name from databases. The page also refers to a Publicar data-processing policy that was not found online. The pages cover customers and site users; a request should ask for your listing in the Páginas Amarillas directory to be removed. No response deadline is stated.
+      countries:
+        - AR
+      parent: Publicar
+      sources:
+        - https://www.gurusoluciones.com/legalesargentina
+      researched: "2026-11-22"
+    - id: guru-paginas-amarillas-colombia
+      name: Publicar Publicidad Multimedia (gurú, Páginas Amarillas Colombia)
+      email: servicioalcliente@publicar.com
+      website: https://www.gurusoluciones.com
+      opt_out_url: https://www.gurusoluciones.com/hubfs/Legal/Formato%20para%20consultas%20y%20reclamos.pdf
+      region: global
+      category: marketing
+      notes: 'Publicar Publicidad Multimedia S.A.S. (NIT 860.001.317-4), Av. 68 No. 75A-50, piso 4, Bogotá D.C., trading as gurú, which runs the Páginas Amarillas directory. Its Política de Tratamiento de Datos Personales (PDF on gurusoluciones.com, read 2026-11-22) says its customer-service area handles every Habeas Data request (Law 1581): consultas, reclamos, correction, update, revocation of authorisation and erasure, by email to servicioalcliente@publicar.com, through its website, or with the official consultas y reclamos form (the opt_out_url PDF; it asks name, address, email, ID number, signature and the reason). An incomplete claim is returned within 5 days; a complete claim is answered within 15 business days, extendable by up to 8 business days; you can complain to the Superintendencia de Industria y Comercio. Erasure is refused where a legal or contractual duty requires keeping the data. The same Publicar group runs the directories in other countries under their own entities (see the other guru-paginas-amarillas entries).'
+      countries:
+        - CO
+      parent: Publicar
+      verification: ID details and signature on the claim form; a representative must prove their capacity
+      response_time: 15 business days, extendable by 8 business days
+      sources:
+        - https://www.gurusoluciones.com/hubfs/Pol%C3%ADtica%20de%20Tratamiento%20de%20Datos%20Personales%20-%20Publicar.pdf
+        - https://www.gurusoluciones.com/legalescolombia
+      researched: "2026-11-22"
+    - id: guru-paginas-amarillas-ecuador
+      name: Páginas Amarillas Ecuador (OFFSETEC)
+      email: servicioalclienteecuador@publicar.com
+      website: https://www.gurusoluciones.com
+      opt_out_url: https://www.gurusoluciones.com/legalesecuador
+      region: global
+      category: marketing
+      notes: OFFSETEC, S.A., Av. Colón E6-42 y Reina Victoria, piso 6, Quito, named as the data controller. Páginas Amarillas business directory run by the gurú / Publicar group. The country legal page names this mailbox for personal-data matters and for requests to correct or remove your data. Rights of access, rectification and erasure are mentioned. The page also refers to a Publicar data-processing policy that was not found online. The pages cover customers and site users; a request should ask for your listing in the Páginas Amarillas directory to be removed. No response deadline is stated.
+      countries:
+        - EC
+      parent: Publicar
+      sources:
+        - https://www.gurusoluciones.com/legalesecuador
+      researched: "2026-11-22"
+    - id: guru-paginas-amarillas-guatemala
+      name: Páginas Amarillas Guatemala (Publicaciones del Caribe)
+      email: servicioalclienteguatemala@publicar.com
+      website: https://www.gurusoluciones.com
+      opt_out_url: https://www.gurusoluciones.com/legalesguatemala
+      region: global
+      category: marketing
+      notes: Publicaciones del Caribe, S.A., 15 Avenida 17-40 zona 13, Torre Mundial 1, nivel 9, Guatemala City, named as the data controller. Páginas Amarillas business directory run by the gurú / Publicar group. The country legal page names this mailbox for personal-data matters and for requests to correct or remove your data. Rights of access, rectification and erasure are mentioned. The page also refers to a Publicar data-processing policy that was not found online. The pages cover customers and site users; a request should ask for your listing in the Páginas Amarillas directory to be removed. No response deadline is stated.
+      countries:
+        - GT
+      parent: Publicar
+      sources:
+        - https://www.gurusoluciones.com/legalesguatemala
+      researched: "2026-11-22"
+    - id: guru-paginas-amarillas-panama
+      name: Páginas Amarillas Panama (Publicar de Panamá)
+      email: servicioalclientepanama@publicar.com
+      website: https://www.gurusoluciones.com
+      opt_out_url: https://www.gurusoluciones.com/legalespanama
+      region: global
+      category: marketing
+      notes: Publicar de Panamá S.A., Plaza Calle 50, nivel 200, oficina 2, Panama City, named as the data controller. Páginas Amarillas business directory run by the gurú / Publicar group. The country legal page names this mailbox for personal-data matters and for requests to correct or remove your data. Rights listed include updating and rectifying data, revoking authorisation and requesting erasure, and free access. The page also refers to a Publicar data-processing policy that was not found online. The pages cover customers and site users; a request should ask for your listing in the Páginas Amarillas directory to be removed. No response deadline is stated.
+      countries:
+        - PA
+      parent: Publicar
+      sources:
+        - https://www.gurusoluciones.com/legalespanama
+      researched: "2026-11-22"
+    - id: guru-paginas-amarillas-peru
+      name: gurú, Páginas Amarillas Peru (Servicios Multimedia)
+      email: clientes@gurusoluciones.pe
+      website: https://www.gurusoluciones.com
+      opt_out_url: https://www.gurusoluciones.com/legalesperu
+      region: global
+      category: marketing
+      notes: Servicios Multimedia S.A.C. (RUC 20501426041), Av. Paseo de la República 3755, San Isidro, Lima. Páginas Amarillas business directory run by the gurú / Publicar group. The country legal page names this mailbox for personal-data matters and for requests to correct or remove your data. Under Law 29733 it lists access, rectification and update, cancellation or erasure, and objection; requests go to clientes@gurusoluciones.pe (also clientes@gurusoluciones.com), in writing to the Lima address, or on WhatsApp +51 967 729 733, with enough identification. The page also refers to a Publicar data-processing policy that was not found online. The pages cover customers and site users; a request should ask for your listing in the Páginas Amarillas directory to be removed. No response deadline is stated.
+      countries:
+        - PE
+      parent: Publicar
+      sources:
+        - https://www.gurusoluciones.com/legalesperu
+      researched: "2026-11-22"
+    - id: guru-paginas-amarillas-el-salvador
+      name: Páginas Amarillas El Salvador (Publicar / gurú)
+      email: servicioalclientesalvador@publicar.com
+      website: https://www.gurusoluciones.com
+      opt_out_url: https://www.gurusoluciones.com/legalessalvador
+      region: global
+      category: marketing
+      notes: Publicar, Alameda Manuel Enrique Araujo, Calle Nueva no. 1, edificio PALIC, nivel 3, San Salvador, named as the data controller (the account terms name gurú with clientes@gurusoluciones.com). Páginas Amarillas business directory run by the gurú / Publicar group. The country legal page names this mailbox for personal-data matters and for requests to correct or remove your data. Rights of access, rectification and erasure are mentioned. The page also refers to a Publicar data-processing policy that was not found online. The pages cover customers and site users; a request should ask for your listing in the Páginas Amarillas directory to be removed. No response deadline is stated.
+      countries:
+        - SV
+      parent: Publicar
+      sources:
+        - https://www.gurusoluciones.com/legalessalvador
+      researched: "2026-11-22"
+    - id: idealista
+      name: idealista Spain (Idealista, S.A.U.)
+      email: privacidad@idealista.com
+      website: https://www.idealista.com
+      region: eu
+      category: marketing
+      notes: Spanish property portal run by Idealista, S.A.U., Plaza de las Cortes 2, 5º, 28014 Madrid (NIF A-82505660), also the controller for yaencontre.com, rentalia.com, certicalia.com and rentger.com. Its privacy policy (updated 12 November 2026) names privacidad@idealista.com for access, rectification, erasure, restriction, objection, portability and consent withdrawal (free of charge), and a data protection officer at dpo@idealista.com. Registered users can also manage marketing preferences and phone/email in their private area. Name the right and include your identifying details. Advertisers you contacted receive your contact details and are separate controllers. Erasure of free-listing advertiser data may leave contact details blocked for up to 2 years (professionals up to 4 years) for fraud prevention, and call recordings are kept up to 1 year. No response deadline is stated; complaints go to the Spanish AEPD.
+      countries:
+        - ES
+      sources:
+        - https://www.idealista.com/ayuda/articulos/politica-de-privacidad/
+      researched: "2026-11-23"
+    - id: icap-crif
+      name: ICAP CRIF (Greece)
+      email: privacy@icapcrif.com
+      website: https://icapcrif.com/en/
+      opt_out_url: https://icapcrif.com/en/subject-access-request-procedure/
+      region: eu
+      category: financial-b2b
+      notes: Greek business information and credit-rating company (formerly ICAP Group, part of CRIF since 2021), ICAP CRIF S.A., Eleftheriou Venizelou Ave. 2, 17676 Kallithea, Athens (VAT 996952940). Its data protection policy covers sole proprietors and individuals in its business reports, credit ratings, trade-exchange and payment-behaviour data (including seizures, auctions, bankruptcy and overdue State debts), shareholder and management links, and journalist contacts, collected from the commercial registry (GEMI), courts, Teiresias and the tax authority. It names its data protection officer at privacy@icapcrif.com (also by letter to the Kallithea address, or the Subject Access Request procedure page, which links a printable SAR form PDF to send to the Complaints Department at customercare@icapcrif.com or to the DPO/Privacy Office) for access, rectification, erasure, restriction, portability and objection, free of charge, answered within 30 days (extendable by one month for complex requests, with notice); excessive requests may be charged. Rights apply only where ICAP CRIF is the controller (not for customer-supplied documents). The same policy (same controller, DPO address and 30-day deadline) is published on its findbiz.gr company directory, so findbiz is covered by this entry; Data Prisma, Myra, the B2B platform, Kompass and D&B products in Greece are listed in the policy scope. The policy also lists customercare@icapcrif.com for complaints; complaints go to the Hellenic Data Protection Authority.
+      countries:
+        - GR
+      sources:
+        - https://icapcrif.com/en/privacy-policy/
+        - https://findbiz.gr/el/privacy-policy/
+        - https://icapcrif.com/en/subject-access-request-procedure/
+      researched: "2026-11-23"
+    - id: infocredit-group
+      name: Infocredit Group
+      email: dpo@infocreditgroup.com
+      website: https://infocreditgroup.com
+      region: eu
+      category: financial-b2b
+      notes: Business-information, credit-risk, compliance, debt-recovery and call-centre company, Infocredit Group Ltd, 5a Philippou Chatzigeorgiou Str., Nicosia, Cyprus (operating since 1972); the Greek Infocredit site redirects to the same group site. Its privacy notice (updated 1 September 2025) covers officers, shareholders and beneficiaries of companies, people in the bankruptcy registry and debtors in collections it runs for clients, with data from company registrars, the Official Receiver, media and its clients. It names its outsourced data protection officer (A. & E. C. Emilianides, C. Katsaros & Associates LLC, 192 Ledras, 3rd Floor, 1011 Nicosia, +357 22 676752) at dpo@infocreditgroup.com for access, rectification, erasure, restriction, objection, portability and consent withdrawal. No form or response deadline is stated. Credit-risk data is kept 5 years from the last update (10 years at most), so expect erasure to be refused for registry-sourced data. Debt collection and call-centre operations moved to subsidiaries (Decol Services Ltd, The Corpro Ltd), so ask them too if you were a debtor or contact. Complaints go to the Cyprus Commissioner for Personal Data Protection.
+      sources:
+        - https://infocreditgroup.com/company/privacy-policy
+      researched: "2026-11-23"
+    - id: paginas-amarelas-pt
+      name: Páginas Amarelas Portugal
+      email: dpo@paginasamarelas.pt
+      website: https://www.pai.pt
+      region: eu
+      category: marketing
+      notes: Portuguese business directory and digital marketing company, Páginas Amarelas, S.A., Rua Conde Arnoso 5, 2.º Piso, 1700-112 Lisboa (phone 808 210 210, contact form at agencia.paginasamarelas.pt/contactos). Its privacy policy names a data protection officer at dpo@paginasamarelas.pt (or by letter to the Lisbon address) and says rights of access, rectification, updating, restriction, erasure, objection to marketing, consent withdrawal and portability are exercised through those contacts. The policy only covers customers and website users and does not describe the directory listings themselves, so mention that you want a listing or personal data about you in the directory removed. No form or response deadline is stated; complaints go to the CNPD.
+      countries:
+        - PT
+      sources:
+        - https://www.pai.pt/info/privacy-policy
+      researched: "2026-11-23"
+    - id: badexcug
+      name: BADEXCUG (Experian Bureau de Crédito)
+      email: ""
+      website: https://www.experian.es
+      opt_out_url: https://portaldelconsumidor.experian.es
+      region: eu
+      category: financial-b2b
+      notes: Spanish credit-default register run by Experian Bureau de Crédito, S.A.U. (NIF A-82120601), which handles data subject rights for the participating creditors. Access, rectification, erasure, restriction and objection go through the Experian Consumer Portal (registration required), or by post with proof of identity to Experian Bureau de Crédito, Apartado de Correos 1188, 28108 Alcobendas (Madrid). The DPO mailbox dpospain@experian.com is explicitly not the channel for exercising rights. Entries are debts reported by banks, telecoms, utilities and similar creditors, kept up to 5 years from the due date, then blocked 5 more years, listed for access and correction; a debt that is real is unlikely to be erased, but incorrect or time-expired entries should be. Complaints go to the Spanish AEPD.
+      countries:
+        - ES
+      parent: Experian Bureau de Crédito, S.A.U.
+      sources:
+        - https://www.experian.es/legal/salir-fichero/tratamiento-datos
+      researched: "2026-11-23"
+    - id: badexcug-comunidades
+      name: BADEXCUG Comunidades de Propietarios (Experian)
+      email: bcp_spc@experian.com
+      website: https://www.experian.es
+      opt_out_url: https://portaldelconsumidor.experian.es
+      region: eu
+      category: financial-b2b
+      notes: Experian Bureau de Crédito, S.A.U.'s register of debts owed to homeowners' associations, fed by property administrators. The notice names BCP_SPC@experian.com (Fichero Bureau de Comunidades) as the file contact, and rights can also go through the Experian Consumer Portal (registration required) or by post to Apartado de Correos 1191, 28108 Alcobendas (Madrid) with proof of identity. The DPO mailbox dpospain@experian.com is explicitly not the channel for exercising rights. Data is kept up to 5 years from the due date, then blocked 5 more years. Complaints go to the Spanish AEPD.
+      countries:
+        - ES
+      parent: Experian Bureau de Crédito, S.A.U.
+      sources:
+        - https://www.experian.es/legal/salir-fichero/tratamiento-datos
+      researched: "2026-11-23"
+    - id: equifax-uk
+      name: Equifax UK
+      email: ukdpo@equifax.com
+      website: https://www.equifax.co.uk
+      opt_out_url: https://www.subjectaccess.uk.equifax.com/subjectaccess/#/dsar-landing-page
+      region: eu
+      category: financial-b2b
+      notes: UK credit reference and fraud prevention agency, Equifax Limited, Customer Service Centre, PO Box 10036, Leicester LE3 4FS (FCA regulated). Its credit reference notice names the data protection officer at UKDPO@equifax.com (or Equifax Limited, Data Protection Officer, same PO box) for rights requests, and a free online subject access request (the opt_out_url) that returns a PDF copy within one month; the statutory credit report is free online or by post. Rectification is passed to the lender who supplied the data. You can also object to marketing use, or withdraw marketing consent, by writing to the same contacts, which adds you to its marketing suppression files. The notice says erasure, restriction and objection will very probably be refused for credit data (legitimate interest, fraud and over-indebtedness prevention), so list this for access and correction; credit file entries stay about 6 years. It supplies the open electoral register to customers; opt out of the open register with your local Electoral Registration Office. Complaints go to the ICO. Equifax Marketing Services (equifax-marketing) is the same company's marketing side.
+      countries:
+        - GB
+      sources:
+        - https://www.equifax.co.uk/privacy-hub/ein
+      researched: "2026-11-23"
+    - id: vml
+      name: VML (formerly Wunderman Thompson)
+      email: vmlprivacy@wpp.com
+      website: https://www.vml.com
+      region: global
+      category: marketing
+      notes: Global marketing and advertising agency owned by WPP, formed on 1 January 2024 by merging Wunderman Thompson with VMLY&R (so this also covers the former Wunderman Thompson UK). Its external privacy policy (updated 1 June 2026) covers contact details from enquiries, events, newsletters, social media, website visits and job applications, and lists copy of data, correction, portability, erasure and restriction. Requests go to vmlprivacy@wpp.com (the address is hidden from scrapers on the page) or by post to VML, 175 Greenwich Street, Floor 16, New York, NY 10007, USA. No form or response deadline is stated; UK complaints go to the ICO. It is an agency, not a consumer data broker, so expect little data beyond business contacts. Separate entry kbm-group covers Wunderman's former data business.
+      sources:
+        - https://www.vml.com/privacy-policy
+      researched: "2026-11-23"
+    - id: wilmington-plc
+      name: Wilmington plc
+      email: dataprotection@wilmingtonplc.com
+      website: https://www.wilmingtonplc.com
+      region: eu
+      category: marketing
+      notes: UK professional information and training group (Wilmington Healthcare, compliance and finance publishing businesses), Wilmington plc, registered office Suite 215/216 Fort Dunlop, Birmingham B24 9FD (company 3015847), correspondence 77 Leadenhall Street, London EC3A 3DE. Its privacy notice (updated 27 August 2026) names a data protection officer at dataprotection@wilmingtonplc.com (+44 20 7324 2346) for access, correction, erasure, objection, restriction and portability, answered generally within one month. Its businesses hold B2B marketing lists and keep an opt-out suppression list indefinitely, so an erasure request may leave a minimal record there; each Wilmington business also has its own privacy policy. UK complaints go to the ICO. The notice does not name which businesses own which lists.
+      countries:
+        - GB
+      sources:
+        - https://www.wilmingtonplc.com/privacy-policy/
+      researched: "2026-11-23"
+    - id: solocal
+      name: Solocal Group (Pages Jaunes)
+      email: dpo@solocal.com
+      website: https://www.solocal.com
+      region: eu
+      category: marketing
+      notes: French local-business marketing group behind Pages Jaunes, Solocal Group, 204 rond-point du Pont de Sèvres, 92649 Boulogne-Billancourt Cedex. Its privacy page (updated 9 July 2026) names the data protection officer at dpo@solocal.com, or by post to Solocal Group, DPO at that address, for access, erasure, rectification, restriction, objection, portability and post-mortem directives; it may ask for proof of identity. It collects and shares professionals' data (name, role, company, email, phone) with partners and advertisers who use it as separate controllers for prospecting, on a legitimate-interest basis with an opposition link in the notification email, so also object to those partners. It is also co-controller with LBC France (leboncoin) for prospecting professional advertisers and handles those rights requests. Marketing data is kept 3 years. No response deadline is stated; complaints go to the CNIL.
+      countries:
+        - FR
+      sources:
+        - https://www.solocal.com/protection-de-la-vie-privee
+      researched: "2026-11-23"
+    - id: infobel
+      name: Infobel
+      email: ""
+      website: https://www.infobel.com
+      opt_out_url: https://dpo.infobel.com/?languageCode=en
+      region: global
+      category: people-search
+      notes: Online business and residential directory run by INFOBEL SA, Avenue Louise 231, 1050 Brussels (BE 0453.604.761), published in many countries and viewable worldwide. Its privacy policy (updated 15 March 2023) says rights requests (access, copy, rectification, objection, restriction, erasure, portability) go through the web form at dpo.infobel.com or by post to DPO - INFOBEL SA at that address, with a copy of ID (and proof of authority for legal entities); it answers within one month, extendable by two. It says it no longer processes people who asked for a secret number or deletion, and objection to the directory listing can be refused under its directory service mission. It only answers requests sent to those channels, not to other mailboxes. You can also correct a listing through its "update my personal data" page. Complaints go to the Belgian Data Protection Authority. It sells data to customers and partners, some outside the EU, and does not control other sites that copied the data.
+      sources:
+        - https://www.infobel.com/en/belgium/Landing/PersonalDataProtection
+      researched: "2026-11-23"
+    - id: editus
+      name: Editus Luxembourg
+      email: ""
+      website: https://www.editus.lu
+      opt_out_url: https://www.editus.lu/fr/droits-donnees-personnelles
+      region: eu
+      category: people-search
+      notes: Luxembourg's universal telephone directory and business directory, Editus Luxembourg S.A., 208 rue de Noertzange, L-3670 Kayl (RCS B 12.138). Its data protection policy says rights requests (access, rectification, erasure, restriction, portability, objection and consent withdrawal) go through the form on the personal data rights page, or by post to Editus, Données Personnelles at that address, with valid proof of identity; it answers within one month of a complete request. Standard directory entries are supplied by the telecom operators, so Editus forwards correction and consent-withdrawal requests to your operator, who updates the entry; erasure and objection do not apply to processing required by law. Complaints go to the CNPD.
+      countries:
+        - LU
+      sources:
+        - https://webfiles.luxweb.com/files/gdpr/politique-vie-privee.pdf
+      researched: "2026-11-23"
+    - id: cylex
+      name: Cylex
+      email: info@cylex-international.com
+      website: https://www.cylex-international.com
+      region: global
+      category: people-search
+      notes: Business directory with country portals across Europe and beyond, run by SC CYLEX TEHNOLOGIA INFORMAȚIEI INTERNAȚIONAL SNC, Str. Crișului nr. 11, 410195 Oradea, Romania. Its privacy policy says anyone who finds a listing that infringes their rights, including freelancers and self-employed persons, should write to info@cylex-international.com and it will promptly erase the listing; the policy also lists access, rectification, erasure, restriction, objection and portability, handled by an unnamed data protection officer reachable through that contact. It keeps a blacklist database so an erased listing does not reappear, and you can ask for that to be deleted later. Listings come from registrations, public sources and third-party data companies, on a legitimate-interest basis. No response deadline is stated; complaints go to the supervisory authority in your member state (Romania's is the ANSPDCP).
+      sources:
+        - https://cylex-international.com/legal/privacy-policy/
+      researched: "2026-11-23"
+    - id: opendi
+      name: Opendi
+      email: service@opendi.com
+      website: https://www.opendi.com
+      opt_out_url: https://service.opendi.co.uk/delete
+      region: global
+      category: people-search
+      notes: Business directory with about 40 country portals (Europe, Asia, the Americas, Oceania, South Africa), published by Opendi International AG (Opendi AG), Müllerstr. 40, 80469 München (HRB 191847 Munich), +49 89 381 69 01-21. Every portal has a removal request form at service.<portal domain>/delete (the UK one is the opt_out_url) that asks for the listing address and your details and has a bot check, and a privacy policy at /content/datenschutz.html. The portals are not all opendi.<country>; Germany is stadtbranchenbuch.com (form at service.stadtbranchenbuch.com/delete, which says it forwards requests to the responsible directory publisher), Austria stadtbranchenbuch.at, Switzerland stadtbranchenbuch.ch, Australia opendi-australia.com, Mexico opendi.mx, Puerto Rico opendi.com.pr; the others are opendi.<tld> (be, dk, fr, it, nl, no, pl, es, se, fi, pt, ro, com.tr, hu, lu, co.nz, in, cn, hk, jp, ca, us, com.br, com.ar, cl, com.pa, pe, com.ve, co.za). The removal forms of all portals were opened in a browser (2026-11-23) and are the same template; the policy page was read for the UK, Germany, France, Austria, Belgium, Denmark, Italy, the Netherlands, Norway, Poland and Spain and is identical, and the phonebook (Telefonbuch/TEL) portals opendi.at, opendi.ch, tel.opendi.be and tel.opendi.es use the same policy with a link to the same deletion form. The phonebook legal notice gives Opendi International AG, Wilhelm-Liebhaber-Str. 20, 83607 Holzkirchen as a second address. The policy is a short German-language text dated 25 May 2018 naming service@opendi.com as the controller contact (also the editorial mailbox for deletion requests on the German, Austrian and Swiss portals) and granting free access, correction, blocking and erasure on request unless a legal retention duty applies. No response deadline is stated. The legal-notice mailbox info@opendi.com names no data protection role, so it is not listed.
+      sources:
+        - https://www.opendi.co.uk/content/datenschutz.html
+        - https://service.opendi.co.uk/delete
+        - https://www.stadtbranchenbuch.com/content/datenschutz.html
+      researched: "2026-11-23"
+    - id: mediaposte
+      name: MEDIAPOSTE (La Poste group)
+      email: exercicedesdroits@mediaposte.fr
+      website: https://www.mediaposte.fr
+      region: eu
+      category: marketing
+      notes: French direct-marketing and data-rental subsidiary of La Poste, MEDIAPOSTE SAS, 111 boulevard Brune, 75014 Paris (RCS Paris 331 648 014). Its privacy policy (version of 5 November 2026) says rights of access, rectification, objection, erasure, restriction, portability, consent withdrawal and post-mortem directives are exercised by emailing exercicedesdroits@mediaposte.fr with name, first name and address (ID only if there is doubt); it answers within one month, extendable to three. A data protection officer is at dpo-delegue@mediaposte.fr or by post to MEDIAPOSTE, Monsieur le DPO Délégué, 111 boulevard Brune, Case postale D432, 75618 Paris Cedex 14. For its data-rental business MEDIAPOSTE acts as a processor for advertisers (see its information charter, mediaposte.fr/charte-dinformation), so also object to the advertiser or list owner named in the mailing. Prospecting data is kept 3 years from the last contact. Complaints go to the CNIL.
+      countries:
+        - FR
+      sources:
+        - https://www.mediaposte.fr/donnees-personnelles/
+      researched: "2026-11-23"
+    - id: edictalys
+      name: EDICTALYS
+      email: contact@edictalys.fr
+      website: https://www.edictalys.com
+      region: eu
+      category: marketing
+      notes: French B2B and B2C marketing-file broker and email/SMS campaign sender, EDICTALYS (SIREN 534 368 899, CNIL n°1536578), 3 avenue des Platanes, 94340 Joinville-le-Pont; also runs fichier-entreprises.com, OptinPlay and travaux-comparateur.com. Its privacy policy (updated 21 July 2026) names the data referent at contact@edictalys.fr, or by post to the Joinville-le-Pont address, for access, rectification, erasure, objection (including to prospecting), restriction, portability and consent withdrawal; it answers within one month (up to two for complex requests) and may ask for ID. B2B contact files rest on legitimate interest and are kept 3 years from the last contact unless you object. It sells or rents files to professional buyers, who become separate controllers, so also ask them. Complaints go to the CNIL.
+      countries:
+        - FR
+      sources:
+        - https://www.edictalys.com/confidentialite.html
+      researched: "2026-11-23"
+    - id: dbc-france
+      name: DBC France
+      email: dpo@directbusiness.fr
+      website: https://dbcfrance.com
+      region: eu
+      category: marketing
+      notes: French B2C data broker that rents and sells prospecting files (email, SMS, postal, phone), DBC, head office 29 rue Benjamin Raspail, 92240 Malakoff, with a northern office at 130 rue de la Vallée, 62170 Inxent. Its short RGPD page names an in-house data protection officer at dpo@directbusiness.fr (it also lists relationclient@dbcfrance.com as the general customer mailbox, which is not listed here). The page does not list data subject rights or a response deadline, so state the right you are using (access, erasure, objection) and ask for the source file owner. DBC says it brokers files owned by partners (file owners, routers), who are the controllers, so also ask them once you know who. It mentions the Robinson list for postal and Bloctel for phone prospecting. Complaints go to the CNIL.
+      countries:
+        - FR
+      sources:
+        - https://dbcfrance.com/rgpd/
+      researched: "2026-11-23"
+    - id: tagadamedia
+      name: TAGADAMEDIA
+      email: contact@tagadamedia.com
+      website: https://www.tagadamedia.com
+      region: eu
+      category: marketing
+      notes: French lead-generation and online marketing company, TAGADAMEDIA SAS, 55 rue Legendre, 75017 Paris (RCS Paris 809 062 607). The legal notice on its site names itself as controller and says access, correction, completion, updating, blocking, objection and erasure requests go by email to contact@tagadamedia.com, a general contact address that is the only channel named (no data protection officer). It keeps data for the relationship plus three years and shares it with its subsidiaries. It does not describe its lead-generation data or its partners in that notice, and the cookie and privacy page it links (bo.tagadamedia.com/about/privacy) was not read, so ask for the partners that received your data. No response deadline is stated; complaints go to the CNIL.
+      countries:
+        - FR
+      sources:
+        - https://www.tagadamedia.com/en/privacy-policy/
+      researched: "2026-11-23"
+    - id: datagma
+      name: Datagma
+      email: privacy@datagma.com
+      website: https://datagma.com
+      opt_out_url: https://datagma.typeform.com/to/GO4U2FYy
+      region: eu
+      category: marketing
+      notes: French B2B data-enrichment company (professional emails, phones and job data from public sources) with a Chrome extension, Datagma, 3 boulevard de Sébastopol, 75001 Paris. Its privacy policy (updated 10 March 2025) offers an unsubscribe form (the opt_out_url) and the controller mailbox privacy@datagma.com for access, rectification, erasure, restriction, objection, portability, consent withdrawal and post-mortem directives, answered within 30 days, with identity checks if in doubt. It acts as controller for its own prospects and website visitors but as processor for customers' enrichment, in which case the customer is the controller, so also ask the customers who used your data. Opt-out requests are kept at least 3 years so they stay effective. Complaints go to the CNIL.
+      countries:
+        - FR
+      sources:
+        - https://datagma.com/fr/privacy-policy
+      researched: "2026-11-23"
+    - id: graydoncreditsafe-netherlands
+      name: GraydonCreditsafe Netherlands
+      email: avg@graydoncreditsafe.nl
+      website: https://www.creditsafe.com/nl/nl
+      opt_out_url: https://www.creditsafe.com/nl/nl/meer/support/uw-onderneming-uw-privacy.html
+      region: eu
+      category: financial-b2b
+      notes: Dutch business credit-information provider, Creditsafe Nederland BV (formerly Graydon), Jan Pietersz. Coenstraat 10, 2595 WP The Hague. Its "your company, your privacy" page says data from the Chamber of Commerce trade register, including sole proprietors' and directors' names and addresses, is in its database and sends access requests to avg@graydoncreditsafe.nl, which also handles worries about misuse; it has a data protection officer. The page lists inspection, change, erasure and objection rights but gives no response deadline, and the detailed privacy statement sections were collapsed in what was read. Sole proprietors get an information letter when their data is added; the page notes it does not process BSN numbers and suggests having your address protected at the Chamber of Commerce (KvK) so it stops receiving it. Erasure of register-sourced data is unlikely to succeed, so list this for access and correction. Complaints go to the Dutch Autoriteit Persoonsgegevens. See also the creditsafe and graydoncreditsafe-belgium entries.
+      countries:
+        - NL
+      parent: Creditsafe Nederland BV
+      sources:
+        - https://www.creditsafe.com/nl/nl/meer/support/uw-onderneming-uw-privacy.html
+      researched: "2026-11-23"
+    - id: mtt-media-hu
+      name: MTT Media (Telefonkönyv.hu, Arany Oldalak)
+      email: ugyfelszolgalat@mtt.hu
+      website: https://www.mtt.hu
+      region: eu
+      category: people-search
+      notes: Hungarian telephone and business directory publisher, MTT Media Kft., 2040 Budaörs, Baross utca 165 (cégjegyzékszám 13-09-166814), phone +36 1 6777 400. The telefonkonyv.hu and aranyoldalak.hu sites block automated access and did not load for the user, but archived copies of both link to the MTT data-processing notice on mtt.hu, which names MTT Media Kft. as controller with ugyfelszolgalat@mtt.hu as its contact for requests for information, rectification, erasure, objection and consent withdrawal. It answers within one month, extendable by two with notice, and states no form. The notice mostly covers the mtt.hu site and refers to mttmedia.hu for other data protection information (that site did not load), so say which directory listing you want removed. Complaints go to the NAIH (ugyfelszolgalat@naih.hu).
+      countries:
+        - HU
+      sources:
+        - https://www.mtt.hu/adatkezelesi-szabalyzat/
+      researched: "2026-11-23"
+    - id: ncb-thailand
+      name: National Credit Bureau (Thailand)
+      email: dpo@ncb.co.th
+      website: https://www.ncb.co.th
+      region: global
+      category: financial-b2b
+      notes: Thailand's credit bureau, National Credit Bureau Co., Ltd. (NCB). The site does not load for the user or for automated fetches, so this was read from the Wayback Machine copy of its personal data protection policy dated 12 May 2025. That page says PDPA requests (access, correction, restriction, objection, consent withdrawal and similar) are made by filling in its data subject rights request form, which is downloadable from the policy page and is not for changing credit report entries, and sending it to DPO@ncb.co.th. It says it may refuse where the law, a court order or public interest requires and will then give reasons. The same page lists Consumer@ncb.co.th, and credit report errors go through its separate dispute process rather than this route. Credit data is kept under the Credit Information Business Act, so expect erasure of credit history to be refused. The page gives no response deadline in the part read.
+      countries:
+        - TH
+      sources:
+        - https://www.ncb.co.th/about-us/personal-information-protection-policy/
+      researched: "2026-11-23"
+    - id: creditinfo-malta
+      name: Creditinfo Malta
+      email: mlt.data@creditinfo.com
+      website: https://creditinfo.com.mt
+      region: eu
+      category: financial-b2b
+      notes: Maltese credit reference agency licensed by the Central Bank of Malta, Creditinfo Malta Ltd, 199 Eucharistic Congress Road, Mosta MST 9036 (company C 30174), part of Creditinfo Group. Its privacy policy names it as GDPR controller and says to send access, rectification, erasure, restriction, portability and objection requests to mlt.data@creditinfo.com. It says data is kept no more than 14 months unless needed for legal interests or valid consent, and gives no response deadline beyond handling requests without delay. The policy mainly describes its website, so say that you want data held for credit reporting checked. A general mailbox mlt.info@creditinfo.com is not listed. Complaints go to the Maltese IDPC.
+      countries:
+        - MT
+      sources:
+        - https://creditinfo.com.mt/privacy-policy/
+      researched: "2026-11-23"
+    - id: malta-credit-bureau
+      name: Malta Credit Bureau
+      email: dpo@mcb.mt
+      website: https://mcb.mt
+      region: eu
+      category: financial-b2b
+      notes: Maltese credit reference agency licensed by the Central Bank of Malta, Malta Credit Bureau Ltd, Mdina Bastions Apartments, Block D, Office 1, New Street off Triq Mikielang Sapiano, Zebbug ZBG 1870. Its privacy policy says it is the controller of the personal data it uses to calculate creditworthiness and similar reports and that data subject rights requests go to dpo@mcb.mt or by post to the registered office. The policy lists no form or response deadline in the part read. A general mailbox info@mcb.mt is not listed. Complaints go to the Maltese IDPC.
+      countries:
+        - MT
+      sources:
+        - https://mcb.mt/privacy-policy
+      researched: "2026-11-23"
+    - id: yellow-pages-malta
+      name: Yellow Pages Malta
+      email: dpo@yellow.com.mt
+      website: https://www.yellow.com.mt
+      region: eu
+      category: people-search
+      notes: Maltese business directory, Yellow Pages (Malta) Ltd, Directories Building, Triq Il-Pitkali, Marsa MRS2293, phone +356 21252252. Its privacy policy (last updated 22 May 2018) names its data protection officer at dpo@yellow.com.mt, or by post to The Data Protection Officer at that address, for access, correction, deletion, restriction, objection, portability and consent withdrawal, with an unconditional right to object to direct marketing. It builds its directory from the business registry and other public sources and may share listings with search engines, so deletion may be refused for businesses it must retain. No response deadline is stated. Complaints go to the Maltese IDPC.
+      countries:
+        - MT
+      sources:
+        - https://www.yellow.com.mt/corporate/legal/privacy-policy/
+      researched: "2026-11-23"
+    - id: artemis-credit-bureau-cyprus
+      name: Artemis Credit Bureau (Cyprus)
+      email: dpo@artemis.com.cy
+      website: https://www.artemis.com.cy
+      region: eu
+      category: financial-b2b
+      notes: Cyprus credit bureau (formerly Artemis Bank Information Systems) running the ARTEMIS data exchange mechanism and credit scores, 77 Strovolou Avenue, Office 501, 5th floor, 2018 Strovolos, Nicosia, phone +357 22 454777, as joint controller with the Central Bank of Cyprus. Its bureau privacy notice names its data protection officer at dpo@artemis.com.cy (general info@artemis.com.cy is not listed) and says rights are exercised through its Customer Service Office (post, or phone and contact form). You can get a copy of your data and credit score, and challenge inaccurate data or the score; erasure is handled through rectification, and portability and objection do not apply because the processing is a legal obligation. Repaid credit data stays on the report for three years. Complaints go to the Cyprus Commissioner for Personal Data Protection.
+      countries:
+        - CY
+      sources:
+        - https://www.artemis.com.cy/en/artemis-bureau-privacy-notice/
+      researched: "2026-11-23"
