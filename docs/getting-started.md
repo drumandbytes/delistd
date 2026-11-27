@@ -65,7 +65,7 @@ brew install --cask drumandbytes/tap/delistd
 
 1. Open the [Releases page](https://github.com/drumandbytes/delistd/releases/latest).
 2. Under **Assets**, download the file for your system:
-   - Windows: the file ending in `_windows_amd64.exe` (for example `delistd_2.0.1_windows_amd64.exe`)
+   - Windows: the file ending in `_windows_amd64.exe` (for example `delistd_<version>_windows_amd64.exe`)
    - Mac with Apple chip (M1 or newer): `_darwin_arm64.tar.gz`
    - Mac with Intel chip: `_darwin_amd64.tar.gz`
    - Linux: `_linux_amd64.tar.gz` (or `_arm64` on ARM)

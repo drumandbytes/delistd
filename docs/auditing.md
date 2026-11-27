@@ -26,7 +26,7 @@ list is missing. Each is a one-click download, not an API:
 - **California** (CPPA, DELETE Act): https://cppa.ca.gov/data_broker_registry; the largest, 600+ brokers. "Download Registration Information" is the current year's CSV (`registry.csv`); earlier years are `registry2025.csv`, `registry2024.csv` and `complete-reg-data-brokers.csv` (2020-2023). Scripted downloads time out, so use a browser. Columns: `Data broker name:`, `Data broker primary website:`, `Data broker primary contact email address:`
 - **Oregon** (Division of Financial Regulation): https://dfr.oregon.gov/business/licensing/data-broker-registry; search at `ordcbs.mylicense.com` (profession "DFR-Data Broker", license type "Data Broker", name blank), which lists each broker's opt-out email, website and instructions. Columns of the export: `FACILITY NAME`, `OPT OUT EMAIL`, `OPT OUT WEBSITE`. Check the export parses as CSV (a stray quote can break it)
 - **Texas** (Secretary of State): https://www.sos.texas.gov/statdoc/data-brokers.shtml; searchable, no bulk export found
-- **Vermont** (Secretary of State): https://sos.vermont.gov/data-brokers/ - the page moved and 404s; find the current registry from the Secretary of State's site
+- **Vermont** (Secretary of State): https://sos.vermont.gov/data-brokers/; the page moved and 404s; find the current registry from the Secretary of State's site
 - Connecticut (from 2027) and New Jersey (registry not operative until 2027) will add two more.
 
 Outside the US there is no public data-broker register to mine. Quebec's CAI publishes

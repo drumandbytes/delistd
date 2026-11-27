@@ -48,8 +48,6 @@ The web UI's Settings → Automation card does the same without a terminal: inst
 
 `delistd mcp` shares the web UI's configuration, broker list, profiles and history; batches start only after you approve them ([mcp.md](mcp.md)). It is experimental and outside the stability contract ([stability.md](stability.md)).
 
-`delistd oauth login [--client-id ID] [--email ADDRESS]` signs in to Outlook.com / Hotmail / Live with a device code and stores the sign-in as both the sending and the inbox account ([outlook.md](outlook.md)). It needs an existing config (`delistd init`). With no `--client-id` or config value it uses Delistd's shared Microsoft app; `DELISTD_OAUTH_CLIENT_ID` overrides that.
-
 User config is stored at `~/.delistd/config.yaml` (see `config.example.yaml` for the full schema). Key sections:
 
 - `profiles`: one entry per person: `id` (stable, stored in history, `default` for the one `delistd init` creates) + name/address/email + `additional_emails`/`name_variants`/`previous_addresses`/`additional_phones` for catching records indexed under old identities (editable in `delistd init` / `delistd profile edit` and on the web profile form, one per line). Each entry can set its own `mail.email`/`mail.inbox` to send/monitor through a dedicated account instead of the shared blocks below; see [multi-profile.md](multi-profile.md). `passphrase_protected` (top level) is set by `delistd passphrase set` and marks mail passwords as passphrase-protected. `country` is an ISO 3166-1 alpha-2 code (`init` and the web form accept a name and store the code). A 1.x config (top-level `profile:` block, free-text country, `email.provider`) is migrated on first load and the original is saved with passwords blanked

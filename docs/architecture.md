@@ -39,7 +39,7 @@ docs/              reference docs; EU-NOTES.md has the GDPR notes
 
 `ci.yml` runs `go build`, `go vet`, `go test -race` and `golangci-lint` (`.golangci.yml`) on every push and PR, with `zizmor` and `actionlint` when workflows change, plus coverage (`scripts/covgate`) and an accessibility scan. `release-please.yml` keeps an open release PR (version bump and `CHANGELOG.md`) from Conventional Commits on `main`; merging it tags `vX.Y.Z` and fires `release.yml`: GoReleaser cross-compiles `linux/darwin/windows x amd64/arm64` (`CGO_ENABLED=0`) and attaches archives and checksums, and a `docker` job pushes the distroless image to `ghcr.io/drumandbytes/delistd` (`vX.Y.Z`, `X.Y`, `latest`, with provenance and SBOM) and smoke-tests it per architecture. The smoke jobs alarm without gating the release. `main.version` is set by `-ldflags`; it is `dev` otherwise. `deploy.yaml` builds and publishes the site.
 
-## Key Concepts
+## Key concepts
 
 ### MCP automation
 
@@ -96,14 +96,14 @@ Each broker in `data/brokers.yaml` (top-level key `brokers:`) has:
 - `opt_out_url`: Direct opt-out link (optional)
 - `region`: `us`, `eu`, or `global`
 - `category`: `people-search`, `marketing`, `background-check`, `financial-b2b`, `data-intermediary`, `device-id-only` (tracks by cookie/device ID, not name/email, can't be reached via this tool's standard profile-based request), or `requires-id` (won't act on a request without a government-issued ID document or similar heavyweight identity verification; this tool won't supply one on your behalf)
-- `countries`: Optional list of upper-case ISO 3166-1 alpha-2 codes (e.g. `[DE]`). When set, the default selection in `send`, `draft`, `mark-sent`, the web UI (list, send, email page) and the MCP server only includes the broker for profiles whose `country` is one of them. An empty or unrecognised profile country never hides a broker, and naming a broker with `send --broker` bypasses the scope (for example when you have a past address in that country). `list-brokers` shows the scope and the web list marks scoped brokers and says how many are hidden. For brokers that only hold one market's data and ask not to be sent requests from elsewhere
+- `countries`: Optional list of upper-case ISO 3166-1 alpha-2 codes (e.g. `[DE]`). When set, the default selection in `send`, `draft`, `mark-sent`, the web UI (list, send, email page) and the MCP server only includes the broker for profiles whose `country` is one of them. An empty or unrecognised profile country never hides a broker, and naming a broker with `send --broker` bypasses the scope (for example when you have a past address in that country). `list-brokers` shows the scope and the web list marks scoped brokers and says how many are hidden. For brokers that only hold one market's data and ask not to be sent requests from elsewhere.
 - `notes`: Free-text, optional, used to record why an entry looks unusual (e.g. "use the form, not email")
 
 **Brokers with `email: ""`** can't be reached by `send` at all; they only take requests through a web form/DSR portal, or the address bounced and was cleared by `cleanup-bounces`/`mark-bounced`. Use `delistd list-brokers --missing-email` to see them; they need manual follow-up outside the tool.
 
 ### Templates
 Three email templates (`internal/template/templates/`):
-- **GDPR**: Invokes EU Article 17 "Right to Erasure" - the correct default for EU users
+- **GDPR**: Invokes EU Article 17 "Right to Erasure", the correct default for EU users
 - **CCPA**: Invokes California Consumer Privacy Act
 - **Generic**: General privacy request referencing multiple laws
 
