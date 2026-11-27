@@ -20,7 +20,7 @@ reasoned refusal.
 
 ## 2. Keep the evidence
 
-Run `delistd export`. It produces a single document, per broker: what was sent
+Run `delistd export`. It produces a single document per broker: what was sent
 and when, a copy of the request, every reply and its date, the current pipeline
 stage, and an explicit list of the controllers that are **past the deadline with
 no substantive response. `--format html` prints cleanly to PDF for attaching
@@ -35,7 +35,7 @@ A complaint is stronger if you can show:
 - for a refusal: their stated reason, so you can say why it doesn't hold.
 
 `delistd export` assembles all of this except the raw delivery receipt from your
-mail provider, keep that too.
+mail provider; keep that too.
 
 ## 3. Pick the right supervisory authority
 
@@ -46,7 +46,7 @@ lists all of them; `delistd export` also names the one for your country.
 
 - Cross-border brokers: you still file with your *local* authority. For a
   company operating in several EU countries, that authority coordinates with the
-  broker's "lead" authority under the one-stop-shop mechanism, you do not have
+  broker's "lead" authority under the one-stop-shop mechanism; you do not have
   to work out which that is or file abroad.
 - Germany: for a complaint against a private company, go to the supervisory
   authority of your own federal state (Land), not the federal BfDI. The BfDI
@@ -74,7 +74,7 @@ You do not need a lawyer, and you do not need to have suffered a specific harm.
   without good reason.
 - Outcomes range from a letter to the broker (often enough on its own), to a
   binding order to erase, to a fine.
-- Most authorities are slow, cases can take one to several years. But an open
+- Most authorities are slow; cases can take one to several years. But an open
   complaint is itself pressure on the company, and many brokers settle the
   individual request as soon as the authority makes contact.
 
@@ -99,7 +99,7 @@ privacy organisations to bring representative actions under Article 80.
   is generally no private right of action for a deletion failure.
 - California DELETE Act: the CPPA's single-request deletion platform
   ("DROP") was scheduled to open to consumers in 2026, with registered data
-  brokers required to honour requests from August 2026, check the CPPA site for
+  brokers required to honour requests from August 2026; check the CPPA site for
   the current status before working through brokers one by one.
 
 ---

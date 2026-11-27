@@ -4,7 +4,7 @@ description: "The long tail of adtech and data-append brokers that buy and sell 
 ---
 
 Most of the companies in the [broker directory](/brokers/) aren't people-search
-sites, they're **advertising and data-append brokers**: they buy, enrich and
+sites; they're **advertising and data-append brokers**: they buy, enrich and
 resell marketing profiles (interests, purchase intent, approximate location,
 household attributes) to advertisers and other data companies.
 
@@ -14,7 +14,7 @@ email works for almost all of them.
 ## The approach
 
 Send each one a GDPR erasure request (EU/EEA) or a CCPA deletion request
-(California). Delistd does this in bulk, that's the point of `delistd send`, or
+(California). Delistd does this in bulk: that's the point of `delistd send`, or
 you can send them by hand with `delistd draft` / `delistd send --manual`.
 
 For a broker where Delistd has no working email on file, check the company's
@@ -32,7 +32,7 @@ US state laws increasingly have one.
 
 ## Device / advertising IDs
 
-For brokers tagged **device-id-only**, the useful action isn't an email, it's
+For brokers tagged **device-id-only**, the useful action isn't an email; it's
 resetting the advertising identifier on your phone (iOS: Settings → Privacy →
 Tracking / Apple Advertising; Android: Settings → Privacy → Ads) and opting out
 of ad personalisation. Those pages have the detail.

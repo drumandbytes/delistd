@@ -113,7 +113,7 @@ The page walks you through three screens.
 - **App password:** paste the 16-character code from Step 2.
 - Click **Continue**.
 
-To send by hand instead, click **Skip, I'll send the emails myself** under the Continue button and leave the fields empty.
+To send by hand instead, click **Skip — I'll send the emails myself** under the Continue button and leave the fields empty.
 
 Delistd then offers to send a **test email** to yourself. Click it, check your inbox (and spam folder), and continue. If the test fails, see [Troubleshooting](#troubleshooting).
 

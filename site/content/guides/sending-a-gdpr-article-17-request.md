@@ -5,7 +5,7 @@ description: "Sending a GDPR Article 17 erasure request: what to write, who to s
 
 If you live in the EU or EEA, **Article 17 of the GDPR** gives you the right to
 have a company erase the personal data it holds about you. Data brokers are
-"controllers" under the GDPR and this right applies to them squarely, it does
+"controllers" under the GDPR and this right applies to them squarely; it does
 not matter that you never signed up with them or that the company is based
 outside the EU, as long as it processes data about people in the EU.
 
@@ -27,7 +27,7 @@ A short email is enough. It needs to:
 2. **State the request**: that you are exercising your right to erasure under
    **Article 17 of the GDPR** and want all personal data concerning you deleted.
 3. **Ask for written confirmation** once it is done.
-4. Optionally, cite **Article 19**, the broker must also tell every party it
+4. Optionally, cite **Article 19**: the broker must also tell every party it
    sold or shared your data with to erase it, and must name those recipients if
    you ask.
 
@@ -44,14 +44,14 @@ the result into your mail client.
 The broker's privacy or data-protection address. The [broker directory](/brokers/)
 lists the address Delistd has on file for each one; where a broker only takes
 requests through a web form or a dedicated portal, that link is shown instead.
-Using their form is fine, the legal deadline is the same.
+Using their form is fine; the legal deadline is the same.
 
 ## Identity verification
 
 A broker may ask you to confirm your identity before acting (Article 12(6)), but
 the request has to be **proportionate**. Confirming the email address they
 already hold, or matching a few data points from your file, is reasonable. A
-full copy of your passport usually is not, if you send ID at all, redact the
+full copy of your passport usually is not; if you send ID at all, redact the
 photo, document number and any fields not needed to match your record. The
 one-month clock is paused only for the time it genuinely takes you to answer a
 proportionate verification request.
@@ -68,7 +68,7 @@ proportionate verification request.
   they rely on, and that you can complain to a supervisory authority and go to
   court.
 - They may not charge a fee unless the request is "manifestly unfounded or
-  excessive", a single, ordinary erasure request is neither.
+  excessive"; a single, ordinary erasure request is neither.
 
 ## Exemptions a broker can lawfully invoke
 

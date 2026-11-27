@@ -13,8 +13,8 @@ one for your profile's country and lists the brokers that are overdue.
   [When a broker ignores you](/guides/when-a-broker-ignores-you/).
 - **United States**: the FTC is the federal backstop; California has the CPPA;
   other states are enforced by the state Attorney General.
-- Elsewhere, the national data-protection authority.
+- Elsewhere: the national data-protection authority.
 
-This list is not exhaustive, it covers the jurisdictions with a practical
+This list is not exhaustive; it covers the jurisdictions with a practical
 complaint route, and links move. If an entry is wrong or your country is
 missing, please [open an issue or a pull request](https://github.com/drumandbytes/delistd/issues/new).
