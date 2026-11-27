@@ -84,7 +84,7 @@ Ports 465 (SMTP) and 993 (IMAP) use TLS from the start; any other port must supp
 
 **Automation.** `delistd schedule install` has your OS run Delistd every 6 hours: send to brokers that are due (each re-sent 25 days after its last request, within the daily cap) and check the inbox. `delistd schedule status` shows the last run and `delistd schedule remove` undoes it. Settings → Automation in the web UI does the same, including a "run while this app is open" option for systems without launchd or systemd; `delistd auto` loops in the foreground.
 
-**No credentials at all.** Choose "Skip - I'll send the emails myself" in the wizard (or `options.send_mode: manual`). Delistd then never sends anything: the Brokers page offers each ready-to-send email with an "Open in mail app" button and a **Mark sent** button; on the CLI, `delistd draft <broker-id>` prints one email, `delistd draft -o ./out` writes one `.eml` per broker, and `delistd send --manual` walks the list. `delistd mark-sent <broker-id>` records one so `status`, `pipeline` and `export` still account for it.
+**No credentials at all.** Choose "Skip — I'll send the emails myself" in the wizard (or `options.send_mode: manual`). Delistd then never sends anything: the Brokers page offers each ready-to-send email with an "Open in mail app" button and a **Mark sent** button; on the CLI, `delistd draft <broker-id>` prints one email, `delistd draft -o ./out` writes one `.eml` per broker, and `delistd send --manual` walks the list. `delistd mark-sent <broker-id>` records one so `status`, `pipeline` and `export` still account for it.
 
 ## Let a local AI agent handle follow-ups (experimental)
 

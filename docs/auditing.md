@@ -23,10 +23,10 @@ When a broker's own reply, privacy policy or registry entry says it holds data f
 The US state data-broker registries are public and worth mining for entries the
 list is missing. Each is a one-click download, not an API:
 
-- **California** (CPPA, DELETE Act) - https://cppa.ca.gov/data_broker_registry - the largest, 600+ brokers. "Download Registration Information" is the current year's CSV (`registry.csv`); earlier years are `registry2025.csv`, `registry2024.csv` and `complete-reg-data-brokers.csv` (2020-2023). Scripted downloads time out, so use a browser. Columns: `Data broker name:`, `Data broker primary website:`, `Data broker primary contact email address:`
-- **Oregon** (Division of Financial Regulation) - https://dfr.oregon.gov/business/licensing/data-broker-registry - search at `ordcbs.mylicense.com` (profession "DFR-Data Broker", license type "Data Broker", name blank), which lists each broker's opt-out email, website and instructions. Columns of the export: `FACILITY NAME`, `OPT OUT EMAIL`, `OPT OUT WEBSITE`. Check the export parses as CSV (a stray quote can break it)
-- **Texas** (Secretary of State) - https://www.sos.texas.gov/statdoc/data-brokers.shtml - searchable, no bulk export found
-- **Vermont** (Secretary of State) - https://sos.vermont.gov/data-brokers/ - the page moved and 404s; find the current registry from the Secretary of State's site
+- **California** (CPPA, DELETE Act): https://cppa.ca.gov/data_broker_registry; the largest, 600+ brokers. "Download Registration Information" is the current year's CSV (`registry.csv`); earlier years are `registry2025.csv`, `registry2024.csv` and `complete-reg-data-brokers.csv` (2020-2023). Scripted downloads time out, so use a browser. Columns: `Data broker name:`, `Data broker primary website:`, `Data broker primary contact email address:`
+- **Oregon** (Division of Financial Regulation): https://dfr.oregon.gov/business/licensing/data-broker-registry; search at `ordcbs.mylicense.com` (profession "DFR-Data Broker", license type "Data Broker", name blank), which lists each broker's opt-out email, website and instructions. Columns of the export: `FACILITY NAME`, `OPT OUT EMAIL`, `OPT OUT WEBSITE`. Check the export parses as CSV (a stray quote can break it)
+- **Texas** (Secretary of State): https://www.sos.texas.gov/statdoc/data-brokers.shtml; searchable, no bulk export found
+- **Vermont** (Secretary of State): https://sos.vermont.gov/data-brokers/ - the page moved and 404s; find the current registry from the Secretary of State's site
 - Connecticut (from 2027) and New Jersey (registry not operative until 2027) will add two more.
 
 Outside the US there is no public data-broker register to mine. Quebec's CAI publishes
@@ -58,7 +58,7 @@ A second, smaller embedded list offered as `delistd send --list verified` /
 confidently call a data broker (US: cross-checkable against a state registry;
 elsewhere: a regulator-recognized credit bureau or established data-intelligence
 company) **and** a current first-party privacy email or rights portal. It's a
-curated subset, not a mirror of `brokers.yaml` - the point is
+curated subset, not a mirror of `brokers.yaml`; the point is
 signal, not coverage.
 
 Grow it the same way as the main list, but keep only entries you can stand
@@ -79,11 +79,11 @@ floor (`MinVerifiedBrokerCount`).
 
 ### The EU/EEA side
 
-There is no EU equivalent of the state registries - GDPR replaced the old
+There is no EU equivalent of the state registries, GDPR replaced the old
 national notification registers with internal Article 30 records, which aren't
 public. So EU expansion is per-country research. The sources worth mining:
 
-- **IAB TCF Global Vendor List** - `https://vendor-list.consensu.org/v3/vendor-list.json`,
+- **IAB TCF Global Vendor List**: `https://vendor-list.consensu.org/v3/vendor-list.json`,
   ~1000 ad-tech vendors active in the EU market, versioned and current. The
   importer reads it directly:
 
@@ -98,43 +98,43 @@ public. So EU expansion is per-country research. The sources worth mining:
   email, each needing DSR-portal research. Treat it as a **cross-check for
   missing big names** (LiveRamp, Epsilon, Adform, Audience Solutions, ...), not
   a bulk import. `-gvl-all` drops the data-category filter.
-- **Credit reference & B2B-intelligence bureaus** - the EU entities that
+- **Credit reference & B2B-intelligence bureaus**: the EU entities that
   actually hold name-linked profiles and must action Article 17: SCHUFA,
   Creditreform, Regis24, CRIF, Dun & Bradstreet / Bisnode, Creditsafe,
   arvato/Infoscore, Acxiom, Experian and Equifax EU arms, Schober, Deutsche
   Post Direkt, AZ Direct. Most take requests only through a form or DSR portal
   (so they're tracked outside `brokers.yaml` per EU-NOTES.md), but the ones
   with a direct privacy address belong in the list.
-- **YourOnlineChoices / EDAA** (youronlinechoices.eu) - the European ad
+- **YourOnlineChoices / EDAA** (youronlinechoices.eu): the European ad
   preference programme; participating companies have a defined opt-out.
-- **noyb** and **GDPRhub** case pages - name specific controllers.
+- **noyb** and **GDPRhub** case pages, name specific controllers.
 
 ## Keeping `data/brokers.yaml` honest
 
 Two checks, both also wired into CI:
 
-- **Structure** - `delistd validate-brokers` (or `go test ./internal/broker/...`,
+- **Structure**: `delistd validate-brokers` (or `go test ./internal/broker/...`,
   which runs `Validate` against the embedded copy on every PR): a sane entry
   count, required `id`/`name`, unique ids, known `region` values, plausible
   emails, well-formed URLs. Run `delistd validate-brokers candidates.yaml` before
   merging a batch from the importer.
-- **Liveness** - `.github/workflows/broker-audit.yml` runs `delistd audit-brokers
+- **Liveness**: `.github/workflows/broker-audit.yml` runs `delistd audit-brokers
   --fix` every Monday. `--fix` clears the email of any broker whose mail domain is
-  dead (MX and host lookup both fail) - keeping the row, blanking the address, and
-  appending a dated note - then the workflow opens a PR against `data/brokers.yaml`
+  dead (MX and host lookup both fail), keeping the row, blanking the address, and
+  appending a dated note. The workflow then opens a PR against `data/brokers.yaml`
   if anything changed. A quiet week opens no PR. Review the PR before merging;
   investigate `website-dead` / `unknown` entries (printed in the run log, never
   auto-edited) by hand. A "No working channel left" section lists entries whose
-  email is dead *and* whose website is unreachable with no `opt_out_url` - remove
+  email is dead *and* whose website is unreachable with no `opt_out_url`, remove
   those by hand rather than keeping a row nobody can contact. Also runnable from
   the Actions tab on demand. Run `delistd audit-brokers --fix` locally with
   `--brokers <path>` to do the same to a working copy.
-- **Canonical formatting** - `--fix` (and the bounce tooling) save with
+- **Canonical formatting**: `--fix` (and the bounce tooling) save with
   `yaml.Marshal`, so a hand-edited list that isn't already in that form is
   reformatted wholesale on the next audit PR. `TestEmbeddedListsCanonical` fails
   until it is; `go test ./internal/broker -run TestEmbeddedListsCanonical -update`
   rewrites `data/brokers*.yaml` in place.
-- **Dated evidence** - when you add or change a broker's email or opt-out URL, record the date you verified it and the source you checked (the broker's privacy page or registry entry). A channel with no dated verification is unconfirmed, even if it passes the checks above; the verified list needs this for every entry.
+- **Dated evidence**: when you add or change a broker's email or opt-out URL, record the date you verified it and the source you checked (the broker's privacy page or registry entry). A channel with no dated verification is unconfirmed, even if it passes the checks above; the verified list needs this for every entry.
 
 ## Dead code
 

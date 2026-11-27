@@ -74,7 +74,7 @@ explicitly resolved owner. See [mcp.md](mcp.md) for operational limits.
 `data/brokers.yaml` is compiled into the binary (`data/embed.go`, `//go:embed`).
 `broker.Load(override)` resolves it from `--brokers`, then `~/.delistd/brokers.yaml`
 (written by `delistd update-brokers`, a conditional download), then the embedded
-copy - no implicit `./data` scanning. `add-broker`/`cleanup-bounces` write to a
+copy; no implicit `./data` scanning. `add-broker`/`cleanup-bounces` write to a
 real path via `resolveBrokerWritePath()`.
 
 `data/brokers-verified.yaml` is a second embedded list: a smaller set built from
@@ -85,21 +85,21 @@ The send-family commands (`send`, `draft`, `mark-sent`, `serve`) call
 `broker.Load`, adding two steps ahead of the `~/.delistd` fallback: an
 `options.broker_file` path, then the verified list when `options.broker_list`
 (or `send --list`) is `verified`. Everything else stays on the full list. Grow
-the verified list with `scripts/import-registries` - see
+the verified list with `scripts/import-registries`; see
 [auditing.md](auditing.md).
 
 Each broker in `data/brokers.yaml` (top-level key `brokers:`) has:
 - `id`: Unique lowercase hyphenated identifier (e.g., `spokeo`, `been-verified`)
 - `name`: Display name
-- `email`: Privacy/removal contact email (may be empty string - see below)
+- `email`: Privacy/removal contact email (may be empty string; see below)
 - `website`: Company website (optional)
 - `opt_out_url`: Direct opt-out link (optional)
 - `region`: `us`, `eu`, or `global`
-- `category`: `people-search`, `marketing`, `background-check`, `financial-b2b`, `data-intermediary`, `device-id-only` (tracks by cookie/device ID, not name/email - can't be reached via this tool's standard profile-based request), or `requires-id` (won't act on a request without a government-issued ID document or similar heavyweight identity verification - this tool won't supply one on your behalf)
+- `category`: `people-search`, `marketing`, `background-check`, `financial-b2b`, `data-intermediary`, `device-id-only` (tracks by cookie/device ID, not name/email, can't be reached via this tool's standard profile-based request), or `requires-id` (won't act on a request without a government-issued ID document or similar heavyweight identity verification; this tool won't supply one on your behalf)
 - `countries`: Optional list of upper-case ISO 3166-1 alpha-2 codes (e.g. `[DE]`). When set, the default selection in `send`, `draft`, `mark-sent`, the web UI (list, send, email page) and the MCP server only includes the broker for profiles whose `country` is one of them. An empty or unrecognised profile country never hides a broker, and naming a broker with `send --broker` bypasses the scope (for example when you have a past address in that country). `list-brokers` shows the scope and the web list marks scoped brokers and says how many are hidden. For brokers that only hold one market's data and ask not to be sent requests from elsewhere
-- `notes`: Free-text, optional - used to record why an entry looks unusual (e.g. "use the form, not email")
+- `notes`: Free-text, optional, used to record why an entry looks unusual (e.g. "use the form, not email")
 
-**Brokers with `email: ""`** can't be reached by `send` at all - they only take requests through a web form/DSR portal, or the address bounced and was cleared by `cleanup-bounces`/`mark-bounced`. Use `delistd list-brokers --missing-email` to see them; they need manual follow-up outside the tool.
+**Brokers with `email: ""`** can't be reached by `send` at all; they only take requests through a web form/DSR portal, or the address bounced and was cleared by `cleanup-bounces`/`mark-bounced`. Use `delistd list-brokers --missing-email` to see them; they need manual follow-up outside the tool.
 
 ### Templates
 Three email templates (`internal/template/templates/`):
@@ -113,20 +113,20 @@ Three email templates (`internal/template/templates/`):
 
 ### Web UI static assets
 `internal/web/static/` (embedded via `//go:embed static/*`) holds:
-- `js/htmx.min.js` - vendored as-is.
-- `css/tokens.css` - design tokens for both themes: colour and elevation, the type scale
+- `js/htmx.min.js`: vendored as-is.
+- `css/tokens.css`: design tokens for both themes: colour and elevation, the type scale
   (`--fs-*`, in rem) and the corner radii (`--radius-*`). The only place raw colour values
   and font sizes are named. Linked first in `layout.html`.
-- `css/app.css` - the component classes (`.btn`, `.card`, `.badge`, `.nav-link`, ...), the
+- `css/app.css`: the component classes (`.btn`, `.card`, `.badge`, `.nav-link`, ...), the
   status tints (`.tint-*`, `.bg-*`, `.border-*`) and the page layouts, written against the tokens.
-- `css/utilities.css` - a small, hand-written reset plus the layout / spacing / sizing /
+- `css/utilities.css`: a small, hand-written reset plus the layout / spacing / sizing /
   flex / grid utilities the templates use (`.p-4`, `.flex`, `.gap-2`, ...). There is no
   Tailwind or any other CSS toolchain: add a rule by hand when a template needs one, and
   size it from the scale in `tokens.css`. No inline `style=` attributes: name a class.
 
 `css_utilities_test.go` keeps the three in step: it fails on a utility class a template
 uses without a rule, and on a rule nothing uses. `utilities.css` is linked *after*
-`app.css` on purpose - same-specificity rules are decided by source order, and a utility
+`app.css` on purpose: same-specificity rules are decided by source order, and a utility
 like `.w-auto` has to win over a component class like `.input { width: 100% }`.
 
 Before a CSS or template refactor, record the computed style of every element on every

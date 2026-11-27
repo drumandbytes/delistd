@@ -1,4 +1,4 @@
-# Handling Broker Replies
+# Handling broker replies
 
 What to do when a data broker answers a removal request. Most replies need no repo
 change; the ones that do are broker-level facts, recorded in `data/brokers.yaml`.
@@ -11,12 +11,12 @@ history and pipeline rows; `delistd pipeline` shows what still needs a human.
 Reading the inbox by hand is the same job without the database writes.
 
 Per-request status (sent, acknowledged, confirmed, overdue) lives in your mailbox and the
-SQLite history - not in this repo. Only facts about the *broker itself* go in
+SQLite history; not in this repo. Only facts about the *broker itself* go in
 `data/brokers.yaml`. See [EU-NOTES.md](../EU-NOTES.md) for why there's no
 review-status file here.
 
-Once you've actioned a reply, move it out of the inbox (Trash is fine - it's
-reversible; nothing here empties the trash).
+Once you've actioned a reply, move it out of the inbox (Trash is fine: it's
+reversible, and nothing here empties the trash).
 
 ## Response → action
 
@@ -46,6 +46,6 @@ remembering.
 ## Editing `data/brokers.yaml`
 
 - **Dated notes**: `notes: '<summary> (YYYY-MM-DD): <detail, quoting the reply where useful>'`. Append to an existing note rather than replacing its history.
-- **Commits**: one entry's worth of change per commit where practical, scoped `fix(brokers):` or `chore(brokers):`. Conventional Commits - release-please reads them.
+- **Commits**: one entry's worth of change per commit where practical, scoped `fix(brokers):` or `chore(brokers):`. Conventional Commits, release-please reads them.
 - **Generated files**: `site/data/brokers.json` and `site/data/guides.json` are produced by `delistd guides` and git-ignored; Hugo builds the guide pages from them (`site/content/brokers/_content.gotmpl`). Don't regenerate them for a data edit.
 - **Count floor**: after any add/remove, run `grep -c '^    - id:' data/brokers.yaml`. `README.md`, `docs/architecture.md`, and `EU-NOTES.md` all claim "1,000+" - keep the true count at or above 1,000 or fix those docs. `internal/broker` CI also fails below `MinSaneBrokerCount` (200).
