@@ -5,7 +5,7 @@ description: "Delistd is free. If you'd rather have someone set it up with you, 
 
 Delistd is free and stays free: the tool, the broker list and the docs are MIT licensed and need nothing from us. This page is for people who would rather not set it up alone. Paying is never required, and nothing in the tool is held back for customers.
 
-The service is offered by **Drumandbytes OÜ**, the company behind the project (Estonia). The tool itself remains a separate open-source project.
+The service is offered by Drumandbytes OÜ, the company behind the project (Estonia). The tool itself remains a separate open-source project.
 
 ## Setup for one person
 
@@ -20,7 +20,7 @@ A fixed-scope session, done remotely with you at the keyboard, on your own compu
 
 The scope is fixed. The time it takes is not: we go at your pace. If your setup turns out to need more than this, we stop and quote the extra before doing it.
 
-**What you need ready:** a computer (macOS, Linux or Windows) and an email account you're happy to dedicate to removal requests (or we create a fresh one together).
+You need a computer (macOS, Linux or Windows) and an email account you're happy to dedicate to removal requests (or we create a fresh one together).
 
 ### What stays with you
 
@@ -32,15 +32,15 @@ Brokers decide how they answer. Delistd sends the requests, tracks the replies a
 
 ## Prices for individuals
 
-The standard setup is **€39**: one person, one Windows, macOS or Linux computer, everything in the list above. Extras are added only if you choose them:
+The standard setup is €39: one person, one Windows, macOS or Linux computer, everything in the list above. Extras are added only if you choose them:
 
-- **A second person on the same computer:** €15
-- **A non-standard mailbox** (Proton Mail Bridge, a locked-down work account): €15
-- **Home server, NAS or Docker:** €69. It is installed on your own hardware and reachable only from your own devices, through a VPN such as Tailscale or an SSH tunnel. We don't put the web interface on the public internet: it holds your details and has no login, because it is built for local use.
-- **Evidence and complaint walkthrough** (the export report, writing to a data protection authority): €29
-- **An extra session later:** €19
-- **Short notice:** we offer slots at least 24 hours ahead at no extra cost. If you need one sooner, write to us first; if we can fit you in it is +€10, and it is booked only once we have agreed it
-- **Three months of check-ins** (see below): €69
+- A second person on the same computer: €15
+- A non-standard mailbox (Proton Mail Bridge, a locked-down work account): €15
+- Home server, NAS or Docker: €69. It is installed on your own hardware and reachable only from your own devices, through a VPN such as Tailscale or an SSH tunnel. We don't put the web interface on the public internet: it holds your details and has no login, because it is built for local use.
+- Evidence and complaint walkthrough (the export report, writing to a data protection authority): €29
+- An extra session later: €19
+- Short notice: slots at least 24 hours ahead cost nothing extra. For anything sooner, write to us first; if we can fit you in it is +€10, booked only once we have agreed it
+- Three months of check-ins (see below): €69
 
 You get the final price in writing before you pay.
 
@@ -58,9 +58,9 @@ For teams that want staff, executives or clients removed from broker lists: onbo
 
 Write to [{{< param supportEmail >}}](mailto:{{< param supportEmail >}}) with:
 
-- Whether this is for **one person, a household or an organisation**
-- Your **operating system** (macOS, Linux, Windows, or a home server)
-- The **country or region** you live in
+- Whether this is for one person, a household or an organisation
+- Your operating system (macOS, Linux, Windows, or a home server)
+- The country or region you live in
 
 You get a quote with the final price before you pay, or an honest *"this isn't something we can help with"*, in reply. Organisations are quoted as agreed. The [terms for paid setup](/support/terms/) cover scope, rescheduling and the right of withdrawal.
 

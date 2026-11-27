@@ -27,13 +27,13 @@ Microsoft only accepts OAuth for Outlook.com, Hotmail and Live accounts. If you 
 The site is static pages served by Cloudflare Pages. Cloudflare sits in front
 of it and keeps two kinds of aggregate counts:
 
-- **Page views** (Cloudflare Web Analytics), which pages get visited, roughly
+- Page views (Cloudflare Web Analytics), which pages get visited, roughly
   how many times, and referrers.
-- **Referrals**: which site or link sent a visit: the referring site's name (or
+- Referrals: which site or link sent a visit: the referring site's name (or
   a short tag we add to our own links) and the page path, without the query
   string. Kept for three months.
 
-Neither sets **cookies**, uses a cross-site identifier, or stores your IP
+Neither sets cookies, uses a cross-site identifier, or stores your IP
 address. There's no way for us to single you out in them, which is also why
 there's no cookie banner to click through.
 
@@ -47,7 +47,7 @@ One processor is involved in serving you this page:
 
 The tool and this website never see your credentials or your broker replies. If you ask [Drumandbytes OÜ](/support/) for a quote, or pay for setup help, that is a separate relationship, and Drumandbytes OÜ (Estonia, details below) is the controller of what it involves.
 
-**What we collect, from you:** your name and email address, what you tell us about your setup (operating system, country, mail provider), your chosen time, and the billing details on an invoice. You need to give us these for us to quote and do the work.
+What we collect from you: your name and email address, what you tell us about your setup (operating system, country, mail provider), your chosen time, and the billing details on an invoice. You need to give us these for us to quote and do the work.
 
 | What | Why | How long |
 | --- | --- | --- |
@@ -57,7 +57,7 @@ The tool and this website never see your credentials or your broker replies. If 
 
 Live setup sessions are not recorded. During a session we can see your screen, which may show your profile or broker replies, but we keep none of it. You type your mailbox password on your own computer; we never receive it, write it down or keep any access to your machine afterwards.
 
-**Who else handles it.** We use a few providers to run this, and they act on our instructions:
+Who else handles it: We use a few providers to run this, and they act on our instructions:
 
 | Who | What they handle | Why |
 | --- | --- | --- |
