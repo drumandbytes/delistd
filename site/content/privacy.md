@@ -15,7 +15,7 @@ Nothing is sent to us. There is no account, no sync, no telemetry, and no
 server of ours in the path. We could not tell you how many people use Delistd, or
 which brokers they've written to, because we never receive any of it.
 
-That isn't a promise about our intentions — it's a property of how the thing is
+That isn't a promise about our intentions, it's a property of how the thing is
 built, and you can check it in the source.
 
 ### Signing in to Outlook.com
@@ -27,9 +27,9 @@ Microsoft only accepts OAuth for Outlook.com, Hotmail and Live accounts. If you 
 The site is static pages served by Cloudflare Pages. Cloudflare sits in front
 of it and keeps two kinds of aggregate counts:
 
-- **Page views** (Cloudflare Web Analytics) — which pages get visited, roughly
+- **Page views** (Cloudflare Web Analytics), which pages get visited, roughly
   how many times, and referrers.
-- **Referrals** — which site or link sent a visit: the referring site's name (or
+- **Referrals**: which site or link sent a visit: the referring site's name (or
   a short tag we add to our own links) and the page path, without the query
   string. Kept for three months.
 
@@ -80,7 +80,7 @@ it (Article 6(1)(c)).
 
 ## Your rights
 
-We hold no personal data about you from this website — nothing is stored beyond
+We hold no personal data about you from this website, nothing is stored beyond
 the aggregate counts and whatever the processors above keep in their own logs.
 So there's nothing of yours for us to export or delete.
 
@@ -104,4 +104,4 @@ You can also raise anything publicly as a
 
 If you think we've got this wrong, you can complain to the Estonian Data
 Protection Inspectorate (Andmekaitse Inspektsioon, <https://www.aki.ee>) or, if
-you're elsewhere in the EU or EEA, to your national data protection authority — see [Privacy authorities](/authorities/).
+you're elsewhere in the EU or EEA, to your national data protection authority, see [Privacy authorities](/authorities/).

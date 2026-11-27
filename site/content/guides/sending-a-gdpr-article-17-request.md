@@ -5,7 +5,7 @@ description: "Sending a GDPR Article 17 erasure request: what to write, who to s
 
 If you live in the EU or EEA, **Article 17 of the GDPR** gives you the right to
 have a company erase the personal data it holds about you. Data brokers are
-"controllers" under the GDPR and this right applies to them squarely — it does
+"controllers" under the GDPR and this right applies to them squarely, it does
 not matter that you never signed up with them or that the company is based
 outside the EU, as long as it processes data about people in the EU.
 
@@ -21,13 +21,13 @@ just the fields shown on a preview page.
 
 A short email is enough. It needs to:
 
-1. **Identify you** — full name, email, and (so they can find the record)
+1. **Identify you**: full name, email, and (so they can find the record)
    postal address, plus any former names, emails or addresses a broker might
    have indexed you under.
-2. **State the request** — that you are exercising your right to erasure under
+2. **State the request**: that you are exercising your right to erasure under
    **Article 17 of the GDPR** and want all personal data concerning you deleted.
 3. **Ask for written confirmation** once it is done.
-4. Optionally, cite **Article 19** — the broker must also tell every party it
+4. Optionally, cite **Article 19**, the broker must also tell every party it
    sold or shared your data with to erase it, and must name those recipients if
    you ask.
 
@@ -44,14 +44,14 @@ the result into your mail client.
 The broker's privacy or data-protection address. The [broker directory](/brokers/)
 lists the address Delistd has on file for each one; where a broker only takes
 requests through a web form or a dedicated portal, that link is shown instead.
-Using their form is fine — the legal deadline is the same.
+Using their form is fine, the legal deadline is the same.
 
 ## Identity verification
 
 A broker may ask you to confirm your identity before acting (Article 12(6)), but
 the request has to be **proportionate**. Confirming the email address they
 already hold, or matching a few data points from your file, is reasonable. A
-full copy of your passport usually is not — if you send ID at all, redact the
+full copy of your passport usually is not, if you send ID at all, redact the
 photo, document number and any fields not needed to match your record. The
 one-month clock is paused only for the time it genuinely takes you to answer a
 proportionate verification request.
@@ -62,13 +62,13 @@ proportionate verification request.
   by **up to two further months** for genuinely complex or numerous requests,
   but only if it tells you about the extension *and the reason* within the first
   month. A plain deletion is rarely complex enough to justify this.
-- A response means a substantive answer — "done", or a reasoned refusal — not an
+- A response means a substantive answer, "done", or a reasoned refusal, not an
   automated acknowledgement.
 - If they refuse, wholly or partly, they must tell you **why**, which exemption
   they rely on, and that you can complain to a supervisory authority and go to
   court.
 - They may not charge a fee unless the request is "manifestly unfounded or
-  excessive" — a single, ordinary erasure request is neither.
+  excessive", a single, ordinary erasure request is neither.
 
 ## Exemptions a broker can lawfully invoke
 
@@ -88,7 +88,7 @@ applies to and to erase the rest.
 
 ## "We don't hold any data on you"
 
-Some brokers — especially adtech firms — key their records off cookies or device
+Some brokers, especially adtech firms, key their records off cookies or device
 identifiers rather than your name, and may reply that they cannot find you. Ask
 them to confirm in writing that no data linked to your name, email or postal
 address is held, and to erase anything that later matches. That written "no
@@ -96,9 +96,9 @@ data" answer is itself useful evidence.
 
 ## Related rights
 
-- **Article 15 (access)** — ask what data they hold and who they shared it with,
+- **Article 15 (access)**: ask what data they hold and who they shared it with,
   before or alongside an erasure request.
-- **Article 21 (objection)** — for direct-marketing processing you can object
+- **Article 21 (objection)**: for direct-marketing processing you can object
   outright, and the controller must stop; there is no exemption.
 
 ## If they ignore you

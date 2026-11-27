@@ -1,6 +1,6 @@
 # site/
 
-The docs site — [delistd.dev](https://delistd.dev/?ref=delistd-site-readme),
+The docs site, [delistd.dev](https://delistd.dev/?ref=delistd-site-readme),
 built with [Hugo](https://gohugo.io) and deployed to Cloudflare Pages by
 `.github/workflows/deploy.yaml` on every push to `main` that touches the broker
 data, `site/`, or the guide generator.
@@ -15,11 +15,11 @@ It runs `delistd guides` (writes `site/data/guides.json` and `brokers.json`, whi
 
 ## Layout
 
-- `content/` — hand-written pages (`_index.md`, `guides/*.md`, `authorities.md`);
+- `content/`: hand-written pages (`_index.md`, `guides/*.md`, `authorities.md`);
   the guide pages under `/brokers/` come from `content/brokers/_content.gotmpl`.
-- `layouts/` — the theme: base, home, directory, docs and guide templates and partials (`partials/guide-body.md` is the body of a broker guide).
-- `static/css/` — `site.css` imports `tokens.css` and `base.css`; the Coral palette mirrors the app's (`internal/web/static/css/tokens.css`).
-- `static/CNAME` — the custom domain.
+- `layouts/`: the theme: base, home, directory, docs and guide templates and partials (`partials/guide-body.md` is the body of a broker guide).
+- `static/css/`: `site.css` imports `tokens.css` and `base.css`; the Coral palette mirrors the app's (`internal/web/static/css/tokens.css`).
+- `static/CNAME`: the custom domain.
 
 ## Versioned docs
 

@@ -20,8 +20,7 @@ Coverage is worldwide, not only the US and EU/EEA: the list now includes regiona
 
 Brokers such as Spokeo, BeenVerified and Whitepages collect home addresses, phone numbers and relatives' names, and sell them on, usually without people knowing. There are hundreds of them. Services like Incogni and DeleteMe send the opt-out requests for $100+ a year and hold your details to do it. Delistd sends the same requests from your own email account, so nothing is held by anyone but you.
 
-📖 **[delistd.dev](https://delistd.dev/?ref=delistd-readme)** — broker directory, opt-out guides, and the list of EU/EEA data protection authorities.
-🔗 [More Drumandbytes projects](https://drumandbytes.com/projects/?ref=delistd-readme)
+[delistd.dev](https://delistd.dev/?ref=delistd-readme) has the broker directory, opt-out guides and the list of EU/EEA data protection authorities. [More Drumandbytes projects](https://drumandbytes.com/projects/?ref=delistd-readme).
 
 <a href="https://alternativeto.net/software/delistd/about/?utm_source=badge&utm_medium=referral" target="_blank"><img src="https://alternativeto.net/static/badges/badge-wide-color.svg" alt="delistd | AlternativeTo" width="320"></a>
 
