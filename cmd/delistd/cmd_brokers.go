@@ -57,7 +57,7 @@ func runListBrokers(regions, categories []string, search string, missingEmail, a
 	// the active profile's (when there is a config and it names a country).
 	profileCountry := ""
 	if !allCountries {
-		if cfg, err := config.Load(resolveConfigPath()); err == nil {
+		if cfg, err := config.LoadWithoutPasswords(resolveConfigPath()); err == nil {
 			if p, err := resolveProfile(cfg); err == nil {
 				profileCountry = p.Country
 			}

@@ -72,7 +72,17 @@ func checkFilePermissions(path string) error {
 
 // Load reads and decrypts the config at path, fills the defaults and upgrades
 // a 1.x file in place (migrate.go).
-func Load(path string) (*Config, error) {
+func Load(path string) (*Config, error) { return load(path, true) }
+
+// LoadWithoutPasswords is Load for commands that never log in to a mail
+// server (status, pipeline, export, draft, dry runs). Stored passwords stay
+// encrypted, so it skips the machine-ID lookup (an ioreg subprocess on macOS)
+// that decrypting them costs. Anything that connects to SMTP or IMAP must use
+// Load: an encrypted value is not a usable password. Save round-trips such a
+// config unchanged.
+func LoadWithoutPasswords(path string) (*Config, error) { return load(path, false) }
+
+func load(path string, decrypt bool) (*Config, error) {
 	warnIfReadable(path)
 
 	raw, err := os.ReadFile(path)
@@ -85,7 +95,7 @@ func Load(path string) (*Config, error) {
 	}
 
 	cfg.applyDefaults()
-	plaintext := cfg.decryptPasswords()
+	plaintext := cfg.decryptPasswords(decrypt)
 	migrateFrom1x(path, raw, &cfg, plaintext)
 	cfg.applyInboxDefaults()
 	return &cfg, nil
@@ -110,15 +120,16 @@ func (c *Config) applyDefaults() {
 	}
 }
 
-// decryptPasswords turns each stored password into plaintext in memory and
-// reports whether any was stored unencrypted (a legacy file, to be re-saved
-// encrypted). Passphrase-protected values stay as they are until Reveal.
-func (c *Config) decryptPasswords() (foundPlaintext bool) {
+// decryptPasswords turns each stored password into plaintext in memory (when
+// decrypt is set) and reports whether any was stored unencrypted (a legacy
+// file, to be re-saved encrypted). Passphrase-protected values stay as they
+// are until Reveal.
+func (c *Config) decryptPasswords(decrypt bool) (foundPlaintext bool) {
 	c.eachSecret(func(p *string) {
 		switch {
 		case *p != "" && !isEncrypted(*p):
 			foundPlaintext = true
-		case strings.HasPrefix(*p, secretPrefixV2):
+		case !decrypt, strings.HasPrefix(*p, secretPrefixV2):
 		default:
 			plain, err := decryptSecret(*p)
 			if err != nil {

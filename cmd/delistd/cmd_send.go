@@ -259,7 +259,11 @@ func sendLoop(cfg *config.Config, activeProfile config.NamedProfile, emailCfg co
 }
 
 func runSend() error {
-	cfg, err := config.Load(resolveConfigPath())
+	load := config.Load
+	if dryRun {
+		load = config.LoadWithoutPasswords // nothing logs in during a dry run
+	}
+	cfg, err := load(resolveConfigPath())
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
