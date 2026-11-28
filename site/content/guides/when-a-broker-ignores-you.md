@@ -97,10 +97,11 @@ privacy organisations to bring representative actions under Article 80.
   Protection Agency (CPPA) or the state Attorney General.
 - Other states: complaints go to the state Attorney General's office; there
   is generally no private right of action for a deletion failure.
-- California DELETE Act: the CPPA's single-request deletion platform
-  ("DROP") was scheduled to open to consumers in 2026, with registered data
-  brokers required to honour requests from August 2026; check the CPPA site for
-  the current status before working through brokers one by one.
+- California DELETE Act: residents can send one deletion request to every
+  registered data broker through the state's DROP platform
+  ([privacy.ca.gov/drop](https://privacy.ca.gov/drop/)). Brokers have had to
+  process requests since 1 August 2026 and have 90 days to delete after
+  matching. Use it first, then chase individual brokers that ignore you.
 
 ---
 
