@@ -1120,12 +1120,12 @@ brokers:
       opt_out_url: https://privacyportal.onetrust.com/webform/68582716-6ce4-4f6e-bf08-78371b5f3292/6c7dc52d-0e2b-481f-9256-0755179e3783
       region: us
       category: marketing
+      notes: '2026-11-26: Listed mailbox rejected external mail (550 5.7.134). Claritas directs consumers to the linked form for access, correction, and deletion.'
       parent: Claritas, LLC
       verification: Verification steps vary by how you submit; it cannot respond if it cannot verify your identity
       sources:
         - https://claritas.com/privacy-legal/
       researched: "2026-10-25"
-      notes: "2026-11-26: Listed mailbox rejected external mail (550 5.7.134). Claritas directs consumers to the linked form for access, correction, and deletion."
       guide: true
     - id: clay-labs
       name: Clay Labs LLC
@@ -1181,7 +1181,7 @@ brokers:
       opt_out_url: https://www.collectivedata.io/opt-out-do-not-sell-request-process/
       region: us
       category: marketing
-      notes: "The opt-out form accepts an email address or name and mailing address as alternatives to a device identifier. Requests using a device ID are device-specific."
+      notes: The opt-out form accepts an email address or name and mailing address as alternatives to a device identifier. Requests using a device ID are device-specific.
       parent: Collective Data Solutions, LLC
       verification: Choose at least one identification method in the form; identity verification may be required before data is released.
       sources:
@@ -3571,7 +3571,7 @@ brokers:
       opt_out_url: https://suppression.peopleconnect.us/
       region: us
       category: marketing
-      notes: "2026-11-26: The former employee address bounced downstream (550 5.4.1). The official Privacy Center lists the privacy mailbox for rights requests. Use the Suppression Tool for people-search listings; deleting Privacy Center user data can remove existing suppressions."
+      notes: '2026-11-26: The former employee address bounced downstream (550 5.4.1). The official Privacy Center lists the privacy mailbox for rights requests. Use the Suppression Tool for people-search listings; deleting Privacy Center user data can remove existing suppressions.'
       sources:
         - https://suppression.peopleconnect.us/privacy-center
         - https://suppression.peopleconnect.us/
