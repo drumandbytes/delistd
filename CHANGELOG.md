@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.9](https://github.com/drumandbytes/delistd/compare/v2.7.8...v2.7.9) (2026-11-28)
+
+
+### Bug Fixes
+
+* **brokers:** record bounced contacts from [#340](https://github.com/drumandbytes/delistd/issues/340) ([#344](https://github.com/drumandbytes/delistd/issues/344)) ([ba67447](https://github.com/drumandbytes/delistd/commit/ba6744777349572361ab1e1486777b4ec92525f5))
+
 ## [2.7.8](https://github.com/drumandbytes/delistd/compare/v2.7.7...v2.7.8) (2026-11-28)
 
 
