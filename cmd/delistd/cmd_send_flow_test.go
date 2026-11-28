@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/drumandbytes/delistd/internal/history"
 	"github.com/drumandbytes/delistd/internal/smtptest"
@@ -56,6 +57,19 @@ func TestSendDryRunAndReal(t *testing.T) {
 	mustContain(t, out, `Nothing to send - no brokers match status "eligible"`)
 	out, _ = e.run(t, "", "send", "--broker", "acme", "--resend")
 	mustContain(t, out, "Complete: 1 sent")
+}
+
+func TestSendDryRunSkipsRateLimit(t *testing.T) {
+	rl := smtptest.Start(t)
+	cfg := strings.Replace(relayConfig(rl, ""), "rate_limit_ms: 1\n", "rate_limit_ms: 60000\n", 1)
+	e := newCLIEnv(t, cfg)
+	start := time.Now()
+	if _, err := e.run(t, "", "send", "--dry-run"); err != nil {
+		t.Fatal(err)
+	}
+	if d := time.Since(start); d > 10*time.Second {
+		t.Fatalf("dry run took %v, it should not wait on rate_limit_ms", d)
+	}
 }
 
 func TestSendSkipsBrokersOutsideCountryScope(t *testing.T) {

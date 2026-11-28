@@ -191,10 +191,14 @@ func applyDailyCap(store *history.Store, cfg *config.Config, activeProfile confi
 // email) and prints what happened.
 func sendLoop(cfg *config.Config, activeProfile config.NamedProfile, emailCfg config.EmailConfig, brokers []broker.Broker, tmplEngine *template.Engine, sender *email.SMTPSender, store *history.Store) error {
 	dry := cfg.Options.DryRun
-	var subject string // of the email a dry run just rendered
+	var subject string          // of the email a dry run just rendered
+	var rateLimit time.Duration // nothing is sent in a dry run, so nothing to pace
+	if !dry {
+		rateLimit = time.Duration(cfg.Options.RateLimitMs) * time.Millisecond
+	}
 	batch := &email.Batch{
 		Sender: sender, Engine: tmplEngine, Template: cfg.Options.Template, Profile: activeProfile, From: emailCfg.From,
-		RateLimit: time.Duration(cfg.Options.RateLimitMs) * time.Millisecond,
+		RateLimit: rateLimit,
 		Budget:    -1, // the daily cap already trimmed the list
 		Before: func(i int, b broker.Broker, _, _ int) {
 			fmt.Printf("[%d/%d] %s (%s)\n", i+1, len(brokers), b.Name, b.Email)
