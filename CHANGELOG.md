@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.7](https://github.com/drumandbytes/delistd/compare/v2.7.6...v2.7.7) (2026-11-28)
+
+
+### Bug Fixes
+
+* **deps:** bump gobwas/ws to 1.5.0 for GO-2026-6940 ([#342](https://github.com/drumandbytes/delistd/issues/342)) ([672c035](https://github.com/drumandbytes/delistd/commit/672c0355edec82e8574588be7442f90b57d4a52d))
+
 ## [2.7.6](https://github.com/drumandbytes/delistd/compare/v2.7.5...v2.7.6) (2026-11-21)
 
 
