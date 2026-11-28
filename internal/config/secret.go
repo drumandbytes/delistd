@@ -34,8 +34,10 @@ const (
 	saltSize       = 16
 )
 
-// machineID returns a stable per-machine identifier. Replaceable in tests.
-var machineID = readMachineID
+// machineID returns a stable per-machine identifier. Read once per process:
+// on macOS that is an ioreg subprocess, and every stored password asks for it.
+// Replaceable in tests.
+var machineID = sync.OnceValues(readMachineID)
 
 // machineSecret is the machine-and-user binding both key schemes start from.
 // It always yields something: the machine ID, else the hostname.
