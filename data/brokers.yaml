@@ -1117,11 +1117,12 @@ brokers:
       category: marketing
     - id: claritas
       name: CLARITAS LLC
-      email: al.gadbut@claritas.com
+      email: ""
       website: https://www.claritas.com/
       opt_out_url: https://privacyportal.onetrust.com/webform/68582716-6ce4-4f6e-bf08-78371b5f3292/6c7dc52d-0e2b-481f-9256-0755179e3783
       region: us
       category: marketing
+      notes: '2026-11-26: Listed mailbox rejected external mail (550 5.7.134). Claritas directs consumers to the linked form for access, correction, and deletion.'
       parent: Claritas, LLC
       verification: Verification steps vary by how you submit; it cannot respond if it cannot verify your identity
       sources:
@@ -1181,10 +1182,10 @@ brokers:
       website: https://www.collectivedata.io/
       opt_out_url: https://www.collectivedata.io/opt-out-do-not-sell-request-process/
       region: us
-      category: device-id-only
-      notes: Opt-out form (collectivedata.io) requires a Mobile Advertising ID and notes requests are device-specific; no name/email path offered.
+      category: marketing
+      notes: The opt-out form accepts an email address or name and mailing address as alternatives to a device identifier. Requests using a device ID are device-specific.
       parent: Collective Data Solutions, LLC
-      verification: Its opt-out form asks for your full name, mailing address and a mobile advertising ID or connected-TV ID
+      verification: Choose at least one identification method in the form; identity verification may be required before data is released.
       sources:
         - https://www.collectivedata.io/opt-out-do-not-sell-request-process/
       researched: "2026-10-25"
@@ -3571,11 +3572,15 @@ brokers:
       notes: Auto-reply says this address "cannot accept consumer privacy rights requests" (2026-08-21) - use the portal form, or call 1-800-327-2720.
     - id: peopleconnect
       name: Peopleconnect, Inc.
-      email: brad.toney@peopleconnect.us
+      email: privacy@peopleconnect.us
       website: https://www.peopleconnect.us/
-      opt_out_url: https://suppression.peopleconnect.us/privacy-center
+      opt_out_url: https://suppression.peopleconnect.us/
       region: us
       category: marketing
+      notes: '2026-11-26: The former employee address bounced downstream (550 5.4.1). The official Privacy Center lists the privacy mailbox for rights requests. Use the Suppression Tool for people-search listings; deleting Privacy Center user data can remove existing suppressions.'
+      sources:
+        - https://suppression.peopleconnect.us/privacy-center
+        - https://suppression.peopleconnect.us/
     - id: people-data-labs
       name: People Data Labs, Inc.
       email: privacy@peopledatalabs.com
