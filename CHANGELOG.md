@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.7.9](https://github.com/drumandbytes/delistd/compare/v2.7.8...v2.7.9) (2026-11-28)
+
+
+### Bug Fixes
+
+* **brokers:** record bounced contacts from [#340](https://github.com/drumandbytes/delistd/issues/340) ([#344](https://github.com/drumandbytes/delistd/issues/344)) ([ba67447](https://github.com/drumandbytes/delistd/commit/ba6744777349572361ab1e1486777b4ec92525f5))
+
+## [2.7.8](https://github.com/drumandbytes/delistd/compare/v2.7.7...v2.7.8) (2026-11-28)
+
+
+### Bug Fixes
+
+* **brokers:** update broken privacy contacts and opt-out instructions ([#341](https://github.com/drumandbytes/delistd/issues/341)) ([7e03690](https://github.com/drumandbytes/delistd/commit/7e0369094fa0529dbef0f19d36086e17a79f0d04))
+
+## [2.7.7](https://github.com/drumandbytes/delistd/compare/v2.7.6...v2.7.7) (2026-11-28)
+
+
+### Bug Fixes
+
+* **deps:** bump gobwas/ws to 1.5.0 for GO-2026-6940 ([#342](https://github.com/drumandbytes/delistd/issues/342)) ([672c035](https://github.com/drumandbytes/delistd/commit/672c0355edec82e8574588be7442f90b57d4a52d))
+
 ## [2.7.6](https://github.com/drumandbytes/delistd/compare/v2.7.5...v2.7.6) (2026-11-21)
 
 
