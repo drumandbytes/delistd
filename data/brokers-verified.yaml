@@ -19,12 +19,12 @@ brokers:
       notes: Well-known data broker with a published first-party privacy channel; contact email changed to askprivacy@acxiom.com (2026-11-06).
     - id: advancedbackgroundchecks
       name: AdvancedBackgroundChecks
-      email: privacy@advancedbackgroundchecks.com
+      email: ""
       website: https://www.advancedbackgroundchecks.com
-      opt_out_url: https://www.advancedbackgroundchecks.com/removal
+      opt_out_url: https://www.advancedbackgroundchecks.com/opt-out
       region: us
       category: background-check
-      notes: 'SWEEP-VERIFY 2026-09-13: No oag.ca.gov historical registration found under this name in a targeted search - kept on the strength of its own current, working privacy contact, not registry provenance. 2026-11-26: privacy@advancedbackgroundchecks.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url.'
+      notes: 'SWEEP-VERIFY 2026-09-13: No oag.ca.gov historical registration found under this name in a targeted search - kept on the strength of its own current, working privacy contact, not registry provenance. 2026-11-26: privacy@advancedbackgroundchecks.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url. 2026-11-28: No email channel; email cleared after 550 5.4.1 rejection. Web form only (name and email, then a 24-hour verification link and CAPTCHA); the site blocks non-US IPs and automated browsers.'
     - id: alliant-cooperative-data-solutions
       name: Alliant Cooperative Data Solutions LLC
       email: compliance@alliantdata.com
@@ -313,12 +313,12 @@ brokers:
       notes: 'SWEEP-VERIFY 2026-09-13: Confirmed data-broker registration: https://oag.ca.gov/data-broker/registration/186697.'
     - id: usphonebook
       name: USPhonebook
-      email: info@usphonebook.com
+      email: ""
       website: https://www.usphonebook.com
-      opt_out_url: https://www.usphonebook.com/opt-out
+      opt_out_url: https://www.usphonebook.com/removal
       region: us
       category: people-search
-      notes: 'SWEEP-VERIFY 2026-09-13: No oag.ca.gov historical registration found under this name in a targeted search - kept on the strength of its own current, working privacy contact, not registry provenance. 2026-11-26: info@usphonebook.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url.'
+      notes: 'SWEEP-VERIFY 2026-09-13: No oag.ca.gov historical registration found under this name in a targeted search - kept on the strength of its own current, working privacy contact, not registry provenance. 2026-11-26: info@usphonebook.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url. 2026-11-28: No email opt-out; email cleared after 550 5.4.1 rejection. Web form only (allows authorized agents), then a 24-hour email confirmation link; the site blocks non-US IPs and automated browsers.'
     - id: versium-analytics
       name: Versium Analytics, Inc
       email: optout@versium.com

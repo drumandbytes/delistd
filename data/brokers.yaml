@@ -58,12 +58,12 @@ brokers:
       category: people-search
     - id: usphonebook
       name: USPhonebook
-      email: info@usphonebook.com
+      email: ""
       website: https://www.usphonebook.com
-      opt_out_url: https://www.usphonebook.com/opt-out
+      opt_out_url: https://www.usphonebook.com/removal
       region: us
       category: people-search
-      notes: '2026-11-26: info@usphonebook.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url.'
+      notes: '2026-11-26: info@usphonebook.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url. 2026-11-28: No email opt-out; email cleared after 550 5.4.1 rejection. Web form only (allows authorized agents), then a 24-hour email confirmation link; the site blocks non-US IPs and automated browsers.'
     - id: thatsthem
       name: ThatsThem
       email: support@thatsthem.com
@@ -129,12 +129,12 @@ brokers:
       notes: Email privacy@addresses.com hard-bounced (2026-08-23) - recipient server rejected all delivery attempts.
     - id: advancedbackgroundchecks
       name: AdvancedBackgroundChecks
-      email: privacy@advancedbackgroundchecks.com
+      email: ""
       website: https://www.advancedbackgroundchecks.com
       opt_out_url: https://www.advancedbackgroundchecks.com/opt-out
       region: us
       category: background-check
-      notes: '2026-11-26: privacy@advancedbackgroundchecks.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url.'
+      notes: '2026-11-26: privacy@advancedbackgroundchecks.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url. 2026-11-28: No email channel; email cleared after 550 5.4.1 rejection. Web form only (name and email, then a 24-hour verification link and CAPTCHA); the site blocks non-US IPs and automated browsers.'
     - id: publicrecords360
       name: PublicRecords360
       email: custserv@publicrecords360.com
@@ -513,11 +513,11 @@ brokers:
       notes: legal@alikeaudience.com replied that address is no longer in use and gave privacy@alikeaudience.com as the current one (reply received 2026-08-20).
     - id: all-global-resources
       name: All Global Resources, LLC
-      email: privacy@agrgroupinc.com
+      email: info@agrgroupinc.com
       website: https://www.agrgroupinc.com/
       region: us
       category: marketing
-      notes: 'drieke@executiveenergy.com bounced - Gmail''s own delivery failure confirmed the executiveenergy.com domain can''t be found (not just a one-off DNS blip). All Global Resources operates as AGR Group under parent Executive Energy Management; agrgroupinc.com is live and privacy@agrgroupinc.com is their officially CA-registered contact per oag.ca.gov. Updated 2026-08-20. 2026-11-26: privacy@agrgroupinc.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; no form on file.'
+      notes: 'drieke@executiveenergy.com bounced - Gmail''s own delivery failure confirmed the executiveenergy.com domain can''t be found (not just a one-off DNS blip). All Global Resources operates as AGR Group under parent Executive Energy Management; agrgroupinc.com is live and privacy@agrgroupinc.com is their officially CA-registered contact per oag.ca.gov. Updated 2026-08-20. 2026-11-26: privacy@agrgroupinc.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; no form on file. 2026-11-28: privacy@ is dead (550 5.4.1); info@ is the general company contact from third-party directories, untested.'
     - id: all-good-media
       name: All Good Media LLC
       email: marwan@attribits.com
