@@ -53,19 +53,6 @@
     </nav>
 
     <main id="main" tabindex="-1" class="max-w-6xl mx-auto pb-12 pt-8 px-4">
-        {{with .UpgradeNotice}}
-        <div class="mb-6 notice" role="status">
-            <div class="notice-icon" aria-hidden="true">{{icon "check" "w-5 h-5"}}</div>
-            <div class="notice-body">
-                <p class="notice-title">Config upgraded to 2.0</p>
-                <p class="notice-text">Your 1.x config was migrated: countries are now ISO codes and mail passwords are encrypted. The original is saved as <code title="{{.Backup}}">{{.BackupName}}</code> next to your config, with passwords blanked. Delete it when you're happy.</p>
-                <p class="notice-hint">Moved to a new machine? Re-enter your mail passwords in Settings.</p>
-            </div>
-            <form method="POST" action="/upgrade-notice/dismiss">
-                <button type="submit" class="notice-dismiss" aria-label="Dismiss this notice" title="Dismiss">{{icon "close" "w-5 h-5"}}</button>
-            </form>
-        </div>
-        {{end}}
         {{template "content" .}}
     </main>
 

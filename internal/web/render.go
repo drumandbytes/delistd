@@ -153,7 +153,6 @@ func (s *Server) renderWithCSRF(w http.ResponseWriter, r *http.Request, name str
 	data["ActiveProfile"] = config.NamedProfile{}
 	data["CurrentPath"] = r.URL.Path
 	data["Version"] = Version
-	data["UpgradeNotice"] = s.upgradeNotice()
 	if cfg := s.getConfig(); cfg != nil {
 		data["Profiles"] = cfg.GetProfiles()
 		data["ActiveProfile"] = s.activeProfile(r)

@@ -63,15 +63,6 @@ body {
 button:active, .btn:active { transform: translateY(1px); }
 
 /* ---- Notices ---- */
-.notice { display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow); }
-.notice-icon { flex: none; width: 32px; height: 32px; border-radius: var(--radius-control); display: flex; align-items: center; justify-content: center; background: var(--accent-muted); color: var(--accent); }
-.notice-body { flex: 1; min-width: 0; }
-.notice-title { margin: 0; font-family: var(--font-display); font-size: var(--fs-base); font-weight: 600; color: var(--text-primary); }
-.notice-text { margin: 4px 0 0; font-size: var(--fs-sm); line-height: 1.55; color: var(--text-secondary); }
-.notice-hint { margin: 6px 0 0; font-size: var(--fs-caption); color: var(--text-muted); }
-.notice code { padding: 1px 6px; font-size: var(--fs-caption); color: var(--text-primary); background: var(--bg-elevated); border-radius: var(--radius-sm); white-space: nowrap; }
-.notice-dismiss { flex: none; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; border: 0; border-radius: var(--radius-control); cursor: pointer; transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out); }
-.notice-dismiss:hover { background: var(--bg-elevated); color: var(--text-primary); }
 
 /* ---- Surfaces ---- */
 .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow); }

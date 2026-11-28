@@ -65,7 +65,6 @@ func (s *Server) pageRoutes() []route {
 
 		{mGet, "/unlock", s.handleUnlock},
 		{mPost, "/unlock", s.handleUnlock},
-		{mPost, "/upgrade-notice/dismiss", s.handleDismissUpgradeNotice},
 
 		{mGet, "/settings", s.handleSettings},
 		{mPost, "/settings/passphrase", s.handleSettingsPassphrase},
