@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.8](https://github.com/drumandbytes/delistd/compare/v2.7.7...v2.7.8) (2026-11-28)
+
+
+### Bug Fixes
+
+* **brokers:** update broken privacy contacts and opt-out instructions ([#341](https://github.com/drumandbytes/delistd/issues/341)) ([7e03690](https://github.com/drumandbytes/delistd/commit/7e0369094fa0529dbef0f19d36086e17a79f0d04))
+
 ## [2.7.7](https://github.com/drumandbytes/delistd/compare/v2.7.6...v2.7.7) (2026-11-28)
 
 
