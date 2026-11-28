@@ -1,0 +1,588 @@
+{
+ "full/autocomplete": {
+  "Success": true,
+  "FieldsFilled": [
+   "address",
+   "city",
+   "dateOfBirth",
+   "email",
+   "firstName",
+   "lastName",
+   "phone",
+   "zipCode"
+  ],
+  "FieldsMissing": [],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "p1": "J\u0026#257;nis",
+   "p2": "O'Brien-Smith",
+   "p3": "janis@example.com",
+   "p4": "+371 20000000",
+   "p5": "12 \"Main\" St\\n Apt 4",
+   "p6": "R\u0026#299;ga",
+   "p7": "LV-1010",
+   "p8": "1990-05-17"
+  }
+ },
+ "full/camel": {
+  "Success": true,
+  "FieldsFilled": [
+   "address",
+   "city",
+   "country",
+   "dateOfBirth",
+   "email",
+   "firstName",
+   "lastName",
+   "phone",
+   "state",
+   "zipCode"
+  ],
+  "FieldsMissing": [],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "address1": "12 \"Main\" St\\n Apt 4",
+   "country": "United States",
+   "dateOfBirth": "1990-05-17",
+   "email": "janis@example.com",
+   "firstName": "J\u0026#257;nis",
+   "lastName": "O'Brien-Smith",
+   "phone": "+371 20000000",
+   "postalCode": "LV-1010",
+   "state": "CA"
+  }
+ },
+ "full/empty": {
+  "Success": false,
+  "FieldsFilled": [],
+  "FieldsMissing": [],
+  "FillErrors": [],
+  "SubmitAttempted": false,
+  "Submitted": null
+ },
+ "full/fullname": {
+  "Success": true,
+  "FieldsFilled": [
+   "email",
+   "fullName"
+  ],
+  "FieldsMissing": [],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "address": "",
+   "email": "janis@example.com",
+   "name": "J\u0026#257;nis O'Brien-Smith"
+  }
+ },
+ "full/labels": {
+  "Success": true,
+  "FieldsFilled": [
+   "city",
+   "email",
+   "firstName",
+   "lastName",
+   "phone",
+   "zipCode"
+  ],
+  "FieldsMissing": [],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "x1": "J\u0026#257;nis",
+   "x2": "O'Brien-Smith",
+   "x3": "janis@example.com",
+   "x4": "+371 20000000",
+   "x5": "LV-1010",
+   "x6": "R\u0026#299;ga"
+  }
+ },
+ "full/placeholders": {
+  "Success": true,
+  "FieldsFilled": [
+   "address",
+   "city",
+   "dateOfBirth",
+   "email",
+   "firstName",
+   "lastName",
+   "phone",
+   "state",
+   "zipCode"
+  ],
+  "FieldsMissing": [],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "a1": "J\u0026#257;nis",
+   "a2": "O'Brien-Smith",
+   "a3": "janis@example.com12 \"Main\" St\\n Apt 4",
+   "a4": "+371 20000000",
+   "a5": "",
+   "a6": "R\u0026#299;ga",
+   "a7": "CA",
+   "a8": "LV-1010",
+   "a9": "1990-05-17"
+  }
+ },
+ "full/snake": {
+  "Success": true,
+  "FieldsFilled": [
+   "address",
+   "city",
+   "country",
+   "dateOfBirth",
+   "email",
+   "firstName",
+   "lastName",
+   "phone",
+   "state",
+   "zipCode"
+  ],
+  "FieldsMissing": [],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "city": "R\u0026#299;ga",
+   "country": "US",
+   "dob": "1990-05-17",
+   "first_name": "J\u0026#257;nis",
+   "last_name": "O'Brien-Smith",
+   "mail": "janis@example.com",
+   "state": "CA",
+   "street": "12 \"Main\" St\\n Apt 4",
+   "tel_no": "+371 20000000",
+   "zip_code": "LV-1010"
+  }
+ },
+ "full/traps": {
+  "Success": true,
+  "FieldsFilled": [
+   "city",
+   "email"
+  ],
+  "FieldsMissing": [],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "city": "",
+   "email": "",
+   "first_name": "",
+   "last_name": "",
+   "mail_visible": "janis@example.com",
+   "state": "ZZ"
+  }
+ },
+ "nevada/autocomplete": {
+  "Success": true,
+  "FieldsFilled": [
+   "address",
+   "email",
+   "firstName",
+   "lastName"
+  ],
+  "FieldsMissing": [
+   "city",
+   "dateOfBirth",
+   "phone",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "p1": "A",
+   "p2": "B",
+   "p3": "a@b.example",
+   "p4": "",
+   "p5": "line1 line2",
+   "p6": "",
+   "p7": "",
+   "p8": ""
+  }
+ },
+ "nevada/camel": {
+  "Success": true,
+  "FieldsFilled": [
+   "address",
+   "country",
+   "email",
+   "firstName",
+   "lastName",
+   "state"
+  ],
+  "FieldsMissing": [
+   "city",
+   "dateOfBirth",
+   "phone",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "address1": "line1 line2",
+   "country": "Latvia",
+   "dateOfBirth": "",
+   "email": "a@b.example",
+   "firstName": "A",
+   "lastName": "B",
+   "phone": "",
+   "postalCode": "",
+   "state": "Nevada"
+  }
+ },
+ "nevada/empty": {
+  "Success": false,
+  "FieldsFilled": [],
+  "FieldsMissing": [
+   "city",
+   "dateOfBirth",
+   "phone",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": false,
+  "Submitted": null
+ },
+ "nevada/fullname": {
+  "Success": true,
+  "FieldsFilled": [
+   "email",
+   "fullName"
+  ],
+  "FieldsMissing": [
+   "city",
+   "dateOfBirth",
+   "phone",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "address": "",
+   "email": "a@b.example",
+   "name": "A B"
+  }
+ },
+ "nevada/labels": {
+  "Success": true,
+  "FieldsFilled": [
+   "email",
+   "firstName",
+   "lastName"
+  ],
+  "FieldsMissing": [
+   "city",
+   "dateOfBirth",
+   "phone",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "x1": "A",
+   "x2": "B",
+   "x3": "a@b.example",
+   "x4": "",
+   "x5": "",
+   "x6": ""
+  }
+ },
+ "nevada/placeholders": {
+  "Success": true,
+  "FieldsFilled": [
+   "address",
+   "email",
+   "firstName",
+   "lastName",
+   "state"
+  ],
+  "FieldsMissing": [
+   "city",
+   "dateOfBirth",
+   "phone",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "a1": "A",
+   "a2": "B",
+   "a3": "a@b.exampleline1 line2",
+   "a4": "",
+   "a5": "",
+   "a6": "",
+   "a7": "Nevada",
+   "a8": "",
+   "a9": ""
+  }
+ },
+ "nevada/snake": {
+  "Success": true,
+  "FieldsFilled": [
+   "address",
+   "country",
+   "email",
+   "firstName",
+   "lastName",
+   "state"
+  ],
+  "FieldsMissing": [
+   "city",
+   "dateOfBirth",
+   "phone",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "city": "",
+   "country": "LV",
+   "dob": "",
+   "first_name": "A",
+   "last_name": "B",
+   "mail": "a@b.example",
+   "state": "Nevada",
+   "street": "line1 line2",
+   "tel_no": "",
+   "zip_code": ""
+  }
+ },
+ "nevada/traps": {
+  "Success": true,
+  "FieldsFilled": [
+   "email"
+  ],
+  "FieldsMissing": [
+   "city",
+   "dateOfBirth",
+   "phone",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "city": "locked",
+   "email": "",
+   "first_name": "",
+   "last_name": "",
+   "mail_visible": "a@b.example",
+   "state": "ZZ"
+  }
+ },
+ "sparse/autocomplete": {
+  "Success": true,
+  "FieldsFilled": [
+   "email",
+   "firstName"
+  ],
+  "FieldsMissing": [
+   "address",
+   "city",
+   "country",
+   "dateOfBirth",
+   "lastName",
+   "phone",
+   "state",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "p1": "Only",
+   "p2": "",
+   "p3": "only@example.com",
+   "p4": "",
+   "p5": "",
+   "p6": "",
+   "p7": "",
+   "p8": ""
+  }
+ },
+ "sparse/camel": {
+  "Success": true,
+  "FieldsFilled": [
+   "email",
+   "firstName"
+  ],
+  "FieldsMissing": [
+   "address",
+   "city",
+   "country",
+   "dateOfBirth",
+   "lastName",
+   "phone",
+   "state",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "address1": "",
+   "country": "",
+   "dateOfBirth": "",
+   "email": "only@example.com",
+   "firstName": "Only",
+   "lastName": "",
+   "phone": "",
+   "postalCode": "",
+   "state": ""
+  }
+ },
+ "sparse/empty": {
+  "Success": false,
+  "FieldsFilled": [],
+  "FieldsMissing": [
+   "address",
+   "city",
+   "country",
+   "dateOfBirth",
+   "lastName",
+   "phone",
+   "state",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": false,
+  "Submitted": null
+ },
+ "sparse/fullname": {
+  "Success": true,
+  "FieldsFilled": [
+   "email",
+   "fullName"
+  ],
+  "FieldsMissing": [
+   "address",
+   "city",
+   "country",
+   "dateOfBirth",
+   "lastName",
+   "phone",
+   "state",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "address": "",
+   "email": "only@example.com",
+   "name": "Only "
+  }
+ },
+ "sparse/labels": {
+  "Success": true,
+  "FieldsFilled": [
+   "email",
+   "firstName"
+  ],
+  "FieldsMissing": [
+   "address",
+   "city",
+   "country",
+   "dateOfBirth",
+   "lastName",
+   "phone",
+   "state",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "x1": "Only",
+   "x2": "",
+   "x3": "only@example.com",
+   "x4": "",
+   "x5": "",
+   "x6": ""
+  }
+ },
+ "sparse/placeholders": {
+  "Success": true,
+  "FieldsFilled": [
+   "email",
+   "firstName"
+  ],
+  "FieldsMissing": [
+   "address",
+   "city",
+   "country",
+   "dateOfBirth",
+   "lastName",
+   "phone",
+   "state",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "a1": "Only",
+   "a2": "",
+   "a3": "only@example.com",
+   "a4": "",
+   "a5": "",
+   "a6": "",
+   "a7": "",
+   "a8": "",
+   "a9": ""
+  }
+ },
+ "sparse/snake": {
+  "Success": true,
+  "FieldsFilled": [
+   "email",
+   "firstName"
+  ],
+  "FieldsMissing": [
+   "address",
+   "city",
+   "country",
+   "dateOfBirth",
+   "lastName",
+   "phone",
+   "state",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "city": "",
+   "country": "",
+   "dob": "",
+   "first_name": "Only",
+   "last_name": "",
+   "mail": "only@example.com",
+   "state": "",
+   "street": "",
+   "tel_no": "",
+   "zip_code": ""
+  }
+ },
+ "sparse/traps": {
+  "Success": true,
+  "FieldsFilled": [
+   "email"
+  ],
+  "FieldsMissing": [
+   "address",
+   "city",
+   "country",
+   "dateOfBirth",
+   "lastName",
+   "phone",
+   "state",
+   "zipCode"
+  ],
+  "FillErrors": [],
+  "SubmitAttempted": true,
+  "Submitted": {
+   "city": "locked",
+   "email": "",
+   "first_name": "",
+   "last_name": "",
+   "mail_visible": "only@example.com",
+   "state": "ZZ"
+  }
+ }
+}

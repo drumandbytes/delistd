@@ -1,6 +1,6 @@
 # Web UI and CLI parity
 
-Everything a person needs should be doable from either surface. This is the state after the 2.0 work, and what is deliberately one-sided.
+Everything a person needs should be doable from either surface. What each surface can do, and what is deliberately one-sided.
 
 ## Both
 
@@ -23,7 +23,6 @@ Everything a person needs should be doable from either surface. This is the stat
 | Re-run the reply classifier | `monitor --reclassify` | Pipeline, Reclassify |
 | Clear dead broker addresses (bounces) | `cleanup-bounces [--remove]` | Pipeline, Check bounces, Clear |
 | Drafts to send by hand, in bulk | `draft -o dir` | Brokers, Download drafts (.zip) |
-| Config upgraded from 1.x | message on first run | dismissible notice |
 | Config edited elsewhere | read on each run | reloaded automatically while serving |
 
 ## One-sided today

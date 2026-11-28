@@ -1,10 +1,8 @@
 name: Docker
 
-# Builds the image and smoke-tests it: the distroless delistd image serves the
-# web UI on the published loopback port and still refuses a non-loopback Host,
-# and delistd's browser and MCP test suites run against the stock Chromium image
-# from compose.yaml over the DevTools port. Not a required check; ci.yml covers
-# the Go code itself.
+# Builds the image and smoke-tests it: the web UI answers on the loopback port
+# and refuses a non-loopback Host, and the browser and MCP tests run against the
+# compose Chromium over the DevTools port. Not required; ci.yml covers the Go code.
 
 on:
   pull_request:
@@ -50,8 +48,14 @@ jobs:
       - name: Web UI on loopback, Host check, volume ownership
         run: |
           docker volume create delistd-ci
-          docker run -d --name delistd-ci --read-only --cap-drop ALL -p 127.0.0.1:8080:8080 -v delistd-ci:/home/nonroot/.eraser delistd:ci
+          docker run -d --name delistd-ci --read-only --cap-drop ALL -p 127.0.0.1:8080:8080 -v delistd-ci:/home/nonroot/.delistd delistd:ci
           for _ in $(seq 1 30); do curl -fs -o /dev/null http://localhost:8080/setup && break; sleep 1; done
+          # the image's HEALTHCHECK (delistd healthcheck) turns healthy
+          for _ in $(seq 1 40); do
+            [ "$(docker inspect -f '{{.State.Health.Status}}' delistd-ci)" = healthy ] && break
+            sleep 2
+          done
+          [ "$(docker inspect -f '{{.State.Health.Status}}' delistd-ci)" = healthy ] || { echo "container never became healthy"; docker logs delistd-ci; exit 1; }
           code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/)
           [ "$code" = 302 ] || { echo "GET / = $code, want 302 to /setup"; exit 1; }
           # the image default (lan,local): a private IP or a local name is fine, a public hostname is not
@@ -65,13 +69,13 @@ jobs:
           done
           # an empty setting is strict: only loopback
           docker stop delistd-ci && docker rm delistd-ci
-          docker run -d --name delistd-ci --read-only --cap-drop ALL -e DELISTD_ALLOWED_HOSTS=none -p 127.0.0.1:8080:8080 -v delistd-ci:/home/nonroot/.eraser delistd:ci
+          docker run -d --name delistd-ci --read-only --cap-drop ALL -e DELISTD_ALLOWED_HOSTS=none -p 127.0.0.1:8080:8080 -v delistd-ci:/home/nonroot/.delistd delistd:ci
           for _ in $(seq 1 30); do curl -fs -o /dev/null http://localhost:8080/setup && break; sleep 1; done
           code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: 192.168.1.20:8080' http://localhost:8080/)
           [ "$code" = 403 ] || { echo "strict Host = $code, want 403"; exit 1; }
           # * accepts anything
           docker stop delistd-ci && docker rm delistd-ci
-          docker run -d --name delistd-ci --read-only --cap-drop ALL -e DELISTD_ALLOWED_HOSTS="*" -p 127.0.0.1:8080:8080 -v delistd-ci:/home/nonroot/.eraser delistd:ci
+          docker run -d --name delistd-ci --read-only --cap-drop ALL -e DELISTD_ALLOWED_HOSTS="*" -p 127.0.0.1:8080:8080 -v delistd-ci:/home/nonroot/.delistd delistd:ci
           for _ in $(seq 1 30); do curl -fs -o /dev/null http://localhost:8080/setup && break; sleep 1; done
           code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: evil.example.com' http://localhost:8080/)
           [ "$code" = 302 ] || { echo "allowed Host = $code, want 302 to /setup"; exit 1; }

@@ -1,8 +1,6 @@
 package history
 
 import (
-	"fmt"
-	"sort"
 	"strings"
 )
 
@@ -99,8 +97,8 @@ func responseWhere(profileID string, q ResponseQuery) (string, []any) {
 	}
 	if search := strings.TrimSpace(q.Search); search != "" {
 		// Match Unicode case-insensitively, with %, _ and backslashes treated literally.
-		where += ` AND (eraser_contains(broker_name, ?) OR eraser_contains(broker_id, ?) OR
-			eraser_contains(email_from, ?) OR eraser_contains(email_subject, ?) OR eraser_contains(email_body, ?))`
+		where += ` AND (delistd_contains(broker_name, ?) OR delistd_contains(broker_id, ?) OR
+			delistd_contains(email_from, ?) OR delistd_contains(email_subject, ?) OR delistd_contains(email_body, ?))`
 		for range 5 {
 			args = append(args, search)
 		}
@@ -111,7 +109,7 @@ func responseWhere(profileID string, q ResponseQuery) (string, []any) {
 func (s *Store) QueryBrokerResponses(profileID string, q ResponseQuery) ([]BrokerResponse, int, error) {
 	where, args := responseWhere(profileID, q)
 	var total int
-	if err := s.db.QueryRow(`SELECT COUNT(*) FROM broker_responses WHERE `+where, args...).Scan(&total); err != nil {
+	if err := s.queryRow(`SELECT COUNT(*) FROM broker_responses WHERE `+where, args...).Scan(&total); err != nil {
 		return nil, 0, err
 	}
 	rows, err := s.queryBrokerResponses(`SELECT `+brokerResponseCols+` FROM broker_responses WHERE `+where+` ORDER BY received_at DESC, id DESC LIMIT ? OFFSET ?`, append(args, q.Limit, q.Offset)...)
@@ -122,7 +120,7 @@ func (s *Store) QueryBrokerResponses(profileID string, q ResponseQuery) ([]Broke
 // email text without loading every body into the web response.
 func (s *Store) MatchingResponseIDs(profileID, search string) (map[int64]bool, error) {
 	where, args := responseWhere(profileID, ResponseQuery{Search: search})
-	rows, err := s.db.Query(`SELECT id FROM broker_responses WHERE `+where, args...)
+	rows, err := s.query(`SELECT id FROM broker_responses WHERE `+where, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -136,33 +134,4 @@ func (s *Store) MatchingResponseIDs(profileID, search string) (map[int64]bool, e
 		ids[id] = true
 	}
 	return ids, rows.Err()
-}
-
-// LatestRequests uses the same most-recent-send ordering as status updates.
-// Historical sends do not inflate stage counters or their drill-down lists.
-func (s *Store) LatestRequests(profileID string) ([]Record, error) {
-	all, err := s.GetAllRequests(profileID)
-	if err != nil {
-		return nil, fmt.Errorf("latest pipeline requests: %w", err)
-	}
-	sort.Slice(all, func(i, j int) bool {
-		if all[i].SentAt.Equal(all[j].SentAt) {
-			return all[i].ID < all[j].ID
-		}
-		return all[i].SentAt.Before(all[j].SentAt)
-	})
-	seen := make(map[string]bool)
-	var latest []Record
-	for i := len(all) - 1; i >= 0; i-- {
-		r := all[i]
-		if seen[r.BrokerID] {
-			continue
-		}
-		seen[r.BrokerID] = true
-		if r.PipelineStatus == "" {
-			r.PipelineStatus = PipelineEmailSent
-		}
-		latest = append(latest, r)
-	}
-	return latest, nil
 }

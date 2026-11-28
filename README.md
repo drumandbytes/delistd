@@ -7,285 +7,118 @@
 [![Go Version](https://img.shields.io/github/go-mod/go-version/drumandbytes/delistd)](go.mod)
 [![Docker image](https://img.shields.io/badge/ghcr.io-drumandbytes%2Fdelistd-2496ED?logo=docker&logoColor=white)](https://github.com/drumandbytes/delistd/pkgs/container/delistd)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-**Take back your privacy.** Delistd sends data removal requests to 700+ data brokers on your behalf — for free.
+**Your data is traded. You can ask for it back.** Delistd sends removal requests to 1,000+ data brokers worldwide from your own mailbox: free, open source, and your details stay on your computer.
+
+Coverage is worldwide, not only the US and EU/EEA: the list now includes regional brokers, directories and people-search sites across Europe, the UK, Canada, Latin America, Africa, Asia and Oceania. Many entries only apply to people in one country (the list hides the rest for your profile), and credit bureaus are listed so you can ask for access and correction, not because they will delete real credit history.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset=".github/images/dashboard-dark.png">
   <img src=".github/images/dashboard-light.png" alt="Delistd dashboard" width="800">
 </picture>
 
-You know those sites like Spokeo, BeenVerified, and Whitepages that have your home address, phone number, and family members' names? They're called data brokers, and there are hundreds of them. Services like Incogni and DeleteMe charge $100+/year to send opt-out requests to these companies. Delistd does the same thing, but it's open source and completely free.
+Brokers such as Spokeo, BeenVerified and Whitepages collect home addresses, phone numbers and relatives' names, and sell them on, usually without people knowing. There are hundreds of them. Services like Incogni and DeleteMe send the opt-out requests for $100+ a year and hold your details to do it. Delistd sends the same requests from your own email account, so nothing is held by anyone but you.
 
-📖 **[delistd.dev](https://delistd.dev/?ref=delistd-readme)** — broker directory, opt-out guides, and the list of EU/EEA data protection authorities.
-🔗 [More Drumandbytes projects](https://drumandbytes.com/projects/?ref=delistd-readme)
+[delistd.dev](https://delistd.dev/?ref=delistd-readme) has the broker directory, opt-out guides and the list of EU/EEA data protection authorities. [More Drumandbytes projects](https://drumandbytes.com/projects/?ref=delistd-readme).
 
 <a href="https://alternativeto.net/software/delistd/about/?utm_source=badge&utm_medium=referral" target="_blank"><img src="https://alternativeto.net/static/badges/badge-wide-color.svg" alt="delistd | AlternativeTo" width="320"></a>
 
-**New here and not technical? Start with the [step-by-step setup guide](docs/getting-started.md).** It covers downloading Delistd, creating a Gmail app password, and the setup wizard, with a fix for every common error.
+**Not technical? Start with the [step-by-step setup guide](docs/getting-started.md)**: downloading Delistd, a Gmail app password, the setup wizard, and a fix for every common error.
 
-> **Eraser is now Delistd.** Same project, new name (the old one was too generic to find). Nothing breaks: the `eraser` command, the `ERASER_*` environment variables, the `ghcr.io/drumandbytes/eraser` image and your `~/.eraser` data all keep working for now, with a notice. `brew upgrade` moves you to the `delistd` cask. The old names go away in the next major release; see [docs/stability.md](docs/stability.md#the-eraser--delistd-rename).
+> Formerly Eraser. Upgrading from 2.x? The `eraser` command, `ERASER_*` variables and `ghcr.io/drumandbytes/eraser` image are gone in 3.0; your data is unchanged. See [docs/upgrading-to-3.0.md](docs/upgrading-to-3.0.md).
 
-> **Upgrading from 1.x?** 2.0 stores your profile's country as an ISO code, encrypts your mail passwords (with an optional passphrase), skips country-specific brokers that don't apply to you, and removes a few old settings. Your config is upgraded automatically on first run and the original is kept as `config.yaml.1x.bak`. See the [upgrade guide](docs/upgrading-to-2.0.md).
+## What to expect
 
-### What to Expect
+Many brokers act on the email alone. Others reply with a confirmation link, an opt-out form or an identity check. Delistd sends the emails, reads the replies, and shows exactly what needs you (the Pipeline and Tasks pages, or `delistd pipeline`). It is not fully automated, but it does the tedious part: 1,000+ emails and tracking every reply.
 
-**The good:** Delistd automatically sends removal request emails to 700+ data brokers. Many brokers process these requests automatically—you send the email, they remove your data, done.
+- **Most brokers comply.** GDPR and CCPA oblige them, and many honour requests anyway.
+- **It takes time.** Brokers have 30-45 days depending on the law.
+- **Repeat it.** Brokers re-list you as they buy and sell data. Delistd re-sends 25 days after a broker's last request (`delistd schedule install` automates it).
 
-**The reality:** Some brokers require additional steps. They might send you a confirmation link to click, ask you to fill out a form on their website, or request identity verification. Delistd tracks these responses and shows you exactly what needs manual attention.
+## Install
 
-**The bottom line:** You're not paying $100+/year, and you're taking real action to protect your privacy. Even with some manual steps, Delistd handles the heavy lifting and gives you a fighting chance against the data broker industry.
+| | |
+|---|---|
+| **Homebrew** (macOS, Linux with cask support) | `brew tap drumandbytes/tap && brew install --cask drumandbytes/tap/delistd`. If Homebrew 6+ asks you to trust the tap, run `brew trust drumandbytes/tap` and retry. |
+| **Prebuilt binary** | Download your OS's file from [Releases](https://github.com/drumandbytes/delistd/releases); the broker list is built in. Windows: the `.exe` or `.zip`. macOS/Linux: `tar xzf` and run `./delistd`. The macOS binary is unsigned: right-click, *Open* once, or `xattr -dr com.apple.quarantine ./delistd`. |
+| **Docker** | `docker compose up -d`, then open <http://localhost:8080>; or pull `ghcr.io/drumandbytes/delistd`. Keep the port published to `127.0.0.1`: the web UI has no login. Data, backups, LAN access and scheduling: [docs/docker.md](docs/docker.md). |
+| **From source** | With [Go](https://go.dev/dl/): `git clone https://github.com/drumandbytes/delistd.git && cd delistd && go build -o delistd ./cmd/delistd` (on Windows, `-o delistd.exe`). |
 
----
+`delistd fill` and `delistd confirm` (browser automation for opt-out forms) need Chrome or Chromium; nothing else does.
 
-## The Easy Way (Web Interface)
+## Quick start
 
-If you're not comfortable with command-line tools, Delistd has a visual interface that runs in your web browser.
+**Web interface:** run `./delistd serve` (Windows: `.\delistd.exe serve`) and open <http://localhost:8080>. The wizard asks for the details brokers need to find your records and sets up email; then you can browse brokers, send one by one or in bulk, track status, exclude brokers, mark bounces, export an evidence report for a complaint to your data protection authority, and add brokers of your own. Setup takes about ten minutes.
 
-### What You'll Need
-
-1. **Delistd itself**: install with Homebrew, or download the file for your OS from [Releases](https://github.com/drumandbytes/delistd/releases). No Go needed, unless you want to build from source.
-2. An **email account** to send from: Gmail, Proton Mail (via Bridge), Fastmail, mailbox.org, Posteo, iCloud, Amazon SES, or any provider with SMTP access (setup instructions below)
-
-### Getting Started
-
-**Step 1: Get Delistd**
-
-**Homebrew (macOS, and Linux where cask support is available):**
+**Command line:**
 
 ```bash
-brew tap drumandbytes/tap
-brew install --cask drumandbytes/tap/delistd
+./delistd init            # interactive setup
+./delistd send --dry-run  # preview; nothing is sent
+./delistd send            # send to every broker that is due
+./delistd status          # history and stats
 ```
 
-Homebrew 6+ asks you to trust a third-party tap once — if it does, run
-`brew trust drumandbytes/tap` and re-run the install. The cask removes macOS's
-Gatekeeper quarantine from the (unsigned) binary after install, so there's no
-"Open Anyway" step. If `brew` on your Linux setup doesn't do casks, use the
-tarball below.
+Everything in the web interface has a command-line twin and the other way round (apart from a few maintainer commands and `confirm`): [docs/ui-cli-parity.md](docs/ui-cli-parity.md).
 
-**Prebuilt binary:** grab your OS's file from the
-[Releases page](https://github.com/drumandbytes/delistd/releases) — the broker
-list is baked in, nothing to install:
+## Email account
 
-- **Windows** — `..._windows_amd64.exe` (run it directly) or the `.zip` (also has
-  the README and `config.example.yaml`).
-- **macOS / Linux** — `..._<os>_<arch>.tar.gz`; `tar xzf` it and run `./delistd`.
-
-- **macOS:** the binary is unsigned, so Gatekeeper will block it on first run.
-  Either right-click it → *Open* → *Open*, or run
-  `xattr -dr com.apple.quarantine ./delistd` once.
-- **Windows:** the archive contains `delistd.exe`.
-- `delistd fill` and `delistd confirm` (browser automation for opt-out forms) need
-  Chrome or Chromium installed; nothing else does.
-
-**Build from source** (needs [Go](https://go.dev/dl/)):
-
-```bash
-git clone https://github.com/drumandbytes/delistd.git
-cd delistd
-go build -o delistd ./cmd/delistd
-```
-
-Or install the current `main` straight from the module path (the broker list is baked in; the binary reports its version as `dev`):
-
-```bash
-go install github.com/drumandbytes/delistd/cmd/delistd@main
-```
-
-`@latest` doesn't work: Go only resolves v2+ tags for a module path ending in `/v2`, and this module's path doesn't. For a tagged release use Homebrew, the Docker image or a [release download](https://github.com/drumandbytes/delistd/releases).
-
-On Windows, build it as `delistd.exe` (`go build -o delistd.exe ./cmd/delistd`) —
-Windows won't run a downloaded file with no extension.
-
-**Docker** (distroless image; add `--profile browser` for headless Chromium and `fill`):
-
-```bash
-git clone https://github.com/drumandbytes/delistd.git
-cd delistd
-docker compose up -d   # then open http://localhost:8080
-```
-
-Keep the port published to `127.0.0.1` as `compose.yaml` does: the web UI has
-no login. Releases also publish the image as `ghcr.io/drumandbytes/delistd`
-(`linux/amd64`, `linux/arm64`; tags `v2.2.0`, `2.2` and `latest`), so you can pull
-it instead of building. Data, backups, CLI commands, scheduling and the pull
-setup are covered in [docs/docker.md](docs/docker.md).
-
-**Opening the web UI from another machine** (a NAS, Unraid or home server): the web UI
-only answers requests whose address it recognises, as a guard against DNS rebinding.
-From 2.4 the image accepts `localhost`, private IPs and local names, so
-`http://192.168.1.5:8080` and `http://tower:8080` work once the port is published on
-your LAN. Do that only on a network you trust, because the UI has no login. If you
-get `Forbidden: this server only accepts requests addressed to localhost`, the address
-you typed isn't allowed; list it in `DELISTD_ALLOWED_HOSTS`:
-
-```yaml
-    environment:
-      # private IPs and local names, plus your own hostname behind a reverse proxy
-      DELISTD_ALLOWED_HOSTS: "lan,local,delistd.example.com"
-```
-
-`*` accepts any address (use it only behind something that already controls access),
-and an empty value allows `localhost` only. Older images (before 2.4) refuse everything
-but `localhost`; an SSH tunnel (`ssh -L 8080:localhost:8080 server`) works with any version.
-
-**Step 2: Start the Web Interface**
-
-```bash
-./delistd serve
-```
-
-On Windows, run `.\delistd.exe serve` instead.
-
-Open your browser and go to `http://localhost:8080`
-
-**Step 3: Complete the Setup Wizard**
-
-The wizard walks you through entering your personal information (the data brokers need this to find your records) and setting up email. Just follow the prompts.
-
-**Step 4: Send Removal Requests**
-
-From the dashboard, you can:
-- Browse the list of 700+ data brokers
-- Send requests one at a time or in bulk
-- Track which requests have been sent and their status
-- Exclude a broker from sends with one click (and bring it back later) - useful for a broker you'd rather skip, e.g. one that demands ID verification
-- Mark a sent request as bounced, so it's retried on the next send
-- Download an evidence report of every request and reply (History → Export evidence) for a complaint to your data protection authority
-- Fetch the latest broker list (Settings → Broker List)
-- Add a broker that's missing from the list (Brokers → + Add broker) - kept on your machine and never removed by a list update
-
-That's it. The whole process takes about 10 minutes to set up, and then Delistd handles the rest.
-
-### Setting Up Your Email Account
-
-Delistd sends removal requests from your own email account over SMTP, and can read replies over IMAP. Pick your provider in the setup wizard (or `delistd init`) and it fills in the servers. You only enter your address and an **app password**, a separate password your provider generates for apps like Delistd. Never use your main account password.
+Delistd sends from your own account over SMTP and can read replies over IMAP. Pick your provider in the wizard (or `delistd init`); it fills in the servers. You enter your address and an **app password**, a separate password your provider generates for apps. Never use your main password.
 
 | Provider | What you need | Notes |
 |---|---|---|
-| Gmail | [App password](https://myaccount.google.com/apppasswords) (needs 2-Step Verification) | ~500 emails/day. Not your Google password, and no "Sign in with Google" ([step by step](docs/getting-started.md#step-2-get-an-app-password-gmail)) |
-| Proton Mail | [Proton Mail Bridge](https://proton.me/mail/bridge) running on the same machine, paid plan | Use the password Bridge shows. Bridge's self-signed certificate is accepted because it only listens on localhost. Confirmed working by a user (paid plan, Bridge on the same machine). |
-| Fastmail | App password with IMAP + SMTP access | |
+| Gmail | [App password](https://myaccount.google.com/apppasswords) (needs 2-Step Verification) | ~500 emails/day ([step by step](docs/getting-started.md#step-2-get-an-app-password-gmail)) |
+| Proton Mail | [Proton Mail Bridge](https://proton.me/mail/bridge) on the same machine, paid plan | Use the password Bridge shows; its self-signed certificate is accepted because it only listens on localhost |
+| Fastmail | App password with IMAP + SMTP | |
 | mailbox.org | Application password | |
-| Posteo | Your Posteo address and password | |
-| iCloud Mail | App-specific password | SMTP is on port 587 (STARTTLS) |
-| Amazon SES | SES SMTP credentials; the From address/domain verified in SES | Send-only: set up reply monitoring on a separate mailbox. Change the region in the SMTP host if yours isn't `eu-west-1` |
+| Posteo | Your address and password | |
+| iCloud Mail | App-specific password | SMTP on port 587 (STARTTLS) |
+| Amazon SES | SES SMTP credentials, From address/domain verified in SES | Send-only: monitor replies on a separate mailbox; change the region in the host if yours isn't `eu-west-1` |
+| Outlook.com / Hotmail / Live | **Sign in with Microsoft** (OAuth) in setup, or `delistd oauth login` | Microsoft ended password sign-in for personal accounts; see [docs/outlook.md](docs/outlook.md). The approval page calls Delistd's app an "unverified" publisher (verification is pending). Microsoft 365 work accounts aren't covered. |
 | Anything else | Choose "Other" and enter the SMTP (and optionally IMAP) server | |
 
-**TLS:** ports 465 (SMTP) and 993 (IMAP) use TLS from the start. Any other port must support STARTTLS. Delistd never sends your password without encryption.
+Ports 465 (SMTP) and 993 (IMAP) use TLS from the start; any other port must support STARTTLS. Delistd never sends your password unencrypted. Provider missing or broken? [Open a mail provider issue](https://github.com/drumandbytes/delistd/issues/new?template=mail_provider.yml) or [add it](CONTRIBUTING.md#adding-a-mail-provider).
 
-**Outlook.com / Hotmail / Live** needs OAuth: Microsoft turned off app-password (basic) authentication for personal accounts. Pick "Outlook.com / Hotmail / Live (OAuth)" in setup and click **Sign in with Microsoft**, or use `delistd oauth login`: see [docs/outlook.md](docs/outlook.md). Microsoft shows Delistd's app as an "unverified" publisher on its approval page (verification is pending), which is expected. A user has reported it working ([#293](https://github.com/drumandbytes/delistd/issues/293)). Microsoft 365 work accounts aren't covered.
+**Limits.** Delistd caps itself at 450 emails per rolling 24 hours (`options.daily_send_limit`), under Gmail's ~500. Check your provider's cap and lower it if needed. A run resumes where the last stopped, so re-running `delistd send` until nothing is left is safe.
 
-Your provider isn't listed or doesn't work? [Open a mail provider issue](https://github.com/drumandbytes/delistd/issues/new?template=mail_provider.yml), or add it yourself (see [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-mail-provider)).
+**Automation.** `delistd schedule install` has your OS run Delistd every 6 hours: send to brokers that are due (each re-sent 25 days after its last request, within the daily cap) and check the inbox. `delistd schedule status` shows the last run and `delistd schedule remove` undoes it. Settings → Automation in the web UI does the same, including a "run while this app is open" option for systems without launchd or systemd; `delistd auto` loops in the foreground.
 
-**Daily sending limits:** Delistd caps itself at 450 emails per rolling 24 hours by default (`options.daily_send_limit`), just under Gmail's ~500/day. Other providers have different (sometimes lower) caps, so check yours and lower the limit if needed. Delistd resumes where it left off on the next run, so it's safe to just re-run `delistd send` until it reports nothing left to send.
-
-**Automating it:** `delistd schedule install` has your OS run Delistd every 6 hours. Each run sends to whichever brokers are due (each broker is re-sent 25 days after its last request, within the daily cap) and checks your inbox for replies. Everything stays on your machine; `delistd schedule status` shows the last run, `delistd schedule remove` undoes it. The web UI's **Settings → Automation** card does all of this with buttons, including a "run while this app is open" option for systems without launchd/systemd; on the CLI, `delistd auto` loops in the foreground instead. A schedule you set up before the rename ran the old `eraser` command; from 2.4 Delistd moves it to `delistd` on its own the next time it runs, so there is nothing to redo.
-
-### Prefer not to give any tool your email password?
-
-Choose **"Skip — I'll send the emails myself"** in the setup wizard (or `options.send_mode: manual` in the config, or pick option 2 in `delistd init`). Then Delistd never sends anything and needs no credentials:
-
-- The **Brokers** page shows an **Email** link per broker (the ready-to-send removal request, with an "Open in mail app" button) and a **Mark sent** button.
-- On the CLI: `delistd draft <broker-id>` prints one email, `delistd draft -o ./out` writes one `.eml` per broker (open them in your mail client), and `delistd send --manual` walks the whole list one at a time.
-- After you send one, `delistd mark-sent <broker-id>` (or the web button) records it so `status`, `pipeline` and `export` still account for it.
-
----
+**No credentials at all.** Choose "Skip — I'll send the emails myself" in the wizard (or `options.send_mode: manual`). Delistd then never sends anything: the Brokers page offers each ready-to-send email with an "Open in mail app" button and a **Mark sent** button; on the CLI, `delistd draft <broker-id>` prints one email, `delistd draft -o ./out` writes one `.eml` per broker, and `delistd send --manual` walks the list. `delistd mark-sent <broker-id>` records one so `status`, `pipeline` and `export` still account for it.
 
 ## Let a local AI agent handle follow-ups (experimental)
 
-`delistd mcp` connects Delistd to Codex over local STDIO. Ask **“Handle my pending
-removal tasks”**, review the proposed batch, and approve it in Delistd, on the
-web UI's **Automation** page or with `delistd mcp approve`. The agent can
-open confirmation links, fill forms, inspect receipts, and save notes and
-screenshots in the existing **Tasks** page. Email sending uses your existing
-settings, templates, limits, and history. Codex supplies the AI; Delistd needs no
-separate AI API key. This feature is experimental: it should work, but its
-commands and tools may change in a future minor release.
+`delistd mcp` connects Delistd to Codex over local STDIO. Ask it to "handle my pending removal tasks", review the proposed batch, and approve it in Delistd (the web UI's **Automation** page, or `delistd mcp approve`). The agent can open confirmation links, fill forms, inspect receipts and save notes and screenshots in the **Tasks** page; email sending uses your settings, templates, limits and history. Codex supplies the AI, so there is no separate API key. CAPTCHAs, logins, identity checks, uncertain submissions and unexpected destinations still need you, and a completed form means the request was accepted, not that data was erased. Chrome or Chromium is required for forms. Experimental: commands and tools may change in a minor release.
 
-MCP tools exposed by `delistd mcp`: `get_status`, `list_brokers`, `list_tasks`,
-`get_task`, `prepare_batch`, `begin_batch`, `end_batch`, `scan_inbox`,
-`send_request`, `open_task`, `observe_page`, `get_screenshot`, `browser_action`,
-`record_result`, `retry_action`. See [docs/mcp.md](docs/mcp.md#tools) for what each does.
+Setup, the fake-data demo, the tool list and how approval works: [docs/mcp.md](docs/mcp.md). Tried it? [Tell us how it went](https://github.com/drumandbytes/delistd/issues/new?template=mcp_feedback.yml).
 
-Chrome/Chromium is required for forms. CAPTCHA, login, identity checks, uncertain
-submissions, and unexpected destinations need your intervention. A completed form
-means the request was accepted, not that the broker has erased your data.
-
-Tried it? Tell us how it went with the **[MCP feedback form](https://github.com/drumandbytes/delistd/issues/new?template=mcp_feedback.yml)**.
-
-See **[MCP setup and the fake-data demo](docs/mcp.md)** for the Codex configuration,
-how batches are approved, and supported workflows.
-
-## For Developers: CLI Usage
-
-If you prefer the command line, Delistd has a full CLI.
-
-### Installation
-
-```bash
-git clone https://github.com/drumandbytes/delistd.git
-cd delistd
-go build -o delistd ./cmd/delistd
-```
-
-On Windows, build it as `delistd.exe` instead (`go build -o delistd.exe ./cmd/delistd`) and run commands as `.\delistd.exe <command>` - see the note above.
-
-### Quick Start
-
-```bash
-# Interactive setup
-./delistd init
-
-# Preview what would be sent (no emails go out)
-./delistd send --dry-run
-
-# Send removal requests to all brokers
-./delistd send
-
-# Check your history
-./delistd status
-```
-
-### Commands
+## Command line
 
 | Command | What it does |
-|---------|--------------|
+|---|---|
 | `delistd init` | Interactive config setup |
-| `delistd send` | Send removal requests (auto-capped at `daily_send_limit`/day, resumable) |
-| `delistd send --dry-run` | Preview without sending |
-| `delistd send --ignore-daily-limit` | Send everything in one run, ignoring the daily cap |
-| `delistd send --resend` | Force re-send even to brokers within the cooldown window |
-| `delistd list-brokers` | Show the 700+ brokers, minus those that only handle other countries than your profile's (`--all-countries` shows them all) |
-| `delistd status` | View history and stats |
-| `delistd status --limit 50` | Show more history |
-| `delistd add-broker` | Add a custom broker interactively |
-| `delistd mark-bounced <broker-id>...` | Correct the record for brokers whose email actually bounced |
-| `delistd cleanup-bounces` | Find and clear bounced broker email addresses (keeps the broker entry) |
-| `delistd audit-brokers` | Check broker websites/email domains for signs of life |
-| `delistd validate-brokers` | Structural check of a broker list (ids, names, regions, emails, URLs) |
-| `delistd update-brokers` | Fetch the latest broker list (the list ships inside the binary; this refreshes it) |
-| `delistd monitor` | Monitor your inbox (IMAP) for broker responses; `--reclassify` re-runs the classifier over every saved reply |
-| `delistd draft` / `delistd mark-sent` | Write the removal emails as `.eml` files to send by hand, then record them as sent |
-| `delistd passphrase set` / `clear` | Add or remove a passphrase on your stored mail passwords ([details](#security-notes)) |
-| `delistd schedule install` | Run sends + inbox checks automatically every 6 hours (launchd on macOS, systemd on Linux) |
-| `delistd auto` | Same cycle in the foreground, looping every 6 hours (Windows, containers) |
-| `delistd pipeline` | Show pipeline status — which brokers need manual follow-up |
-| `delistd export` | Write an evidence report (HTML/JSON) of every request and reply — for a DPA/noyb complaint |
-| `delistd confirm` | Click confirmation links found in broker emails |
-| `delistd fill` | Fill opt-out forms via browser automation |
-| `delistd profile add` / `list` / `edit` / `remove` | Manage extra profiles, e.g. a household member ([details](docs/multi-profile.md)) |
-| `delistd mcp` | Connect a local AI agent over MCP (experimental); `delistd mcp approve <id>` approves its batch, `delistd mcp pending` lists waiting ones |
-| `delistd serve` | Start web interface |
-| `delistd serve -p 3000` | Web interface on custom port |
+| `delistd send` | Send removal requests (capped at `daily_send_limit`/day, resumable). `--dry-run` previews, `--resend` ignores the 25-day cooldown, `--ignore-daily-limit` ignores the cap, `--manual` walks the list for hand-sending |
+| `delistd draft` / `mark-sent` | Write the emails as `.eml` files to send by hand, then record them as sent |
+| `delistd status` / `pipeline` | History and stats; which brokers need follow-up |
+| `delistd monitor` | Read your inbox (IMAP) for broker replies; `--reclassify` re-runs the classifier over saved replies, `--watch` keeps running |
+| `delistd confirm` / `fill` | Click confirmation links from broker emails; fill opt-out forms with a browser |
+| `delistd export` | Evidence report (HTML/JSON) of every request and reply, for a DPA or noyb complaint |
+| `delistd list-brokers` | Show the 1,000+ brokers minus those that only handle other countries than your profile's (`--all-countries` shows all) |
+| `delistd add-broker` / `update-brokers` | Add a broker of your own; refresh the list from this repo |
+| `delistd mark-bounced` / `cleanup-bounces` | Correct the record for brokers whose email bounced; clear dead addresses (keeps the entry) |
+| `delistd audit-brokers` / `validate-brokers` | Check broker sites and domains for signs of life; structural check of a list |
+| `delistd schedule` / `auto` | Run sends and inbox checks every 6 hours via the OS, or in the foreground |
+| `delistd passphrase set` / `clear` | Add or remove a passphrase on stored mail passwords ([security](#security)) |
+| `delistd profile add` / `list` / `edit` / `remove` | Extra profiles, e.g. a household member ([docs/multi-profile.md](docs/multi-profile.md)) |
+| `delistd oauth login` | Sign in to Outlook.com |
+| `delistd mcp` | Local AI-agent server (experimental) |
+| `delistd serve` | The web interface (`-p 3000` for another port) |
 
-Everything in the web interface has a command-line twin and the other way round, apart from a few maintainer commands and `confirm`; the full list is in [docs/ui-cli-parity.md](docs/ui-cli-parity.md).
+Full reference: [docs/commands.md](docs/commands.md).
 
-### Configuration File
+## Configuration
 
-Your config lives at `~/.eraser/config.yaml`. Here's the full schema:
+Your config lives at `~/.delistd/config.yaml`; [config.example.yaml](config.example.yaml) and [docs/commands.md](docs/commands.md#configuration) document every key. The essentials:
 
 ```yaml
 profiles:
@@ -293,226 +126,97 @@ profiles:
     first_name: Jane
     last_name: Doe
     email: jane@example.com
-    # Optional but helps brokers find your records
-    address: "123 Main Street"
-    city: "San Francisco"
-    state: "CA"
-    zip_code: "94102"
-    country: US  # ISO 3166-1 alpha-2 code; `init` and the web form accept a name and store the code
-    phone: "+1-555-123-4567"
-    date_of_birth: "1990-01-15"
-    # Optional: other identities/addresses brokers may have indexed you under
-    # additional_emails: [old-address@example.com]
-    # name_variants: [Jane D.]
-    # previous_addresses: ["456 Old Street, San Francisco, CA"]
-    # additional_phones: ["+1-555-987-6543"]
+    country: US          # ISO 3166-1 alpha-2; the wizard and `init` accept a name
+    # address, city, state, zip_code, phone, date_of_birth, additional_emails,
+    # name_variants, previous_addresses, additional_phones help brokers find you
 
 email:
   from: jane@example.org
-
-  smtp:
-    host: smtp.fastmail.com  # see "Setting Up Your Email Account" for other providers
-    port: 465                # 465 = TLS, any other port = STARTTLS
-    username: jane@example.org
-    password: your-app-password
+  smtp: { host: smtp.fastmail.com, port: 465, username: jane@example.org, password: your-app-password }
 
 options:
-  template: generic  # or "gdpr" or "ccpa"
-  rate_limit_ms: 2000  # delay between emails
-  daily_send_limit: 450  # cap per rolling 24h window; keep it under your provider's daily limit
+  template: gdpr         # gdpr, ccpa or generic
+  rate_limit_ms: 2000    # pause between emails
+  daily_send_limit: 450  # keep under your provider's cap
+  # regions: [us, global]
+  # excluded_brokers: [spokeo]
+  # excluded_categories: [requires-id]   # brokers that demand an ID document
+  # broker_list: verified                # or broker_file: /path/to/your-list.yaml
 
-  # Optional: only target specific regions
-  # regions:
-  #   - us
-  #   - global
-
-  # Optional: skip specific brokers
-  # excluded_brokers:
-  #   - spokeo
-  #   - whitepages
-
-  # Optional: skip every broker in these categories - e.g. "requires-id" to
-  # skip brokers that demand a government-issued ID document before they'll
-  # act on a request (this tool won't supply one on your behalf)
-  # excluded_categories:
-  #   - requires-id
-
-# Optional: monitor your inbox for broker replies (used by `delistd monitor`)
-# inbox:
+# inbox:                 # replies, for `delistd monitor`
 #   enabled: true
-#   provider: fastmail  # gmail, proton, fastmail, mailbox-org, posteo, icloud - or drop it and set server + port
+#   provider: fastmail   # or server + port
 #   email: jane@example.org
 #   password: your-app-password
 ```
 
-### Email Templates
+**Templates.** `gdpr` invokes Article 17 (right to erasure) under EU law, `ccpa` the California Consumer Privacy Act, and `generic` references several laws and works anywhere. EU residents should pick `gdpr`: see [EU-NOTES.md](EU-NOTES.md).
 
-Delistd includes three templates:
+### Brokers
 
-- **GDPR** — Invokes Article 17 "Right to Erasure" under EU law
-- **CCPA** — Invokes California Consumer Privacy Act rights
-- **Generic** — References multiple privacy laws, works anywhere
-
-The generic template is a good default if you're not sure. EU residents should pick `gdpr` explicitly — see [EU-NOTES.md](EU-NOTES.md).
-
-### Adding Brokers
-
-The broker database is at `data/brokers.yaml` and is compiled into the binary, so a downloaded `delistd` is self-contained. `delistd update-brokers` pulls a fresh copy from this repo into `~/.eraser/brokers.yaml` (a small conditional download — the app itself isn't touched). To add one by hand:
+The broker database (`data/brokers.yaml`) is compiled into the binary; `delistd update-brokers` pulls a fresh copy into `~/.delistd/brokers.yaml`. Add one with `delistd add-broker` or by hand:
 
 ```yaml
 - id: example-broker
   name: Example Broker
   email: privacy@example.com
-  website: https://example.com
   opt_out_url: https://example.com/optout
-  region: us  # us, eu, or global
-  countries: [DE]  # optional: only people connected to these countries (ISO codes); omit for everyone
-  category: people-search  # people-search, marketing, background-check, financial-b2b, data-intermediary, device-id-only, or requires-id
+  region: us            # us, eu or global
+  countries: [DE]       # optional: only people connected to these countries
+  category: people-search   # people-search, marketing, background-check, financial-b2b, data-intermediary, device-id-only, requires-id
 ```
 
-`countries` is for brokers that only hold one market's data (a German credit bureau, a Mexican one) and ask not to be sent requests from elsewhere. Delistd skips them for profiles whose `country` is outside the list; an empty or unrecognised country never hides anything. Name a broker with `send --broker <id>` to send regardless, e.g. when you have a past address in that country.
+`countries` is for brokers that hold one market's data (a German or Mexican credit bureau) and ask not to be sent requests from elsewhere. They're skipped for profiles whose `country` is outside the list; `send --broker <id>` overrides that.
 
-Or use the interactive command:
-
-```bash
-./delistd add-broker
-```
-
-### Choosing a broker list
-
-The full list is broad, so it carries some noise (dead
-addresses, companies that turn out not to be brokers). If you'd rather email only
-companies that are confirmed data brokers with a current first-party privacy
-email or rights portal — built from registries and authoritative privacy notices
-across the US, EU, Latin America, New Zealand, and Kenya — use the
-smaller verified list:
+**A smaller list.** The full list carries some noise (dead addresses, companies that turn out not to be brokers). The *verified* list holds only confirmed data brokers with a current first-party privacy contact, built from registries and privacy notices across the US, EU, Latin America, New Zealand and Kenya (US entries are also checked against California's registry). It does not promise that a broker acts on a request; `status` and `pipeline` show what each one actually does. A weekly CI audit keeps the full list from rotting, clearing dead email domains and opening a PR.
 
 ```bash
-./delistd send --list verified          # one run
-./delistd send --broker spokeo,pipl     # explicit broker IDs
+./delistd send --list verified                   # one run (or options.broker_list: verified)
+./delistd send --broker spokeo,pipl              # explicit IDs
 ./delistd send --region eu --category financial-b2b
 ./delistd send --exclude broker-id --status never
 ```
 
-`--broker`, `--region`, `--category`, and `--exclude` can be repeated or comma-separated. `--status eligible` is the safe default; use `never`, `failed`, or `all` to select by send history. The web Brokers page exposes the same filters before bulk sending.
+`--broker`, `--region`, `--category` and `--exclude` repeat or take commas. `--status eligible` (the default) skips brokers sent to within 25 days; `never`, `failed` and `all` select by history. The web Brokers page has the same filters.
 
-Or set it permanently in `config.yaml`:
+### The Pipeline
 
-```yaml
-options:
-  broker_list: verified                # or: broker_file: /path/to/your-own-list.yaml
-```
+The Pipeline page (or `delistd pipeline`) lists what needs attention. Select a status card to see its requests or actions. **Responses** filters by response type and searches broker names, subjects and saved email bodies; **Action Required** also searches task notes. Filters live in the URL, so refresh and back/forward keep them. Clear "no records for you" replies show as **No data held**.
 
-"Verified" means each entry is confirmed to be a real data broker with a
-current, working contact we found by hand — most of the US ones are also
-cross-checked against California's data-broker registry. It doesn't mean
-any of them have been sent a request and confirmed to actually act on it;
-no list can promise that in advance. `delistd status`/`pipeline` is how you
-find out what a broker actually does once you've emailed it.
+## Security
 
-The weekly CI audit keeps the full list from rotting — it clears dead email
-domains automatically and opens a PR for review.
+- **Your config holds personal data.** Don't commit it. It's created readable only by you.
+- **Mail passwords are never stored in plain text.** `smtp.password` and `inbox.password` are saved as `enc:v1:...` (AES-256-GCM, key from this machine's ID and your user). A copied config or synced dotfile can't be decrypted elsewhere, so after moving machines re-enter the passwords (`delistd init` or Settings). Anyone logged in as you can still use Delistd, and so the password, unless you add a passphrase: `delistd passphrase set` makes the passwords undecryptable without it. With one set, unattended runs can't unlock them: `delistd schedule install` is refused, and `delistd auto` and `delistd serve` ask once at startup. There is no recovery; if you forget it, re-enter the passwords.
+- **Use app passwords**, and consider a dedicated mailbox to keep removal traffic out of your main inbox.
 
----
+## How it compares
 
-## Security Notes
+| | Incogni | DeleteMe | Delistd |
+|---|---|---|---|
+| Price | $95.88/year (Standard) or $179.88/year (Unlimited), billed annually | $129/year for one person | Free, MIT licence |
+| Who sends the requests | Incogni | DeleteMe | You, from your own email account |
+| Where your details are kept | With the service | With the service | On your machine only |
+| Coverage | 420+ broker sites | Automated plus manual custom removals | 1,000+ brokers worldwide in a published list you can extend |
 
-- **Your config file contains personal data.** Don't commit it to git. The file is created with restricted permissions (readable only by you).
-- **Mail passwords are never stored in plain text.** `smtp.password` and `inbox.password` are saved in `config.yaml` as `enc:v1:...` (AES-256-GCM, key derived from this machine's ID and your user). A copied config, backup or synced dotfile can't be decrypted on another machine, so after moving to a new machine re-enter the passwords with `delistd init` or in Settings. Someone logged in as you on the same machine can still use Delistd, and therefore the password, unless you add a passphrase: `delistd passphrase set` makes the passwords undecryptable without it. **Heads-up:** with a passphrase, runs with nobody at the keyboard can't unlock them. `delistd schedule install` (the OS scheduler) is refused, while `delistd auto` and `delistd serve` ask once at startup. There is no recovery; if you forget it, re-enter the passwords with `delistd init`.
-- **Use app passwords, not your real password.** Most providers require one for SMTP/IMAP access; where they don't, it's still a good idea.
-- **Consider using a dedicated email.** This keeps your removal request activity separate from your main inbox.
+A paid service saves you time and handles replies and ID checks for you; Delistd gives you control and costs nothing. Prices checked 10 November 2026; the [full comparison](https://delistd.dev/compare/?ref=delistd-readme) has the details, sources and when a paid service is the better choice.
 
----
+## More
 
-## Does This Actually Work?
+- **EU / GDPR:** read [EU-NOTES.md](EU-NOTES.md) first: which template, safe send volume, and what to do if a broker ignores you.
+- **Contributing:** brokers, fixes, templates and docs are welcome: [CONTRIBUTING.md](CONTRIBUTING.md).
+- **Code layout and CI:** [docs/architecture.md](docs/architecture.md).
 
-Yes, with caveats:
-
-- **Most brokers comply.** They're legally required to under GDPR (EU) and CCPA (California). Even brokers not covered by these laws often honor requests to avoid liability.
-- **Some require manual steps.** A meaningful share of brokers will respond asking you to:
-  - Click a confirmation link (Delistd detects these and shows them to you)
-  - Fill out an opt-out form on their website (Delistd tracks these as "pending tasks")
-  - Verify your identity via email reply
-- **It's not instant.** Brokers have up to 30-45 days to process requests (varies by law). Some are faster.
-- **You'll need to repeat this.** Data brokers buy and sell data continuously. Running Delistd every 60-90 days keeps you off their lists.
-
-**The Pipeline view** (`delistd pipeline` or the web UI) shows you exactly which brokers need manual attention. It's not fully automated, but it's free—and it does the tedious work of sending 700+ emails and tracking responses for you.
-
-In the web Pipeline, select a status card to see matching requests or actions.
-The **Responses** tab filters by response type and searches broker names, subjects,
-and saved email bodies; **Action Required** also searches task notes. Filters stay
-in the URL for refresh and browser back/forward. Clear "no records for you" replies
-appear as **No data held**, including qualifying replies already saved before the
-upgrade.
-
-
----
-
-## How It Compares
-
-| Service | Price | Brokers | Open Source |
-|---------|-------|---------|--------------|
-| **Delistd** | Free | 700+ | Yes |
-| Incogni | $77/year | 180+ | No |
-| DeleteMe | $129/year | 750+ | No |
-| Privacy Duck | $500+/year | 500+ | No |
-
----
-
-## EU / GDPR
-
-If you're an EU resident exercising GDPR rights, read [EU-NOTES.md](EU-NOTES.md) first — it covers which template to pick, safe send-volume behavior, and what to do if a broker ignores your request.
-
-## Credits
-
-Delistd started as a fork of [digisamroc/eraser](https://github.com/digisamroc/eraser) (MIT); see [LICENSE](LICENSE).
-
----
-
-## Contributing
-
-Contributions are welcome — adding brokers, fixing bugs, improving templates or docs. See [CONTRIBUTING.md](CONTRIBUTING.md) for the details (dev setup, how to add a broker, commit/PR conventions).
-
----
-
-## Project Structure
-
-```
-delistd/
-├── cmd/delistd/                # CLI entry point - main.go has root wiring, one cmd_*.go
-│                               # file per command (cmd_send.go, cmd_fill.go, etc.)
-├── internal/
-│   ├── broker/                # Broker loading and filtering
-│   ├── browser/                # Browser automation (form fill, confirm links, CAPTCHA handling)
-│   ├── config/                 # Configuration handling
-│   ├── email/                  # SMTP sending
-│   ├── history/                # SQLite request tracking
-│   ├── inbox/                   # IMAP monitoring and reply classification
-│   ├── template/                # Email template rendering
-│   │   └── templates/            # gdpr.tmpl, ccpa.tmpl, generic.tmpl
-│   └── web/                     # Web UI - server.go has core setup, handlers_*.go files
-│                                 # hold the actual page/API handlers by resource
-├── data/brokers.yaml           # 700+ broker database
-├── config.example.yaml         # Example configuration
-├── Dockerfile, compose.yaml    # Distroless delistd image + Chromium container (docs/docker.md)
-└── EU-NOTES.md                 # GDPR/EU-specific setup and customization notes
-```
-
-See [docs/architecture.md](docs/architecture.md) for the full breakdown, including CI/lint setup.
-
----
+Stuck on setup? [We can help](https://delistd.dev/support/?ref=delistd-readme). Found Delistd useful? Please **star the repo**, share it, or leave [a few words of feedback](https://github.com/drumandbytes/delistd/issues/new?template=feedback.yml) (or email support@drumandbytes.com if you don't use GitHub). It helps Delistd reach the people who need it.
 
 ## License
 
-MIT — do whatever you want with it.
-
----
+MIT.
 
 ## Disclaimer
 
-This tool sends legitimate data removal requests based on privacy laws. It's not legal advice. Not all brokers are required to comply with all requests, and response times vary. But it works, and it's free.
+Delistd sends legitimate data removal requests based on privacy laws. It isn't legal advice; not every broker must comply with every request, and response times vary.
 
-**Your responsibility.** Delistd acts on your instructions and sends requests from your own email account. You are responsible for the accuracy of the personal data you enter, for complying with your email provider's terms and sending limits, and for anything you choose to submit to a data protection authority or other body. The templates and the `export` report are starting points, not a substitute for advice on your specific situation.
+You are responsible for the accuracy of the data you enter, for your email provider's terms and sending limits, and for anything you submit to a data protection authority. The templates and the `export` report are starting points, not advice on your situation.
 
 ## How it was made
 

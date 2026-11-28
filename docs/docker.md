@@ -1,13 +1,11 @@
 # Running Delistd in Docker
 
-The Delistd image is distroless (about 40 MB): the static binary and nothing
-else. It runs every command except the browser ones: the web UI, `send`,
-`confirm`, `status`, scheduling. `fill` and the `mcp` browser tools use a
-second, optional container with headless Chromium (the stock
-`chromedp/headless-shell` image) that Delistd reaches over the DevTools port.
-
-Your config, history and screenshots live in a volume, so containers can be
-recreated or upgraded without losing anything.
+The image is distroless (about 40 MB): the static binary and nothing else. It
+runs every command except the browser ones (`fill`, the `mcp` browser tools),
+which use a second, optional container with headless Chromium (the stock
+`chromedp/headless-shell` image) reached over the DevTools port. Config,
+history and screenshots live in a volume, so containers can be recreated or
+upgraded without losing anything.
 
 ## Quick start
 
@@ -19,7 +17,7 @@ docker compose up -d
 
 Open <http://localhost:8080> and follow the setup wizard, the same as the
 desktop app ([getting-started.md](getting-started.md)). Stop it with
-`docker compose down`; your data stays in the `eraser-data` volume.
+`docker compose down`; your data stays in the `delistd-data` volume.
 
 Any CLI command runs the same way:
 
@@ -33,15 +31,19 @@ docker compose exec delistd delistd mcp pending        # while the web UI is run
 Interactive commands (`init`, `profile add`, `passphrase set`, `mcp approve`)
 work too: `docker compose run --rm delistd init`.
 
-Commands run in the data volume (`/home/nonroot/.eraser`), so files they write
+Commands run in the data volume (`/home/nonroot/.delistd`), so files they write
 to the current directory, like `export`'s `delistd-evidence-*.html`, are kept
 there after a `run --rm` container exits. Copy one out with
-`docker cp delistd:/home/nonroot/.eraser/<file> .` while the web UI container is
+`docker cp delistd:/home/nonroot/.delistd/<file> .` while the web UI container is
 running, or pass `-o` with a path you can reach.
 
 Without compose, `compose.yaml` is the reference for the flags: a private
-network, the loopback-only port, the `eraser-data` volume, and for the browser
+network, the loopback-only port, the `delistd-data` volume, and for the browser
 `--shm-size=1g` plus `-e DELISTD_CHROME_URL=http://chrome:9222`.
+
+The image has a health check (`delistd healthcheck`, which asks the web UI's `/healthz`), so
+`docker ps` shows `healthy` once the server is up and Docker Compose, Swarm and orchestrators
+can act on it. It looks at port 8080, the image's default.
 
 ## Security: keep the port on 127.0.0.1
 
@@ -74,8 +76,8 @@ shares.
 
 ## Where your data lives
 
-Everything is in `/home/nonroot/.eraser` inside the container, which is the
-`eraser-data` named volume:
+Everything is in `/home/nonroot/.delistd` inside the container, which is the
+`delistd-data` named volume:
 
 | File | What |
 |---|---|
@@ -92,7 +94,7 @@ archive doesn't end up next to the source. It holds your config, history and
 
 ```bash
 docker compose -f /path/to/delistd/compose.yaml stop
-docker run --rm -v eraser-data:/data -v "$PWD":/backup debian:trixie-slim \
+docker run --rm -v delistd-data:/data -v "$PWD":/backup debian:trixie-slim \
   sh -c 'umask 077 && tar czf /backup/delistd-backup.tgz -C /data .'
 docker compose -f /path/to/delistd/compose.yaml start
 ```
@@ -110,7 +112,7 @@ uid 65532.
 ### Encrypted passwords and `machine-id`
 
 Delistd encrypts `smtp.password` and `inbox.password` with a key derived from
-the machine ID and the user (see "Security Notes" in the README). A container
+the machine ID and the user (see "Security" in the [README](../README.md#security)). A container
 has no `/etc/machine-id` of its own and gets a new hostname on every run, so the
 image sets `DELISTD_MACHINE_ID_FILE` to `machine-id` in the volume. Delistd
 creates it on first use (safe when several containers start at once) and reuses
@@ -141,7 +143,7 @@ Delistd attaches to that DevTools endpoint instead of launching a local Chrome.
 The browser container is the stock
 [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell)
 image, pinned by tag and digest in `compose.yaml`: Chromium without the desktop
-UI, the smallest full browser build I found (Alpine's and Browserless's are far larger). It runs with `--no-sandbox`
+UI, the smallest full browser build available (Alpine's and Browserless's are far larger). It runs with `--no-sandbox`
 because Chromium's own sandbox needs user namespaces, which Docker's default
 seccomp profile doesn't give an unprivileged process; the container (read-only
 filesystem, no capabilities) is the boundary instead. The stock image runs
@@ -182,7 +184,7 @@ the browser container:
 
 ```bash
 docker run -i --rm --network delistd_default -e DELISTD_CHROME_URL=http://chrome:9222 \
-  -v eraser-data:/home/nonroot/.eraser "${DELISTD_IMAGE:-delistd:local}" mcp
+  -v delistd-data:/home/nonroot/.delistd "${DELISTD_IMAGE:-delistd:local}" mcp
 ```
 
 Approve batches in the web UI's Automation page (with `docker compose up`
@@ -220,12 +222,12 @@ If you run the published image instead, see the next section.
 ## Using the published image
 
 Each release pushes `ghcr.io/drumandbytes/delistd` (`linux/amd64`, `linux/arm64`)
-with the tags `v2.2.0` (exact release), `2.2` (latest patch of that minor,
+with the tags `v3.0.0` (exact release), `3.0` (latest patch of that minor,
 no `v`) and `latest`. To run it from the same
 `compose.yaml` without building, set `DELISTD_IMAGE`:
 
 ```bash
-export DELISTD_IMAGE=ghcr.io/drumandbytes/delistd:v2.2.0
+export DELISTD_IMAGE=ghcr.io/drumandbytes/delistd:v3.0.0
 docker compose up -d --pull always --no-build
 ```
 

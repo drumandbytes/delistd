@@ -1,15 +1,15 @@
 {{define "content"}}
-<div class="min-h-[80vh] flex items-center justify-center">
-    <div class="max-w-lg w-full fade-in-up">
+<div class="page-center">
+    <div class="fade-in-up narrow">
         <div class="card p-8">
             {{template "partials/setup-steps.html" 1}}
 
             <!-- Hero -->
-            <div class="welcome-head flex items-center gap-4 mb-8">
-                <img src="/static/favicon.svg" alt="" class="flex-shrink-0" width="56" height="56" style="border-radius: 14px;">
+            <div class="flex gap-4 items-center mb-8 welcome-head">
+                <img src="/static/favicon.svg" alt="" class="flex-shrink-0 rounded-card" width="56" height="56">
                 <div>
-                    <h1 class="font-display text-3xl font-semibold text-primary">Welcome to Delistd</h1>
-                    <p class="text-secondary mt-1">Take control of your personal data</p>
+                    <h1 class="page-title">Welcome to Delistd</h1>
+                    <p class="lede">Take control of your personal data</p>
                 </div>
             </div>
 
@@ -17,20 +17,20 @@
             <ul class="ledger-rows mb-8">
                 <li>
                     <div>
-                        <h3 class="font-medium text-primary">750+ Data Brokers</h3>
-                        <p class="text-sm text-muted">Send removal requests to companies selling your data</p>
+                        <h3 class="emph">750+ Data Brokers</h3>
+                        <p class="note">Send removal requests to companies selling your data</p>
                     </div>
                 </li>
                 <li>
                     <div>
-                        <h3 class="font-medium text-primary">100% Private</h3>
-                        <p class="text-sm text-muted">Delistd has no servers. Your details stay on your computer and only leave it as emails sent from your own account to the brokers.</p>
+                        <h3 class="emph">100% Private</h3>
+                        <p class="note">Delistd has no servers. Your details stay on your computer and only leave it as emails sent from your own account to the brokers.</p>
                     </div>
                 </li>
                 <li>
                     <div>
-                        <h3 class="font-medium text-primary">5 Minute Setup</h3>
-                        <p class="text-sm text-muted">Quick setup using your own email account</p>
+                        <h3 class="emph">5 Minute Setup</h3>
+                        <p class="note">Quick setup using your own email account</p>
                     </div>
                 </li>
             </ul>
@@ -38,13 +38,11 @@
             <!-- CTA -->
             <a href="/setup/profile" class="btn btn-primary w-full">
                 Get Started
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                </svg>
+                {{icon "arrow-right" "w-5 h-5"}}
             </a>
         </div>
 
-        <p class="text-center text-sm text-muted mt-6">
+        <p class="mt-6 text-center text-muted text-sm">
             Open source and free forever
         </p>
     </div>

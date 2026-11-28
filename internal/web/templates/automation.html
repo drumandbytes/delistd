@@ -1,8 +1,8 @@
 {{define "content"}}
-<div class="space-y-6 fade-in-up">
+<div class="fade-in-up space-y-6">
     <div>
-        <h1 class="font-display text-2xl font-bold text-primary">Automation approvals</h1>
-        <p class="text-secondary mt-1">An AI agent prepared these batches. Nothing is sent or opened until you approve one here, or run <code>delistd mcp approve &lt;plan_id&gt;</code>. Each approval works once, for 15 minutes.</p>
+        <h1 class="font-bold font-display text-2xl text-primary">Automation approvals</h1>
+        <p class="lede">An AI agent prepared these batches. Nothing is sent or opened until you approve one here, or run <code>delistd mcp approve &lt;plan_id&gt;</code>. Each approval works once, for 15 minutes.</p>
     </div>
 
     {{if not .Previews}}
@@ -11,10 +11,10 @@
 
     {{range .Previews}}
     <section class="card p-6 space-y-4">
-        <div class="flex items-center justify-between gap-4">
+        <div class="flex gap-4 items-center justify-between">
             <div>
-                <h2 class="text-lg font-semibold text-primary">Batch {{.PlanID}}</h2>
-                <p class="text-xs text-muted">Profile: {{.ProfileID}}</p>
+                <h2 class="font-semibold text-lg text-primary">Batch {{.PlanID}}</h2>
+                <p class="note-xs">Profile: {{.ProfileID}}</p>
             </div>
             <form action="/automation/approve" method="POST">
                 <input type="hidden" name="plan_id" value="{{.PlanID}}">
@@ -22,12 +22,12 @@
             </form>
         </div>
 
-        {{with .Note}}<p class="text-sm text-primary">{{.}}</p>{{end}}
+        {{with .Note}}<p class="text-primary text-sm">{{.}}</p>{{end}}
 
         {{if .ProfileFields}}
         <div>
-            <h3 class="text-sm font-semibold text-primary">Profile fields the agent may use</h3>
-            <ul class="text-sm text-secondary mt-1">
+            <h3 class="font-semibold text-primary text-sm">Profile fields the agent may use</h3>
+            <ul class="mt-1 text-secondary text-sm">
                 {{range $k, $v := .ProfileFields}}{{if $v}}<li>{{$k}}: {{$v}}</li>{{end}}{{end}}
             </ul>
         </div>
@@ -35,8 +35,8 @@
 
         {{if .Tasks}}
         <div>
-            <h3 class="text-sm font-semibold text-primary">Opt-out forms</h3>
-            <ul class="text-sm text-secondary mt-1">
+            <h3 class="font-semibold text-primary text-sm">Opt-out forms</h3>
+            <ul class="mt-1 text-secondary text-sm">
                 {{range .Tasks}}<li>{{.BrokerName}} ({{.Kind}}): <span class="break-all">{{.URL}}</span></li>{{end}}
             </ul>
         </div>
@@ -44,12 +44,12 @@
 
         {{if .Emails}}
         <div>
-            <h3 class="text-sm font-semibold text-primary">Emails to send</h3>
+            <h3 class="font-semibold text-primary text-sm">Emails to send</h3>
             {{range .Emails}}
-            <div class="mt-2 p-3 rounded-lg" style="background: var(--bg-surface);">
-                <p class="text-sm text-primary">To: {{.To}} <span class="text-muted">from {{.From}}</span></p>
-                <p class="text-sm text-secondary">Subject: {{.Subject}}</p>
-                <pre class="text-xs text-secondary whitespace-pre-wrap mt-2">{{.Body}}</pre>
+            <div class="bg-surface mt-2 p-3 rounded-lg">
+                <p class="text-primary text-sm">To: {{.To}} <span class="text-muted">from {{.From}}</span></p>
+                <p class="note-secondary">Subject: {{.Subject}}</p>
+                <pre class="mt-2 text-secondary text-xs whitespace-pre-wrap">{{.Body}}</pre>
             </div>
             {{end}}
         </div>

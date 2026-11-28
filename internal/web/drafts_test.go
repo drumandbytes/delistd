@@ -4,8 +4,10 @@ import (
 	"archive/zip"
 	"bytes"
 	"io"
+	"maps"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"strings"
 	"testing"
 
@@ -51,13 +53,7 @@ func TestDraftsZipNeedsConfig(t *testing.T) {
 	}
 }
 
-func keysOf(m map[string]string) []string {
-	var k []string
-	for name := range m {
-		k = append(k, name)
-	}
-	return k
-}
+func keysOf(m map[string]string) []string { return slices.Collect(maps.Keys(m)) }
 
 func TestDraftsZipSkipsBrokersWhoseTemplateFails(t *testing.T) {
 	s := smokeServer(t)

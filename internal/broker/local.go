@@ -2,6 +2,7 @@ package broker
 
 import (
 	"fmt"
+	"github.com/drumandbytes/delistd/internal/datadir"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -21,7 +22,7 @@ func LocalPath() string {
 	if err != nil {
 		return ""
 	}
-	return filepath.Join(home, ".eraser", "brokers.local.yaml")
+	return filepath.Join(datadir.Of(home), "brokers.local.yaml")
 }
 
 // LoadLocal returns the user's own entries; a missing file is an empty list.

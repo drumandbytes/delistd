@@ -21,16 +21,12 @@ func monitorCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "monitor",
-		Short: "Monitor inbox for broker responses",
-		Long: `Connect to your email inbox via IMAP and monitor for responses from data brokers.
+		Short: "Read your inbox for replies from data brokers",
+		Long: `Logs in to your inbox over IMAP and picks out the replies from data brokers.
 
-This command will:
-- Fetch recent emails from known broker domains
-- Classify responses (form required, confirmation needed, success, etc.)
-- Extract form URLs and confirmation links
-- Store results for the pipeline to process
-
-Requires inbox configuration in config.yaml with IMAP settings.`,
+Each reply is classified (form needed, confirmation needed, done, refused and so
+on), its form or confirmation link is extracted, and the result is stored for
+the pipeline. The inbox has to be set up in config.yaml first.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if doReclassify {
 				return runReclassify()
@@ -40,7 +36,7 @@ Requires inbox configuration in config.yaml with IMAP settings.`,
 	}
 
 	cmd.Flags().IntVar(&days, "days", 7, "Number of days to look back for emails")
-	cmd.Flags().BoolVar(&watch, "watch", false, "Continuously watch for new emails")
+	cmd.Flags().BoolVar(&watch, "watch", false, "Keep running and handle new mail as it arrives")
 	cmd.Flags().BoolVar(&doReclassify, "reclassify", false, "Re-run the classifier over every saved reply instead of scanning (fills in missing bodies from your inbox first)")
 
 	return cmd

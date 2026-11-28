@@ -95,7 +95,7 @@ func TestListTasksBrokersStatusAndScanGuards(t *testing.T) {
 
 func TestScanRecordsOnlyThisProfilesReplies(t *testing.T) {
 	s := testService(t)
-	srv := imaptest.Start(t, false)
+	srv := imaptest.StartWith(t, imaptest.Options{Move: false})
 	cfg, err := config.Load(s.opts.ConfigPath)
 	if err != nil {
 		t.Fatal(err)

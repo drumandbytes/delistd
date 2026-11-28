@@ -1,68 +1,28 @@
 {{define "content"}}
 <div class="fade-in-up">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
+    <div class="flex flex-col gap-6 items-start justify-between mb-8 md:flex-row md:items-center">
         <div>
-            <h1 class="font-display text-3xl font-semibold text-primary">Removal Pipeline</h1>
-            <p class="text-secondary mt-1">Track broker responses and automate follow-ups</p>
+            <h1 class="page-title">Removal Pipeline</h1>
+            <p class="lede">Track broker responses and automate follow-ups</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="row">
             {{if .InboxConfigured}}
-            <div class="relative group">
-                <button id="scan-inbox-btn" class="btn btn-primary"
-                    hx-post="/api/inbox/scan"
-                    hx-target="#scan-result"
-                    hx-swap="innerHTML"
-                    hx-indicator="#scan-spinner">
-                    <svg id="scan-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    <svg id="scan-spinner" class="htmx-indicator w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Scan Inbox
+            {{range .InboxActions}}
+            <div class="group relative">
+                <button id="{{.ID}}" class="{{.Class}}" hx-post="{{.Post}}" hx-target="#scan-result" hx-swap="innerHTML"{{if .Spinner}} hx-indicator="#{{.Spinner}}"{{end}}>
+                    {{if .Icon}}{{icon .Icon "w-5 h-5"}}{{end}}
+                    {{if .Spinner}}{{spinner .Spinner "w-5 h-5"}}{{end}}
+                    {{.Label}}
                 </button>
-                <div class="absolute right-0 mt-2 w-72 p-3 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10" style="background: var(--bg-elevated); border: 1px solid var(--border);">
-                    <p class="text-xs text-secondary">Fetches new emails from data brokers and extracts opt-out form links. Processed emails are automatically moved to an "Delistd" folder in your inbox.</p>
+                <div class="absolute right-0 mt-2 {{.TipWidth}} p-3 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 bg-elevated border">
+                    <p class="text-secondary text-xs">{{.Tip}}</p>
                 </div>
             </div>
-            <div class="relative group">
-                <button id="reclassify-btn" class="btn btn-secondary"
-                    hx-post="/api/inbox/reclassify"
-                    hx-target="#scan-result"
-                    hx-swap="innerHTML"
-                    hx-indicator="#reclassify-spinner">
-                    <svg id="reclassify-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    <svg id="reclassify-spinner" class="htmx-indicator w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Reclassify
-                </button>
-                <div class="absolute right-0 mt-2 w-64 p-3 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10" style="background: var(--bg-elevated); border: 1px solid var(--border);">
-                    <p class="text-xs text-secondary">Re-analyzes previously scanned emails to extract form URLs that may have been missed. Use if forms aren't showing up.</p>
-                </div>
-            </div>
-            <div class="relative group">
-                <button id="bounces-btn" class="btn btn-secondary"
-                    hx-post="/api/inbox/bounces"
-                    hx-target="#scan-result"
-                    hx-swap="innerHTML">
-                    Check bounces
-                </button>
-                <div class="absolute right-0 mt-2 w-64 p-3 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10" style="background: var(--bg-elevated); border: 1px solid var(--border);">
-                    <p class="text-xs text-secondary">Looks for undeliverable-mail notices for brokers you emailed, and lets you clear their dead addresses.</p>
-                </div>
-            </div>
+            {{end}}
             {{else}}
             <a href="/settings" class="btn btn-secondary">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                {{icon "cog" "w-5 h-5"}}
                 Configure Inbox
             </a>
             {{end}}
@@ -75,33 +35,21 @@
     {{if .InboxConfigured}}
     <!-- How It Works (collapsible) -->
     <details class="card mb-6">
-        <summary class="px-4 py-3 cursor-pointer flex items-center gap-2 text-sm font-medium text-secondary hover:text-primary">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <summary class="cursor-pointer flex font-medium gap-2 hover:text-primary items-center px-4 py-3 text-secondary text-sm">
+            {{icon "info" "w-4 h-4"}}
             How to track broker responses
         </summary>
-        <div class="px-4 pb-4 border-t" style="border-color: var(--border);">
-            <ol class="mt-3 space-y-2 text-sm text-secondary">
-                <li class="flex items-start gap-2">
-                    <span class="flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium icon-box-info">1</span>
-                    <span><strong>Send removal requests</strong> from the <a href="/brokers" class="text-accent hover:underline">Brokers</a> page</span>
+        <div class="border-t pb-4 px-4">
+            <ol class="mt-3 space-y-2 text-secondary text-sm">
+                {{range $i, $step := .Steps}}
+                <li class="flex gap-2 items-start">
+                    <span class="flex flex-shrink-0 font-medium h-5 items-center justify-center rounded-full text-xs tint-info w-5">{{add $i 1}}</span>
+                    <span><strong>{{$step.Lead}}</strong>{{$step.Rest}}</span>
                 </li>
-                <li class="flex items-start gap-2">
-                    <span class="flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium icon-box-info">2</span>
-                    <span><strong>Wait for responses</strong> (usually 1-7 days)</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium icon-box-info">3</span>
-                    <span><strong>Click "Scan Inbox"</strong> to fetch broker emails and extract opt-out form links (emails are moved to an "Delistd" folder)</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium icon-box-info">4</span>
-                    <span><strong>Check "Action Required"</strong> below for forms that need manual completion</span>
-                </li>
+                {{end}}
             </ol>
-            <p class="mt-3 text-xs text-muted">
-                <strong>Tip:</strong> If form links aren't appearing, click "Reclassify" to re-analyze emails with the improved extractor.
+            <p class="mt-3 text-muted text-xs">
+                <strong>Tip:</strong> if a reply's form link is missing, run "Reclassify" to read the saved emails again.
             </p>
         </div>
     </details>
@@ -109,36 +57,13 @@
 
     {{if not .InboxConfigured}}
     <div class="alert alert-info mb-6">
-        <p class="text-sm">To fetch new broker responses, <a href="/settings" class="text-accent hover:underline">configure inbox monitoring in Settings</a>.</p>
+        <p class="text-sm">To fetch new broker responses, <a href="/settings" class="link">configure inbox monitoring in Settings</a>.</p>
     </div>
     {{end}}
 
     {{template "partials/pipeline-content.html" .Pipeline}}
 </div>
-<style>
-.pipeline-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-card); box-shadow:var(--shadow); overflow:hidden; }
-.pipeline-stat { padding:14px 16px; display:flex; flex-direction:column; gap:4px; text-decoration:none; border-right:1px solid var(--border-subtle); border-bottom:1px solid var(--border-subtle); transition:background-color var(--dur-micro) var(--ease-out); }
-.pipeline-stat:hover { background:var(--bg-elevated); }
-.pipeline-stat.selected { background:var(--bg-elevated); box-shadow:inset 0 -2px 0 var(--accent-solid); }
-.pipeline-tabs, .pipeline-filters { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-bottom:24px; }
-.pipeline-filters { align-items:end; }
-.pipeline-filters label { display:block; margin-bottom:6px; }
-.pipeline-filters .pipeline-review-filter { display:flex; align-items:center; gap:6px; margin-bottom:10px; }
-.pipeline-filters > div { min-width:0; }
-.pipeline-search { flex:1; min-width:220px !important; }
-.pipeline-filters input[type=search], .pipeline-filters select { width:100%; min-height:40px; padding:8px 12px; border:1px solid var(--text-muted); border-radius:var(--radius-control); color:var(--text-primary); background:var(--bg-surface); }
-.pipeline-result { display:flex; gap:18px; padding:16px; border-radius:var(--radius-control); background:var(--bg-elevated); }
-.pipeline-result-main { flex:1; min-width:0; overflow-wrap:anywhere; }
-.pipeline-result-title { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
-.pipeline-result-actions { display:flex; flex-direction:column; align-items:end; gap:10px; flex-shrink:0; }
-.pipeline-pagination { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
-@media (max-width:640px) {
- .pipeline-result { flex-direction:column; }
- .pipeline-result-actions { flex-direction:row; align-items:center; }
- .pipeline-filters > div { width:100%; }
- .pipeline-search { min-width:0 !important; flex:1 1 100%; }
-}
-</style>
+
 <script>
 document.body.addEventListener('htmx:beforeSwap', function(event) {
     if (event.detail.target.id === 'pipeline-content' && event.detail.xhr.status === 500) {

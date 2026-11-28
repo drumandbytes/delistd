@@ -1,0 +1,5 @@
+{{/* A status word with a coloured dot. Data: dict with Text, Color (text colour class), Dot (dot class). */}}
+<span class="inline-flex items-center gap-1.5 text-sm font-medium {{.Color}}">
+    <span class="w-2 h-2 rounded-full {{.Dot}}"></span>
+    {{.Text}}
+</span>

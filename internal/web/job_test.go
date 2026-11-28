@@ -100,10 +100,6 @@ func TestJobConcurrentUpdateAndReadIsConsistent(t *testing.T) {
 	readerWG.Wait()
 }
 
-// TestJobUpdateSetsAllFieldsUnderOneLock is a narrower, deterministic
-// companion to the concurrency test above: it checks that a single Update
-// call always leaves Sent/Failed/Progress mutually consistent, and that
-// SetDailyLimit only ever touches DailyLimit.
 func TestJobUpdateSetsAllFieldsUnderOneLock(t *testing.T) {
 	jm := NewJobManager()
 	job := jm.Create(10, "profile-a")
@@ -128,10 +124,7 @@ func TestJobUpdateSetsAllFieldsUnderOneLock(t *testing.T) {
 	}
 }
 
-// TestJobManagerCreateAndGetIgnoresProfile confirms that JobManager.Get
-// itself is not profile-scoped - it happily returns a job regardless of
-// which profile is asking. This documents why the scoping check has to live
-// in the HTTP handlers (see handlers_jobs_test.go), not in JobManager.
+// JobManager.Get is not profile-scoped; the check lives in the HTTP handlers.
 func TestJobManagerCreateAndGetIgnoresProfile(t *testing.T) {
 	jm := NewJobManager()
 	jobA := jm.Create(5, "profile-a")
@@ -152,9 +145,6 @@ func TestJobManagerCreateAndGetIgnoresProfile(t *testing.T) {
 	}
 }
 
-// TestCreateIfNoActiveRejectsSecondJobForSameProfile is the sequential case:
-// once a profile has a running job, a second CreateIfNoActive for that
-// profile must return the existing job rather than creating another one.
 func TestCreateIfNoActiveRejectsSecondJobForSameProfile(t *testing.T) {
 	jm := NewJobManager()
 
@@ -209,4 +199,12 @@ func TestCreateIfNoActiveIsRaceSafe(t *testing.T) {
 	if wins != 1 {
 		t.Fatalf("expected exactly 1 of %d concurrent CreateIfNoActive calls to win, got %d", attempts, wins)
 	}
+}
+
+// Create starts a job without looking for a running one, which tests use to
+// hold several at once.
+func (jm *JobManager) Create(total int, profileID string) *Job {
+	jm.mu.Lock()
+	defer jm.mu.Unlock()
+	return jm.add(total, profileID)
 }

@@ -1,10 +1,10 @@
 {{define "content"}}
-<div class="min-h-[80vh] flex items-center justify-center py-8">
-    <div class="max-w-lg w-full fade-in-up">
+<div class="page-center py-8">
+    <div class="fade-in-up narrow">
         <div class="card p-8">
             <!-- Header -->
-            <div class="text-center mb-8">
-                <h1 class="font-display text-2xl font-bold text-primary mb-2">Add Profile</h1>
+            <div class="mb-8 text-center">
+                <h1 class="font-bold font-display mb-2 text-2xl text-primary">Add Profile</h1>
                 <p class="text-secondary">For sending removal requests as a second identity (e.g. a spouse or family member) from this same install.</p>
             </div>
 
@@ -22,16 +22,12 @@
                 <!-- Navigation -->
                 <div class="flex items-center justify-between pt-6">
                     <a href="/settings" class="btn btn-ghost">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
+                        {{icon "chevron-left" "w-4 h-4"}}
                         Cancel
                     </a>
                     <button type="submit" class="btn btn-primary">
                         Add Profile
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
+                        {{icon "chevron-right" "w-4 h-4"}}
                     </button>
                 </div>
             </form>

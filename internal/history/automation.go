@@ -16,7 +16,7 @@ type AutomationAttempt struct {
 }
 
 func (s *Store) migrateAutomation() error {
-	_, err := s.db.Exec(`CREATE TABLE IF NOT EXISTS automation_attempts (
+	_, err := s.exec(`CREATE TABLE IF NOT EXISTS automation_attempts (
 		profile_id TEXT NOT NULL, action_key TEXT NOT NULL, subject TEXT NOT NULL,
 		state TEXT NOT NULL, note TEXT NOT NULL DEFAULT '', updated_at DATETIME NOT NULL,
 		PRIMARY KEY (profile_id, action_key)
@@ -28,7 +28,7 @@ func (s *Store) migrateAutomation() error {
 // ClaimAutomationAction is atomic across MCP processes. A crash leaves the attempt
 // unknown, so a possible submission is never retried automatically.
 func (s *Store) ClaimAutomationAction(profileID, key, subject string) error {
-	r, err := s.db.Exec(`INSERT INTO automation_attempts
+	r, err := s.exec(`INSERT INTO automation_attempts
 		(profile_id, action_key, subject, state, updated_at)
 		SELECT ?, ?, ?, 'unknown', ? WHERE NOT EXISTS
 		(SELECT 1 FROM automation_attempts WHERE profile_id = ? AND subject = ?
@@ -54,7 +54,7 @@ func (s *Store) FinishAutomationAction(profileID, key, state, note string) error
 	default:
 		return fmt.Errorf("invalid automation outcome")
 	}
-	r, err := s.db.Exec(`UPDATE automation_attempts SET state = ?, note = ?, updated_at = ?
+	r, err := s.exec(`UPDATE automation_attempts SET state = ?, note = ?, updated_at = ?
 		WHERE profile_id = ? AND action_key = ?`, state, note, time.Now(), normalizeProfileID(profileID), key)
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func (s *Store) FinishAutomationAction(profileID, key, state, note string) error
 }
 
 func (s *Store) GetAutomationAttempts(profileID, subject string) ([]AutomationAttempt, error) {
-	rows, err := s.db.Query(`SELECT action_key, subject, state, note FROM automation_attempts
+	rows, err := s.query(`SELECT action_key, subject, state, note FROM automation_attempts
 		WHERE profile_id = ? AND subject = ? ORDER BY updated_at`, normalizeProfileID(profileID), subject)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func (s *Store) GetAutomationAttempts(profileID, subject string) ([]AutomationAt
 
 // RetryAutomationAction is only for an explicitly reviewed failed attempt.
 func (s *Store) RetryAutomationAction(profileID, key string) error {
-	r, err := s.db.Exec(`DELETE FROM automation_attempts WHERE profile_id = ? AND action_key = ?
+	r, err := s.exec(`DELETE FROM automation_attempts WHERE profile_id = ? AND action_key = ?
 		AND state != 'submitted'`, normalizeProfileID(profileID), key)
 	if err != nil {
 		return err
@@ -102,7 +102,7 @@ func (s *Store) RetryAutomationAction(profileID, key string) error {
 // task per form however often an agent resumes.
 func (s *Store) EnsureAutomationTask(profileID, brokerID, brokerName string, kind TaskType, rawURL, actor string) (*PendingTask, error) {
 	profileID = normalizeProfileID(profileID)
-	_, err := s.db.Exec(`INSERT INTO pending_tasks
+	_, err := s.exec(`INSERT INTO pending_tasks
 		(profile_id, broker_id, broker_name, task_type, form_url, notes, status, created_at, actor)
 		SELECT ?, ?, ?, ?, ?, 'Opened through MCP', 'pending', ?, ? WHERE NOT EXISTS
 		(SELECT 1 FROM pending_tasks WHERE profile_id = ? AND broker_id = ? AND form_url = ?)`,
@@ -111,7 +111,7 @@ func (s *Store) EnsureAutomationTask(profileID, brokerID, brokerName string, kin
 		return nil, err
 	}
 	var id int64
-	err = s.db.QueryRow(`SELECT id FROM pending_tasks WHERE profile_id = ? AND broker_id = ? AND form_url = ?
+	err = s.queryRow(`SELECT id FROM pending_tasks WHERE profile_id = ? AND broker_id = ? AND form_url = ?
 		ORDER BY id DESC LIMIT 1`, profileID, brokerID, rawURL).Scan(&id)
 	if err != nil {
 		return nil, err
@@ -127,7 +127,7 @@ func (s *Store) UpdateAutomationTask(profileID string, id int64, actor, reviewRe
 	if completed {
 		status, at = "completed", time.Now()
 	}
-	r, err := s.db.Exec(`UPDATE pending_tasks SET notes = ?, screenshot_path = ?, status = ?, completed_at = ?, actor = ?, review_reason = ?
+	r, err := s.exec(`UPDATE pending_tasks SET notes = ?, screenshot_path = ?, status = ?, completed_at = ?, actor = ?, review_reason = ?
 		WHERE profile_id = ? AND id = ? AND status = 'pending'`, note, screenshot, status, at, actor, reviewReason, normalizeProfileID(profileID), id)
 	if err != nil {
 		return err

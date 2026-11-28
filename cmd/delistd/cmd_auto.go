@@ -48,7 +48,7 @@ progress exits quietly.`,
 				mode := "once"
 				if schedule.UnderOSJob() {
 					mode = "os"
-				} else if config.Getenv("DELISTD_AUTO_MODE") == "serve" {
+				} else if os.Getenv("DELISTD_AUTO_MODE") == "serve" {
 					mode = "serve" // started by the web UI's scheduler
 				}
 				return runAutoCycle(mode)

@@ -23,21 +23,29 @@ import (
 )
 
 type Server struct {
-	// Inbox connects to this server's INBOX, archiving to "Eraser".
+	// Inbox connects to this server's INBOX, archiving to "Delistd".
 	Inbox   config.InboxConfig
 	backend *memory.Backend
 }
 
-// Start serves an empty INBOX (plus the memory backend's one sample message).
-// move adds MOVE support, which the memory backend lacks, so archiving can
-// take either the MOVE or the COPY+EXPUNGE path.
-func Start(t testing.TB, move bool) *Server {
+// Options picks the extensions the test server offers.
+type Options struct {
+	Move    bool // MOVE (RFC 6851)
+	UIDPlus bool // UIDPLUS (RFC 4315): UID EXPUNGE
+}
+
+// StartWith serves an empty INBOX (plus the memory backend's one sample message) with the extensions o asks for.
+func StartWith(t testing.TB, o Options) *Server {
 	t.Helper()
+	move := o.Move
 	s := &Server{backend: memory.New()}
 	ts := httptest.NewTLSServer(http.NotFoundHandler())
 	t.Cleanup(ts.Close)
 
 	srv := server.New(&wrapper{Backend: s.backend, move: move})
+	if o.UIDPlus {
+		srv.Enable(uidplusExt{})
+	}
 	srv.TLSConfig = ts.TLS.Clone()
 	srv.ErrorLog = log.New(io.Discard, "", 0)
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
@@ -48,7 +56,7 @@ func Start(t testing.TB, move bool) *Server {
 	t.Cleanup(func() { _ = srv.Close() })
 
 	s.Inbox = config.InboxConfig{Enabled: true, Server: "127.0.0.1", Port: ln.Addr().(*net.TCPAddr).Port,
-		Email: "username", Password: "password", Folder: "INBOX", ArchiveFolder: "Eraser"}
+		Email: "username", Password: "password", Folder: "INBOX", ArchiveFolder: "Delistd"}
 	return s
 }
 

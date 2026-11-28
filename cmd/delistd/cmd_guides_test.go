@@ -10,10 +10,39 @@ import (
 	"github.com/drumandbytes/delistd/internal/broker"
 )
 
-func TestRunGuidesMarkdown(t *testing.T) {
-	dir := t.TempDir()
-	brokersPath := filepath.Join(dir, "brokers.yaml")
-	if err := os.WriteFile(brokersPath, []byte(`brokers:
+type guidesFile struct {
+	Guides []guideEntry `json:"guides"`
+}
+
+func readGuides(t *testing.T, dataDir string) map[string]guideEntry {
+	t.Helper()
+	raw, err := os.ReadFile(filepath.Join(dataDir, "guides.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var f guidesFile
+	if err := json.Unmarshal(raw, &f); err != nil {
+		t.Fatal(err)
+	}
+	m := map[string]guideEntry{}
+	for _, g := range f.Guides {
+		m[g.ID] = g
+	}
+	return m
+}
+
+func useBrokers(t *testing.T, yaml string) {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), "brokers.yaml")
+	if err := os.WriteFile(path, []byte(yaml), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func(b string) func() { return func() { brokerFile = b } }(brokerFile))
+	brokerFile = path
+}
+
+func TestRunGuidesData(t *testing.T) {
+	useBrokers(t, `brokers:
   - id: acme
     name: Acme People Finder
     email: privacy@acme.example
@@ -30,79 +59,62 @@ func TestRunGuidesMarkdown(t *testing.T) {
     name: No Contact Bureau
     region: us
     category: background-check
-`), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	defer func(b string) { brokerFile = b }(brokerFile)
-	brokerFile = brokersPath
-
-	out := filepath.Join(dir, "site", "content")
-	if err := runGuides(out, "md"); err != nil {
+`)
+	out := t.TempDir()
+	if err := runGuides(out); err != nil {
 		t.Fatalf("runGuides: %v", err)
 	}
 
-	// Curated: people-search + background-check get pages; marketing does not.
-	if _, err := os.Stat(filepath.Join(out, "brokers", "acme.md")); err != nil {
-		t.Errorf("acme.md missing: %v", err)
+	// Curated: people-search + background-check get guides; marketing does not.
+	guides := readGuides(t, out)
+	if _, ok := guides["acme"]; !ok {
+		t.Error("acme has no guide")
 	}
-	if _, err := os.Stat(filepath.Join(out, "brokers", "nocontact.md")); err != nil {
-		t.Errorf("nocontact.md missing: %v", err)
+	if _, ok := guides["nocontact"]; !ok {
+		t.Error("nocontact has no guide")
 	}
-	if _, err := os.Stat(filepath.Join(out, "brokers", "globex-ads.md")); !os.IsNotExist(err) {
-		t.Errorf("marketing broker should not get a page")
+	if _, ok := guides["globex-ads"]; ok {
+		t.Error("marketing broker should not get a guide")
 	}
 
-	acme, _ := os.ReadFile(filepath.Join(out, "brokers", "acme.md"))
-	s := string(acme)
-	for _, want := range []string{
-		`title: "How to opt out of Acme People Finder"`,
-		`last_checked: "2026-08-01"`,
-		"Includes a ready-to-send request letter.", // description mentions the rendered letters
-		"https://acme.example/opt-out",
-		"## At a glance", "People-search site", "United States (CCPA", "Web form, with an email fallback",
-		"## About people-search sites", "## Related reading",
-		"Article 17",        // GDPR body rendered
-		"1798.105",          // CCPA body rendered
-		"[your first name]", // placeholder, not a real profile
-	} {
-		if !strings.Contains(s, want) {
-			t.Errorf("acme.md missing %q", want)
+	acme := guides["acme"]
+	if acme.Title != "How to opt out of Acme People Finder" || acme.LastChecked != "2026-08-01" ||
+		acme.CategoryTitle != "People Search" || acme.CategoryLabel != "People-search site" ||
+		acme.Route != "Web form, with an email fallback" || !strings.HasPrefix(acme.Law, "United States (CCPA") {
+		t.Errorf("acme entry: %+v", acme)
+	}
+	if !strings.Contains(acme.Description, "Includes a ready-to-send request letter.") {
+		t.Errorf("description does not mention the letters: %q", acme.Description)
+	}
+	for name, want := range map[string]string{"GDPR": "Article 17", "CCPA": "1798.105", "placeholder": "[your first name]"} {
+		if !strings.Contains(acme.GDPR+acme.CCPA, want) {
+			t.Errorf("letters miss the %s text %q", name, want)
 		}
 	}
 
-	// nocontact has no email/URL -> "no public opt-out" wording.
-	nc, _ := os.ReadFile(filepath.Join(out, "brokers", "nocontact.md"))
-	if !strings.Contains(string(nc), "No public opt-out") {
-		t.Errorf("nocontact.md should note the missing contact info")
-	}
-
-	// Directory JSON has every broker, curated flag set correctly.
-	jb, err := os.ReadFile(filepath.Join(dir, "site", "static", "brokers.json"))
+	// The directory lists every broker, with the curated flag set.
+	raw, err := os.ReadFile(filepath.Join(out, "brokers.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	var entries []struct {
-		ID      string `json:"id"`
-		Curated bool   `json:"curated"`
+	var dir struct {
+		Brokers []struct {
+			ID      string `json:"id"`
+			Curated bool   `json:"curated"`
+		} `json:"brokers"`
 	}
-	if err := json.Unmarshal(jb, &entries); err != nil {
+	if err := json.Unmarshal(raw, &dir); err != nil {
 		t.Fatal(err)
 	}
-	if len(entries) != 3 {
-		t.Fatalf("directory has %d entries, want 3", len(entries))
+	if len(dir.Brokers) != 3 {
+		t.Fatalf("directory has %d entries, want 3", len(dir.Brokers))
 	}
 	byID := map[string]bool{}
-	for _, e := range entries {
+	for _, e := range dir.Brokers {
 		byID[e.ID] = e.Curated
 	}
 	if !byID["acme"] || byID["globex-ads"] {
 		t.Errorf("curated flags wrong: %+v", byID)
-	}
-}
-
-func TestRunGuidesBadFormat(t *testing.T) {
-	if err := runGuides(t.TempDir(), "pdf"); err == nil {
-		t.Error("expected error for unknown format")
 	}
 }
 
@@ -126,9 +138,7 @@ func TestRelatedGuides(t *testing.T) {
 }
 
 func TestGuidesResearchedFields(t *testing.T) {
-	dir := t.TempDir()
-	brokersPath := filepath.Join(dir, "brokers.yaml")
-	if err := os.WriteFile(brokersPath, []byte(`brokers:
+	useBrokers(t, `brokers:
   - id: adco
     name: Ad Co
     email: privacy@adco.example
@@ -146,34 +156,26 @@ func TestGuidesResearchedFields(t *testing.T) {
     name: Plain Co
     region: us
     category: marketing
-`), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	defer func(b string) { brokerFile = b }(brokerFile)
-	brokerFile = brokersPath
-
-	out := filepath.Join(dir, "site", "content")
-	if err := runGuides(out, "md"); err != nil {
+`)
+	out := t.TempDir()
+	if err := runGuides(out); err != nil {
 		t.Fatalf("runGuides: %v", err)
 	}
-	if _, err := os.Stat(filepath.Join(out, "brokers", "plain.md")); !os.IsNotExist(err) {
-		t.Errorf("a long-tail broker without guide: true must not get a page")
+	guides := readGuides(t, out)
+	if _, ok := guides["plain"]; ok {
+		t.Error("a long-tail broker without guide: true must not get a guide")
 	}
-	b, err := os.ReadFile(filepath.Join(out, "brokers", "adco.md"))
-	if err != nil {
-		t.Fatalf("guide: true broker has no page: %v", err)
+	g, ok := guides["adco"]
+	if !ok {
+		t.Fatal("guide: true broker has no guide")
 	}
-	s := string(b)
-	for _, want := range []string{
-		"**Operated by:** Ad Holdings Inc., Austin, USA", "**Data they say they hold:** email addresses and device IDs",
-		"**Identity check:** none stated", "**Response time in their policy:** 45 days",
-		"## Sources", "read on 2026-10-25", "<https://adco.example/privacy>", "## About marketing-data brokers",
-	} {
-		if !strings.Contains(s, want) {
-			t.Errorf("missing %q in:\n%s", want, s)
-		}
+	if g.Parent != "Ad Holdings Inc." || g.HQ != "Austin, USA" || g.Holds != "email addresses and device IDs" ||
+		g.Verification != "none stated" || g.ResponseTime != "45 days" || g.Researched != "2026-10-25" ||
+		g.CategoryLabel != "Marketing-data broker" {
+		t.Errorf("researched fields not carried: %+v", g)
 	}
-	if strings.Contains(s, "not a url") {
-		t.Errorf("an invalid source URL should be dropped by sanitizing:\n%s", s)
+	// An invalid source URL is dropped when the list is loaded.
+	if len(g.Sources) != 1 || g.Sources[0] != "https://adco.example/privacy" {
+		t.Errorf("sources = %v", g.Sources)
 	}
 }

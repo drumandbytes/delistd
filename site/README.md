@@ -1,6 +1,6 @@
 # site/
 
-The docs site — [delistd.dev](https://delistd.dev/?ref=delistd-site-readme),
+The docs site: [delistd.dev](https://delistd.dev/?ref=delistd-site-readme),
 built with [Hugo](https://gohugo.io) and deployed to Cloudflare Pages by
 `.github/workflows/deploy.yaml` on every push to `main` that touches the broker
 data, `site/`, or the guide generator.
@@ -11,18 +11,15 @@ data, `site/`, or the guide generator.
 ./site/build.sh            # or: ./site/build.sh serve
 ```
 
-That runs `delistd guides` to generate `content/brokers/*.md` +
-`static/brokers.json`, copies `data/authorities.yaml` in, and runs `hugo --minify`
-into `site/public/`. All generated files are gitignored.
+It runs `delistd guides` (writes `site/data/guides.json` and `brokers.json`, which Hugo turns into the directory and the per-broker guide pages in `content/brokers/_content.gotmpl`), `scripts/docs-versions`, copies `data/authorities.yaml` in, and builds into `site/public/`. The generated files are gitignored.
 
 ## Layout
 
-- `content/` — hand-written pages (`_index.md`, `guides/*.md`, `authorities.md`);
-  `content/brokers/*.md` is generated.
-- `layouts/` — the theme, ~6 small templates.
-- `static/css/site.css` — one stylesheet; its palette mirrors the app's light
-  tokens (`internal/web/static/css/tokens.css`).
-- `static/CNAME` — the custom domain.
+- `content/`: hand-written pages (`_index.md`, `guides/*.md`, `authorities.md`);
+  the guide pages under `/brokers/` come from `content/brokers/_content.gotmpl`.
+- `layouts/`: the theme: base, home, directory, docs and guide templates and partials (`partials/guide-body.md` is the body of a broker guide).
+- `static/css/`: `site.css` imports `tokens.css` and `base.css`; the Coral palette mirrors the app's (`internal/web/static/css/tokens.css`).
+- `static/CNAME`: the custom domain.
 
 ## Versioned docs
 

@@ -75,7 +75,6 @@ type DeviceCode struct {
 	Message         string `json:"message"`
 }
 
-// Token is a successful token response.
 type Token struct {
 	Access  string
 	Refresh string

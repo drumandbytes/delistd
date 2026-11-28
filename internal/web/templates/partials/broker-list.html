@@ -1,6 +1,6 @@
 <!-- Count header -->
-<div class="px-4 py-3 border-b border-[var(--border)] bg-elevated">
-    <p class="text-sm text-secondary">Showing <span class="font-medium text-primary">{{.Filtered}}</span> of <span class="font-medium text-primary">{{.Total}}</span> brokers{{if .CountryHidden}} <span class="text-muted">&middot; {{.CountryHidden}} hidden - they only handle countries other than {{.Country}}</span>{{end}}</p>
+<div class="bg-elevated border-b px-4 py-3">
+    <p class="note-secondary">{{if gt .Filtered (len .Brokers)}}Showing the first <span class="emph">{{len .Brokers}}</span> of <span class="emph">{{.Filtered}}</span> matching, out of{{else}}Showing <span class="emph">{{.Filtered}}</span> of{{end}} <span class="emph">{{.Total}}</span> brokers{{if .CountryHidden}} <span class="text-muted">&middot; {{.CountryHidden}} hidden - they only handle countries other than {{.Country}}</span>{{end}}</p>
 </div>
 
 <!-- Desktop Table -->
@@ -20,9 +20,9 @@
             <tr>
                 <td>
                     <div class="flex flex-col">
-                        <span class="font-medium text-primary">{{.Name}}</span>
+                        <span class="emph">{{.Name}}</span>
                         {{if .Email}}
-                        <span class="text-sm text-muted">{{.Email}}</span>
+                        <span class="note">{{.Email}}</span>
                         {{else}}
                         <span class="text-sm text-warning" title="Needs manual follow-up - no email on file">No email on file</span>
                         {{end}}
@@ -31,21 +31,21 @@
                 </td>
                 <td>
                     {{if .Category}}
-                    <span class="badge badge-neutral">{{.Category}}</span>
+                    <span class="badge badge-neutral" title="Category">{{.Category}}</span>
                     {{else}}
                     <span class="text-muted">—</span>
                     {{end}}
                 </td>
                 <td>
                     {{if .Region}}
-                    <span class="text-secondary uppercase text-sm">{{.Region}}</span>
+                    <span class="text-secondary text-sm uppercase">{{.Region}}</span>
                     {{else}}
                     <span class="text-muted">—</span>
                     {{end}}
                 </td>
                 <td id="status-{{.ID}}">{{template "partials/broker-status.html" .}}</td>
                 <td class="text-right">
-                    <div id="actions-{{.ID}}" class="flex items-center justify-end gap-2">{{template "partials/broker-actions-desktop.html" .}}</div>
+                    <div id="actions-{{.ID}}" class="flex gap-2 items-center justify-end">{{template "partials/broker-actions-desktop.html" .}}</div>
                 </td>
             </tr>
             {{else}}
@@ -58,32 +58,42 @@
 </div>
 
 <!-- Mobile Cards -->
-<div class="md:hidden divide-y divide-[var(--border-subtle)]">
+<div class="divide-subtle divide-y md:hidden">
     {{range .Brokers}}
     <div class="p-4">
-        <div class="flex items-start justify-between gap-3 mb-3">
+        <div class="flex gap-3 items-start justify-between mb-3">
             <div class="min-w-0">
-                <h3 class="font-medium text-primary">{{.Name}}</h3>
+                <h3 class="emph">{{.Name}}</h3>
                 {{if .Email}}
-                <p class="text-sm text-muted break-all">{{.Email}}</p>
+                <p class="break-all text-muted text-sm">{{.Email}}</p>
                 {{else}}
                 <p class="text-sm text-warning">No email on file</p>
                 {{end}}
             </div>
             <div id="status-mobile-{{.ID}}">{{template "partials/broker-status.html" .}}</div>
         </div>
-        <div class="flex flex-wrap items-center gap-2 mb-3 text-sm">
+        <div class="flex flex-wrap gap-2 items-center mb-3 text-sm">
             {{if .Category}}
-            <span class="badge badge-neutral">{{.Category}}</span>
+            <span class="badge badge-neutral" title="Category">{{.Category}}</span>
             {{end}}
             {{if .Region}}
-            <span class="text-muted uppercase">{{.Region}}</span>
+            <span class="text-muted uppercase" title="Region">{{.Region}}</span>
             {{end}}
             {{if .Countries}}<span class="badge badge-neutral" title="Only handles requests from these countries">Only {{range $i, $c := .Countries}}{{if $i}}, {{end}}{{$c}}{{end}}</span>{{end}}
         </div>
-        <div id="actions-mobile-{{.ID}}" class="flex gap-2">{{template "partials/broker-actions-mobile.html" .}}</div>
+        <div id="actions-mobile-{{.ID}}" class="cluster">{{template "partials/broker-actions-mobile.html" .}}</div>
     </div>
     {{else}}
     <div class="p-8 text-center">{{template "partials/broker-empty.html" .}}</div>
     {{end}}
+{{if gt .Filtered (len .Brokers)}}
+<div class="border-t p-4 text-center">
+    <button type="button" class="btn btn-secondary"
+        hx-get="/api/brokers" hx-target="#broker-list" hx-swap="innerHTML"
+        hx-vals='{"limit": {{add .Limit 50}}}'
+        hx-include="#broker-filters">
+        Show {{if gt (sub .Filtered (len .Brokers)) 50}}50{{else}}{{sub .Filtered (len .Brokers)}}{{end}} more
+    </button>
+</div>
+{{end}}
 </div>

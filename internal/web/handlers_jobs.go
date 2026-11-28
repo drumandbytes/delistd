@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/drumandbytes/delistd/internal/broker"
 	"github.com/drumandbytes/delistd/internal/config"
 	"github.com/drumandbytes/delistd/internal/email"
 	"github.com/drumandbytes/delistd/internal/history"
@@ -148,7 +149,7 @@ func (s *Server) handleAPISendAll(w http.ResponseWriter, r *http.Request) {
 	if status == "" {
 		status = "eligible"
 	}
-	if status != "eligible" && status != "never" && status != "failed" && status != "all" {
+	if !history.IsSendFilter(status) {
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Status must be eligible, never, failed, or all."})
 		return
@@ -161,7 +162,7 @@ func (s *Server) handleAPISendAll(w http.ResponseWriter, r *http.Request) {
 
 	// Bulk send never targets missing-email or excluded brokers - there's
 	// nowhere to send, and exclusion means "don't send to this one".
-	toSend := s.getBrokersWithStatus(activeProfile.ID, search, category, region, status, includeIDs, excludeIDs, false, false)
+	toSend := s.listBrokers(activeProfile.ID, brokerQuery{Search: search, Category: category, Region: region, Status: status, Only: includeIDs, Skip: excludeIDs})
 	filtered := toSend[:0:0]
 	for _, b := range toSend {
 		if strings.TrimSpace(b.Email) != "" {
@@ -217,24 +218,17 @@ func (s *Server) handleAPISendAll(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// defaultDailyLimit is used only if the config's daily_send_limit is unset -
-// config.Load already fills this in normally, so this is just a safety net.
-const defaultDailyLimit = 250 // stay well under typical provider caps (Gmail ~500/day)
-
 // effectiveDailyLimit is the configured limit if positive, else the default.
 // Shared by the banner and processSendJob so they can't disagree.
 func effectiveDailyLimit(cfg *config.Config) int {
 	if cfg != nil && cfg.Options.DailySendLimit > 0 {
 		return cfg.Options.DailySendLimit
 	}
-	return defaultDailyLimit
+	return config.DefaultDailySendLimit
 }
 
 // processSendJob runs in a background goroutine to send emails
 func (s *Server) processSendJob(job *Job, toSend []BrokerWithStatus, sender *email.SMTPSender) {
-	sent := 0
-	failed := 0
-
 	cfg := s.getConfig()
 
 	// This runs in a background goroutine with no *http.Request to read the
@@ -249,11 +243,6 @@ func (s *Server) processSendJob(job *Job, toSend []BrokerWithStatus, sender *ema
 		if profiles := cfg.GetProfiles(); len(profiles) > 0 {
 			activeProfile = profiles[0]
 		}
-	}
-
-	rateLimitMs := cfg.Options.RateLimitMs
-	if rateLimitMs == 0 {
-		rateLimitMs = 2000 // Default 2 second delay
 	}
 
 	// Respect the same daily_send_limit the CLI `send` command uses, so the
@@ -272,59 +261,44 @@ func (s *Server) processSendJob(job *Job, toSend []BrokerWithStatus, sender *ema
 		}
 	}
 
+	brokers := make([]broker.Broker, len(toSend))
 	for i, b := range toSend {
-		if job.IsCancelled() {
-			break
-		}
-
-		// Check daily limit
-		if alreadySentToday+sent >= dailyLimit {
-			next := "Click Send all again tomorrow to send the rest, or turn on automation in Settings."
-			if s.inAppScheduling() || s.osInstalled() {
-				next = "Automation will send the rest once the limit frees up."
-			}
-			left := len(toSend) - i
-			job.Pause(sent, fmt.Sprintf("Daily limit of %d emails reached. %d brokers remaining. %s", dailyLimit, left, next))
-			log.Printf("Job paused: daily limit of %d reached (%d already sent today, %d this run), %d remaining", dailyLimit, alreadySentToday, sent, left)
-			return
-		}
-
-		job.Update(sent, failed, b.Name, b.ID)
-
-		ctx, cancel := context.WithTimeout(job.Context(), 30*time.Second)
-		record, err := email.SendRemoval(ctx, sender, s.tmplEngine, cfg.Options.Template, activeProfile, cfg.EmailForProfile(activeProfile).From, b.Broker)
-		cancel()
-		if err != nil {
-			failed++
-			job.Update(sent, failed, b.Name, b.ID)
-			continue
-		}
-		s.recordSend(record)
-
-		if record.Status == history.StatusSent {
-			sent++
-			job.ResetAuthFailures()
-		} else {
-			failed++
-			if strings.Contains(strings.ToLower(record.Error), "auth") && job.RecordAuthFailure() {
-				job.StopWithError("auth", "Stopped due to repeated authentication failures. Your email provider may have rate-limited or blocked your account. Please check your email settings and try again later.")
-				log.Printf("Job stopped: repeated auth failures after %d sent, %d failed", sent, failed)
-				return
-			}
-		}
-
-		job.Update(sent, failed, b.Name, b.ID)
-
-		// Rate limit delay (skip on last item)
-		if i < len(toSend)-1 && !job.IsCancelled() {
-			time.Sleep(time.Duration(rateLimitMs) * time.Millisecond)
-		}
+		brokers[i] = b.Broker
 	}
+	rateLimitMs := cfg.Options.RateLimitMs
+	if rateLimitMs == 0 {
+		rateLimitMs = config.DefaultRateLimitMs
+	}
+	batch := &email.Batch{
+		Sender: sender, Engine: s.tmplEngine, Template: cfg.Options.Template, Profile: activeProfile,
+		From:        cfg.EmailForProfile(activeProfile).From,
+		RateLimit:   time.Duration(rateLimitMs) * time.Millisecond,
+		SendTimeout: 30 * time.Second,
+		Budget:      max(dailyLimit-alreadySentToday, 0),
+		Record:      func(r *history.Record) error { s.recordSend(r); return nil },
+		Before:      func(_ int, b broker.Broker, sent, failed int) { job.Update(sent, failed, b.Name, b.ID) },
+		After:       func(a email.Attempt) { job.Update(a.Sent, a.Failed, a.Broker.Name, a.Broker.ID) },
+	}
+	res := batch.Run(job.Context(), brokers)
 
-	job.Complete()
+	switch res.Stop {
+	case email.StopDailyLimit:
+		next := "Click Send all again tomorrow to send the rest, or turn on automation in Settings."
+		if s.inAppScheduling() || s.osInstalled() {
+			next = "Automation will send the rest once the limit frees up."
+		}
+		job.Pause(res.Sent, fmt.Sprintf("Daily limit of %d emails reached. %d brokers remaining. %s", dailyLimit, res.Left, next))
+		log.Printf("Job paused: daily limit of %d reached (%d already sent today, %d this run), %d remaining", dailyLimit, alreadySentToday, res.Sent, res.Left)
+	case email.StopAuth:
+		job.StopWithError("auth", "Stopped due to repeated authentication failures. Your email provider may have rate-limited or blocked your account. Please check your email settings and try again later.")
+		log.Printf("Job stopped: repeated auth failures after %d sent, %d failed", res.Sent, res.Failed)
+	case email.StopCancelled:
+		// whoever cancelled the job already set its status
+	default:
+		job.Complete()
+	}
 }
 
-// handleAPIJobActive returns the currently running job (if any)
 func (s *Server) handleAPIJobActive(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -337,7 +311,6 @@ func (s *Server) handleAPIJobActive(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(map[string]any{"job": job})
 }
 
-// handleAPIJobStatus returns the status of a specific job
 func (s *Server) handleAPIJobStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 

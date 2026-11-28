@@ -30,7 +30,7 @@ func deliverNDR(t *testing.T, srv *imaptest.Server, addr string) {
 }
 
 func TestScanSortsBounces(t *testing.T) {
-	srv := imaptest.Start(t, false)
+	srv := imaptest.StartWith(t, imaptest.Options{Move: false})
 	deliverNDR(t, srv, "privacy@acme.example")
 	deliverNDR(t, srv, "privacy@acme.example") // the same address twice
 	deliverNDR(t, srv, "dpo@globex.example")   // never emailed
@@ -155,7 +155,7 @@ func TestClearReportsSaveFailures(t *testing.T) {
 
 	// The user's own entries can't be written: their folder is read-only.
 	home := t.TempDir()
-	delistdDir := filepath.Join(home, ".eraser")
+	delistdDir := filepath.Join(home, ".delistd")
 	if err := os.MkdirAll(delistdDir, 0o500); err != nil {
 		t.Fatal(err)
 	}

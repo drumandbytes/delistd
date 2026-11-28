@@ -442,3 +442,39 @@ func TestCheckPassphraseSkipsValuesThatAreNotProtected(t *testing.T) {
 		t.Error("the protected value must still be checked")
 	}
 }
+
+func TestLoadWithoutPasswordsSkipsMachineID(t *testing.T) {
+	withMachineID(t, "machine-one")
+	p := writeCfg(t, secretCfg)
+	full, err := Load(p) // migrates the plaintext passwords to encrypted
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := Save(p, full); err != nil {
+		t.Fatal(err)
+	}
+
+	machineID = func() (string, error) { t.Fatal("LoadWithoutPasswords read the machine ID"); return "", nil }
+	lean, err := LoadWithoutPasswords(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !isEncrypted(lean.Email.SMTP.Password) || !isEncrypted(lean.Inbox.Password) {
+		t.Fatal("passwords should stay encrypted")
+	}
+	if lean.Email.From != "a@b.co" || len(lean.Profiles) != 1 {
+		t.Fatalf("the rest of the config should load as usual: %+v", lean.Email)
+	}
+
+	withMachineID(t, "machine-one")
+	if err := Save(p, lean); err != nil {
+		t.Fatal(err)
+	}
+	again, err := Load(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if again.Email.SMTP.Password != "shared-smtp-secret" || again.Inbox.Password != "shared-imap-secret" {
+		t.Fatal("Save after LoadWithoutPasswords lost or double-encrypted a password")
+	}
+}

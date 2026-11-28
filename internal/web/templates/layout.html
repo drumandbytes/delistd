@@ -10,398 +10,68 @@
 
     <script src="/static/js/htmx.min.js"></script>
 
-    <!-- Design tokens (colour / elevation / type custom properties, both
-         themes). Loaded first; it only declares custom properties, so cascade
-         order against the rules below does not matter. -->
     <link rel="stylesheet" href="/static/css/tokens.css">
-
-    <style>
-        /* ============================================
-           DELISTD DESIGN SYSTEM - "Ops Console"
-           Dense, dark-first, monospace accents for data.
-           Colour / elevation / type tokens: static/css/tokens.css
-           Layout / spacing / sizing utilities: static/css/utilities.css
-           ============================================ */
-
-        /* ============================================
-           BASE STYLES
-           ============================================ */
-
-        * {
-            font-family: var(--font-body);
-        }
-
-        h1, h2, h3, h4, h5, h6, .font-display {
-            font-family: var(--font-display);
-            letter-spacing: -0.015em;
-        }
-
-        .font-mono {
-            font-family: var(--font-mono);
-        }
-
-        body {
-            background: var(--bg-base);
-            color: var(--text-secondary);
-            min-height: 100vh;
-            position: relative;
-            font-size: 15px;
-        }
-
-        /* ============================================
-           ANIMATIONS
-           ============================================ */
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
-            50% { box-shadow: 0 0 30px var(--accent-glow), 0 0 40px var(--accent-glow); }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        .fade-in-up {
-            animation: fadeInUp 0.5s ease-out;
-        }
-
-        .float {
-            animation: float 3s ease-in-out infinite;
-        }
-
-        /* Staggered animations for children */
-        .stagger > * {
-            opacity: 0;
-            animation: fadeInUp 0.5s ease-out forwards;
-        }
-        .stagger > *:nth-child(1) { animation-delay: 0.1s; }
-        .stagger > *:nth-child(2) { animation-delay: 0.2s; }
-        .stagger > *:nth-child(3) { animation-delay: 0.3s; }
-        .stagger > *:nth-child(4) { animation-delay: 0.4s; }
-        .stagger > *:nth-child(5) { animation-delay: 0.5s; }
-        .stagger > *:nth-child(6) { animation-delay: 0.6s; }
-
-        /* HTMX indicators */
-        .htmx-indicator { display: none; }
-        .htmx-request .htmx-indicator { display: inline-flex; }
-        .htmx-request.htmx-indicator { display: inline-flex; }
-
-    </style>
-
-    <!-- Utility stylesheet: preflight reset + the layout/spacing/sizing/flex
-         utilities the templates use. Hand-maintained (no Tailwind toolchain);
-         add a rule by hand if a template needs a class that isn't there yet.
-         Deliberately loaded AFTER the <style> block above so a utility like
-         .w-auto wins the cascade over a same-specificity component class like
-         .input{width:100%}. Do not move this <link> earlier. -->
+    <!-- app.css holds the components, utilities.css the layout utilities. The
+         utilities are loaded after so a utility like .w-auto wins over a
+         same-specificity component class like .input; do not reorder. -->
     <link rel="stylesheet" href="/static/css/app.css">
     <link rel="stylesheet" href="/static/css/utilities.css">
-
-    <script>
-        // Theme: "auto" follows the OS, "light" and "dark" are explicit.
-        // Only an explicit choice is stored; auto is the absence of one.
-        const THEME_KEY = 'delistd-theme';
-        const osDark = window.matchMedia('(prefers-color-scheme: dark)');
-        const getThemeMode = () => {
-            let stored = null;
-            try { stored = localStorage.getItem(THEME_KEY); } catch (e) {}
-            return stored === 'light' || stored === 'dark' ? stored : 'auto';
-        };
-        const applyTheme = () => {
-            const mode = getThemeMode();
-            const dark = mode === 'dark' || (mode === 'auto' && osDark.matches);
-            document.documentElement.classList.toggle('light', !dark);
-            document.querySelectorAll('[data-theme-set]').forEach((b) => {
-                b.setAttribute('aria-checked', String(b.dataset.themeSet === mode));
-            });
-        };
-        const setThemeMode = (mode) => {
-            try {
-                if (mode === 'auto') localStorage.removeItem(THEME_KEY);
-                else localStorage.setItem(THEME_KEY, mode);
-            } catch (e) {}
-            applyTheme();
-        };
-        osDark.addEventListener('change', applyTheme);
-
-        // Initialize theme immediately to prevent flash
-        applyTheme();
-    </script>
+    <script src="/static/js/theme.js"></script>
 </head>
 <body>
-    <!-- Navigation: a flush top bar (not a floating pill) so pages get the
-         full viewport width - matters most on data-dense pages like the
-         750+-broker list. -->
     <a href="#main" class="skip-link">Skip to main content</a>
     <nav class="site-nav" aria-label="Main">
         <div class="max-w-6xl mx-auto px-4 site-nav-inner">
-            <!-- Logo -->
-            <a href="/" class="flex items-center gap-2 text-decoration-none">
+            <a href="/" class="row-tight">
                 <img src="/static/favicon.svg" alt="" class="brand-mark" width="26" height="26">
-                <span class="font-display text-[17px] font-semibold text-primary">delistd</span>
+                <span class="font-display font-semibold text-lg text-primary">delistd</span>
             </a>
 
-            <!-- Desktop Navigation -->
-            <div class="hidden sm:flex items-stretch gap-1 desktop-nav h-full">
-                <a href="/" class="nav-link {{if eq .Title "Dashboard"}}active{{end}}">Dashboard</a>
-                <a href="/brokers" class="nav-link {{if eq .Title "Data Brokers"}}active{{end}}">Brokers</a>
-                <a href="/pipeline" class="nav-link {{if eq .Title "Pipeline"}}active{{end}}">Pipeline</a>
-                <a href="/history" class="nav-link {{if eq .Title "History"}}active{{end}}">History</a>
-                <a href="/settings" class="nav-link {{if eq .Title "Settings"}}active{{end}}">Settings</a>
+            <div class="desktop-nav gap-1 h-full hidden items-stretch sm:flex">
+                {{range .Nav}}<a href="{{.Href}}" class="nav-link{{if eq $.Title .Title}} active{{end}}">{{.Label}}</a>{{end}}
             </div>
 
-            <div class="flex items-center gap-2">
-                <!-- Global active-job indicator: hidden by default, shown/
-                     updated by the job-poll script below on any page while
-                     a send job is running, regardless of which page
-                     started it or is currently open. -->
-                <a id="global-job-indicator" href="/brokers" class="hidden items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full text-decoration-none" style="background: var(--accent-muted); color: var(--accent);">
-                    <span class="spinner" style="width: 0.75rem; height: 0.75rem;"></span>
+            <div class="row-tight">
+                <!-- shown on any page while a send job runs, whichever page started it -->
+                <a id="global-job-indicator" href="/brokers" class="font-medium gap-1.5 hidden items-center px-2.5 py-1 rounded-full text-xs tint-info">
+                    <span class="spinner spinner-sm"></span>
                     <span id="global-job-indicator-text">Sending...</span>
                 </a>
-
-                <!-- Profile Switcher (hidden entirely for the common single-profile setup) -->
-                {{if gt (len .Profiles) 1}}
-                <form method="POST" action="/api/profile" class="profile-switcher">
-                    {{.CSRFField}}
-                    <input type="hidden" name="redirect" value="{{.CurrentPath}}">
-                    <select name="profile_id" onchange="this.form.submit()" aria-label="Active profile">
-                        {{range .Profiles}}
-                        <option value="{{.ID}}" {{if eq .ID $.ActiveProfile.ID}}selected{{end}}>{{.FirstName}} {{.LastName}} ({{.ID}})</option>
-                        {{end}}
-                    </select>
-                </form>
-                {{end}}
-
-                <!-- Theme: auto, light or dark -->
-                <div class="theme-switch theme-switch-bar" role="radiogroup" aria-label="Theme">
-                    <button type="button" role="radio" aria-checked="false" data-theme-set="auto" aria-label="Match the system theme" title="Auto" onclick="setThemeMode('auto')">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    </button>
-                    <button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light theme" title="Light" onclick="setThemeMode('light')">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                    </button>
-                    <button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark theme" title="Dark" onclick="setThemeMode('dark')">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-                    </button>
-                </div>
-
-                <!-- Mobile Menu Button -->
-                <button class="mobile-menu sm:hidden theme-toggle" aria-label="Toggle menu" aria-expanded="false" onclick="var m=document.getElementById('mobile-nav'); var open=!m.classList.contains('hidden'); m.classList.toggle('hidden'); this.setAttribute('aria-expanded', String(!open));">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                </button>
+                {{template "partials/profile-switcher.html" (dict "Page" . "FormClass" "" "SelectClass" "")}}
+                {{template "partials/theme-switch.html" "theme-switch-bar"}}
+                <button class="mobile-menu sm:hidden theme-toggle" aria-label="Toggle menu" aria-expanded="false">{{icon "menu" ""}}</button>
             </div>
         </div>
 
-        <!-- Mobile Navigation -->
-        <div id="mobile-nav" class="hidden sm:hidden border-t border-[var(--border)] bg-[var(--bg-surface)]">
-            <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-1">
-                <div class="flex items-center justify-between mb-2 px-3"><span class="text-sm text-muted">Theme</span><div class="theme-switch theme-switch-menu" role="radiogroup" aria-label="Theme">
-                    <button type="button" role="radio" aria-checked="false" data-theme-set="auto" aria-label="Match the system theme" title="Auto" onclick="setThemeMode('auto')">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    </button>
-                    <button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light theme" title="Light" onclick="setThemeMode('light')">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                    </button>
-                    <button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark theme" title="Dark" onclick="setThemeMode('dark')">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-                    </button>
-                </div></div>
-                {{if gt (len .Profiles) 1}}
-                <form method="POST" action="/api/profile" class="profile-switcher mb-2">
-                    {{.CSRFField}}
-                    <input type="hidden" name="redirect" value="{{.CurrentPath}}">
-                    <select name="profile_id" onchange="this.form.submit()" aria-label="Active profile" class="w-full">
-                        {{range .Profiles}}
-                        <option value="{{.ID}}" {{if eq .ID $.ActiveProfile.ID}}selected{{end}}>{{.FirstName}} {{.LastName}} ({{.ID}})</option>
-                        {{end}}
-                    </select>
-                </form>
-                {{end}}
-                <a href="/" class="nav-link-mobile {{if eq .Title "Dashboard"}}active{{end}}">Dashboard</a>
-                <a href="/brokers" class="nav-link-mobile {{if eq .Title "Data Brokers"}}active{{end}}">Brokers</a>
-                <a href="/pipeline" class="nav-link-mobile {{if eq .Title "Pipeline"}}active{{end}}">Pipeline</a>
-                <a href="/history" class="nav-link-mobile {{if eq .Title "History"}}active{{end}}">History</a>
-                <a href="/settings" class="nav-link-mobile {{if eq .Title "Settings"}}active{{end}}">Settings</a>
+        <div id="mobile-nav" class="bg-surface border-t hidden sm:hidden">
+            <div class="flex flex-col gap-1 max-w-6xl mx-auto px-4 py-3">
+                <div class="flex items-center justify-between mb-2 px-3"><span class="note">Theme</span>{{template "partials/theme-switch.html" "theme-switch-menu"}}</div>
+                {{template "partials/profile-switcher.html" (dict "Page" . "FormClass" "mb-2" "SelectClass" "w-full")}}
+                {{range .Nav}}<a href="{{.Href}}" class="nav-link-mobile{{if eq $.Title .Title}} active{{end}}">{{.Label}}</a>{{end}}
             </div>
         </div>
     </nav>
 
-    <!-- Main content -->
-    <main id="main" tabindex="-1" class="max-w-6xl mx-auto pt-8 pb-12 px-4">
-        {{if not .WhatsNew}}{{with .UpgradeNotice}}
-        <div class="notice mb-6" role="status">
-            <div class="notice-icon" aria-hidden="true">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            </div>
-            <div class="notice-body">
-                <p class="notice-title">Config upgraded to 2.0</p>
-                <p class="notice-text">Your 1.x config was migrated: countries are now ISO codes and mail passwords are encrypted. The original is saved as <code title="{{.Backup}}">{{.BackupName}}</code> next to your config, with passwords blanked. Delete it when you're happy.</p>
-                <p class="notice-hint">Moved to a new machine? Re-enter your mail passwords in Settings.</p>
-            </div>
-            <form method="POST" action="/upgrade-notice/dismiss">
-                <button type="submit" class="notice-dismiss" aria-label="Dismiss this notice" title="Dismiss">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </form>
-        </div>
-        {{end}}{{end}}
+    <main id="main" tabindex="-1" class="max-w-6xl mx-auto pb-12 pt-8 px-4">
         {{template "content" .}}
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t border-[var(--border)] mt-auto">
-        <div class="max-w-6xl mx-auto py-6 px-4">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                    <span class="text-sm text-muted">Delistd - Open Source Privacy Protection</span>
+    <footer class="border-t mt-auto">
+        <div class="max-w-6xl mx-auto px-4 py-6">
+            <div class="flex flex-col gap-4 items-center justify-between sm:flex-row">
+                <div class="row-tight">
+                    {{icon "shield-check" "w-5 h-5 text-accent"}}
+                    <span class="note">Delistd - Open Source Privacy Protection</span>
                 </div>
-                <div class="flex items-center gap-4 text-sm text-muted">
-                    <a href="https://github.com/drumandbytes/delistd" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 hover:text-primary transition-colors"><svg class="w-4 h-4" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Source code</a>
+                <div class="flex gap-4 items-center text-muted text-sm">
+                    <a href="https://github.com/drumandbytes/delistd" target="_blank" rel="noopener" class="gap-1.5 hover:text-primary inline-flex items-center transition-colors">{{icon "github" "w-4 h-4"}}Source code</a>
                     <span>{{.Version}}</span>
                 </div>
             </div>
         </div>
     </footer>
 
-    <script>
-        // Configure HTMX to send CSRF token with all requests
-        document.addEventListener('DOMContentLoaded', function() {
-            var csrfToken = document.querySelector('meta[name="csrf-token"]');
-            if (csrfToken) {
-                document.body.addEventListener('htmx:configRequest', function(evt) {
-                    evt.detail.headers['X-CSRF-Token'] = csrfToken.content;
-                });
-            }
-
-            // Mark the active theme choice now that the switch exists
-            applyTheme();
-        });
-    </script>
-
-    <!-- Global send-job polling: runs on every page (not just Brokers) so
-         an active send job is visible no matter where you navigate, and
-         survives leaving/returning to the tab - the job itself runs
-         server-side regardless of what's polling it. Page-specific scripts
-         (e.g. brokers.html's detailed progress card) should call
-         window.delistdJobPoll.start(jobId) to begin tracking a job they
-         just started, and listen for the "delistd:job-update" event on
-         window rather than polling independently, so there's only ever
-         one poll loop per page. -->
-    <script>
-        (function() {
-            let jobId = null;
-            let pollTimer = null;
-
-            function updateIndicator(job) {
-                const el = document.getElementById('global-job-indicator');
-                const text = document.getElementById('global-job-indicator-text');
-                if (!el || !text) return;
-                if (job && job.status === 'running') {
-                    const processed = job.sent + job.failed;
-                    text.textContent = `Sending ${processed}/${job.total}`;
-                    el.classList.remove('hidden');
-                    el.classList.add('flex');
-                } else {
-                    el.classList.add('hidden');
-                    el.classList.remove('flex');
-                }
-            }
-
-            async function poll() {
-                if (!jobId) return;
-                try {
-                    const resp = await fetch(`/api/job/${jobId}/status`);
-                    if (!resp.ok) {
-                        // job gone from this profile's view (switched profile,
-                        // aged out): stop and notify so no card hangs "in progress"
-                        stop();
-                        updateIndicator(null);
-                        window.dispatchEvent(new CustomEvent('delistd:job-update', {
-                            detail: { id: jobId, status: 'error', error_type: 'lost' }
-                        }));
-                        return;
-                    }
-                    const job = await resp.json();
-                    updateIndicator(job);
-                    window.dispatchEvent(new CustomEvent('delistd:job-update', { detail: job }));
-                    if (job.status !== 'running') {
-                        stop();
-                    }
-                } catch (err) {
-                    console.error('job poll error:', err);
-                }
-            }
-
-            function start(id) {
-                jobId = id;
-                stop();
-                poll();
-                pollTimer = setInterval(poll, 1500);
-            }
-
-            function stop() {
-                if (pollTimer) {
-                    clearInterval(pollTimer);
-                    pollTimer = null;
-                }
-            }
-
-            window.delistdJobPoll = {
-                start,
-                stop,
-                get jobId() { return jobId; },
-            };
-
-            document.addEventListener('DOMContentLoaded', async () => {
-                try {
-                    const resp = await fetch('/api/job/active');
-                    const data = await resp.json();
-                    if (data.job && data.job.status === 'running') {
-                        start(data.job.id);
-                    }
-                } catch (err) {
-                    console.error('active job check failed:', err);
-                }
-            });
-        })();
-    </script>
+    <script src="/static/js/app.js"></script>
 </body>
 </html>
 {{end}}

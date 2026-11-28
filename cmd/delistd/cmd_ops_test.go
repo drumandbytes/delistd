@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -14,7 +13,6 @@ import (
 	"time"
 
 	"github.com/drumandbytes/delistd/internal/broker"
-	"github.com/drumandbytes/delistd/internal/config"
 	"github.com/drumandbytes/delistd/internal/history"
 	"github.com/drumandbytes/delistd/internal/imaptest"
 	"github.com/drumandbytes/delistd/internal/schedule"
@@ -25,7 +23,7 @@ import (
 // returns its inbox: YAML.
 func imapInbox(t *testing.T, mails ...[3]string) string {
 	t.Helper()
-	srv := imaptest.Start(t, false)
+	srv := imaptest.StartWith(t, imaptest.Options{Move: false})
 	for _, m := range mails {
 		srv.Deliver(t, "INBOX", m[0], m[1], m[2])
 	}
@@ -332,20 +330,18 @@ func TestValidateBrokers(t *testing.T) {
 	}
 }
 
-func TestGuidesHTML(t *testing.T) {
+func TestGuidesCommandWritesSiteData(t *testing.T) {
 	e := newCLIEnv(t, "")
 	dir := t.TempDir()
-	out, err := e.run(t, "", "guides", "--format", "html", "-o", dir)
+	out, err := e.run(t, "", "guides", "-o", dir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	mustContain(t, out, "Guides generated")
-	matches, _ := filepath.Glob(filepath.Join(dir, "*", "*.html"))
-	if len(matches) == 0 {
-		t.Fatalf("no html pages under %s", dir)
-	}
-	if _, err := e.run(t, "", "guides", "--format", "pdf", "-o", dir); err == nil {
-		t.Error("unknown format accepted")
+	mustContain(t, out, "Guide data written")
+	for _, f := range []string{"guides.json", "brokers.json"} {
+		if _, err := os.Stat(filepath.Join(dir, f)); err != nil {
+			t.Errorf("%s not written: %v", f, err)
+		}
 	}
 }
 
@@ -448,38 +444,15 @@ func TestServeStartupErrors(t *testing.T) {
 	mustContain(t, out, "Config exists but failed to load", "setup wizard")
 }
 
-func TestTruncateHelpers(t *testing.T) {
-	if got := truncateString("abcdefghij", 6); got != "abc..." {
-		t.Errorf("truncateString = %q", got)
-	}
-	if got := truncateURL("https://broker.example/very/long", 12); got != "https://b..." {
-		t.Errorf("truncateURL = %q", got)
-	}
-	if got := truncateURL("short", 12); got != "short" {
-		t.Errorf("truncateURL short = %q", got)
-	}
-}
-
-func TestTwoPointZeroAnnouncementShowsOnce(t *testing.T) {
-	e := newCLIEnv(t, manualConfig)
-	if config.WhatsNewSeen(e.cfgPath) {
-		t.Fatal("setup of the test env should leave it unseen")
-	}
-	r, w, _ := os.Pipe()
-	old := os.Stderr
-	os.Stderr = w
-	_, err := e.run(t, "", "status", "--profile", "default")
-	_ = w.Close()
-	os.Stderr = old
-	if err != nil {
-		t.Fatal(err)
-	}
-	out, _ := io.ReadAll(r)
-	if !strings.Contains(string(out), "Eraser 2.0:") || !config.WhatsNewSeen(e.cfgPath) {
-		t.Errorf("first command should announce 2.0 and remember it: %q", out)
-	}
-	if _, err := e.run(t, "", "status", "--profile", "default"); err != nil {
-		t.Fatal(err)
+func TestTruncate(t *testing.T) {
+	for in, want := range map[string]string{
+		"https://broker.example/very/long": "https://b...",
+		"short":                            "short",
+		"Investigación de crédito":         "Investiga...",
+	} {
+		if got := truncate(in, 12); got != want {
+			t.Errorf("truncate(%q) = %q, want %q", in, got, want)
+		}
 	}
 }
 

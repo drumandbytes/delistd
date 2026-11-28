@@ -1,9 +1,9 @@
 {{define "content"}}
-<div class="min-h-[80vh] flex items-center justify-center py-8">
-    <div class="max-w-lg w-full fade-in-up">
+<div class="page-center py-8">
+    <div class="fade-in-up narrow">
         <div class="card p-8">
-            <div class="text-center mb-8">
-                <h1 class="font-display text-2xl font-bold text-primary mb-2">Add a Broker</h1>
+            <div class="mb-8 text-center">
+                <h1 class="font-bold font-display mb-2 text-2xl text-primary">Add a Broker</h1>
                 <p class="text-secondary">For a company that holds your data but isn't in the list. It's saved on this machine only, and updating the broker list never removes it.</p>
             </div>
 
@@ -16,26 +16,26 @@
                 <div>
                     <label for="name" class="label">Company name <span class="text-error">*</span></label>
                     <input type="text" name="name" id="name" required value="{{.Broker.Name}}" class="input {{if .Errors.name}}border-error{{end}}" placeholder="Acme Data GmbH">
-                    {{if .Errors.name}}<p class="mt-1 text-sm text-error">{{.Errors.name}}</p>{{end}}
+                    {{if .Errors.name}}<p class="field-error">{{.Errors.name}}</p>{{end}}
                 </div>
                 <div>
                     <label for="email" class="label">Privacy / data-protection email</label>
                     <input type="email" name="email" id="email" value="{{.Broker.Email}}" class="input {{if .Errors.email}}border-error{{end}}" placeholder="privacy@example.com">
-                    {{if .Errors.email}}<p class="mt-1 text-sm text-error">{{.Errors.email}}</p>{{end}}
-                    <p class="mt-1 text-xs text-muted">Usually in the company's privacy policy, often labelled "Data Protection Officer".</p>
+                    {{if .Errors.email}}<p class="field-error">{{.Errors.email}}</p>{{end}}
+                    <p class="field-hint">Usually in the company's privacy policy, often labelled "Data Protection Officer".</p>
                 </div>
                 <div>
                     <label for="opt_out_url" class="label">Opt-out form URL</label>
                     <input type="url" name="opt_out_url" id="opt_out_url" value="{{.Broker.OptOutURL}}" class="input {{if .Errors.opt_out_url}}border-error{{end}}" placeholder="https://example.com/privacy/request">
-                    {{if .Errors.opt_out_url}}<p class="mt-1 text-sm text-error">{{.Errors.opt_out_url}}</p>{{end}}
-                    <p class="mt-1 text-xs text-muted">At least one of the email and the opt-out form is needed.</p>
+                    {{if .Errors.opt_out_url}}<p class="field-error">{{.Errors.opt_out_url}}</p>{{end}}
+                    <p class="field-hint">At least one of the email and the opt-out form is needed.</p>
                 </div>
                 <div>
                     <label for="website" class="label">Website</label>
                     <input type="url" name="website" id="website" value="{{.Broker.Website}}" class="input {{if .Errors.website}}border-error{{end}}" placeholder="https://example.com">
-                    {{if .Errors.website}}<p class="mt-1 text-sm text-error">{{.Errors.website}}</p>{{end}}
+                    {{if .Errors.website}}<p class="field-error">{{.Errors.website}}</p>{{end}}
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="gap-4 grid grid-cols-2">
                     <div>
                         <label for="region" class="label">Region</label>
                         <select name="region" id="region" class="input">
@@ -50,7 +50,7 @@
                         <datalist id="categories">{{range .Categories}}<option value="{{.}}">{{end}}</datalist>
                     </div>
                 </div>
-                <p class="text-xs text-muted">Others would benefit too: <a href="https://github.com/drumandbytes/delistd/issues/new?template=broker.yml" target="_blank" rel="noopener" class="text-accent hover:underline">suggest it for the shared list</a>.</p>
+                <p class="note-xs">Others would benefit too: <a href="https://github.com/drumandbytes/delistd/issues/new?template=broker.yml" target="_blank" rel="noopener" class="link">suggest it for the shared list</a>.</p>
 
                 <div class="flex items-center justify-between pt-4">
                     <a href="/brokers" class="btn btn-ghost">Cancel</a>

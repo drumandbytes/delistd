@@ -3,6 +3,7 @@ package config
 import (
 	"crypto/tls"
 	"net"
+	"os"
 	"strings"
 )
 
@@ -42,7 +43,7 @@ func OAuthClientID(configured string) string {
 	if configured != "" {
 		return configured
 	}
-	if v := strings.TrimSpace(Getenv(OAuthClientIDEnv)); v != "" {
+	if v := strings.TrimSpace(os.Getenv(OAuthClientIDEnv)); v != "" {
 		return v
 	}
 	return DefaultOAuthClientID

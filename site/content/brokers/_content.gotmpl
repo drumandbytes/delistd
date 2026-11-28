@@ -1,0 +1,23 @@
+{{- /* One page per opt-out guide, from site/data/guides.json (written by `delistd guides`). */ -}}
+{{ range hugo.Data.guides.guides }}
+  {{ $params := dict
+    "broker_id" .id
+    "region" .region
+    "category" .category
+    "email" .email
+    "opt_out_url" .opt_out_url
+    "last_checked" .last_checked
+  }}
+  {{ if .noindex }}{{ $params = merge $params (dict "robots" "noindex,follow") }}{{ end }}
+  {{ $page := dict
+    "kind" "page"
+    "path" .id
+    "title" .title
+    "description" .description
+    "params" $params
+    "content" (dict "mediaType" "text/markdown" "value" (partial "guide-body.md" .))
+  }}
+  {{ if .last_checked }}{{ $page = merge $page (dict "dates" (dict "lastmod" (time.AsTime .last_checked))) }}{{ end }}
+  {{ $page = merge $page (dict "sitemap" (dict "priority" -1 "disable" (.noindex | default false))) }}
+  {{ $.AddPage $page }}
+{{ end }}

@@ -1,63 +1,59 @@
-To Whom It May Concern at {{.BrokerName}},
+Dear {{.BrokerName}} privacy team,
 
-I am writing to request the removal of my personal information from your database and any associated services.
+Please remove my personal information from your database and from any services connected to it.
 
-PERSONAL IDENTIFICATION:
-- Full Name: {{.FullName}}
+DETAILS TO FIND MY RECORDS
+- Name: {{.FullName}}
 {{- if .OtherNames}}
-- Also Known As: {{.OtherNames}}
+- Also known as: {{.OtherNames}}
 {{- end}}
-- Email Address: {{.Email}}
+- Email: {{.Email}}
 {{- if .OtherEmails}}
-- Other Email Addresses Used: {{.OtherEmails}}
-{{- end}}
-{{- if .Address}}
-- Address: {{.Address}}
-{{- end}}
-{{- if .City}}
-- City: {{.City}}
-{{- end}}
-{{- if .State}}
-- State/Province: {{.State}}
-{{- end}}
-{{- if .ZipCode}}
-- Postal Code: {{.ZipCode}}
-{{- end}}
-{{- if .Country}}
-- Country: {{.Country}}
-{{- end}}
-{{- if .OtherAddresses}}
-- Previously Lived At: {{.OtherAddresses}}
+- Other emails I have used: {{.OtherEmails}}
 {{- end}}
 {{- if .Phone}}
 - Phone: {{.Phone}}
 {{- end}}
 {{- if .OtherPhones}}
-- Other Phone Numbers: {{.OtherPhones}}
+- Other phone numbers: {{.OtherPhones}}
+{{- end}}
+{{- if .Address}}
+- Street address: {{.Address}}
+{{- end}}
+{{- if .City}}
+- City: {{.City}}
+{{- end}}
+{{- if .State}}
+- State or province: {{.State}}
+{{- end}}
+{{- if .ZipCode}}
+- Postal code: {{.ZipCode}}
+{{- end}}
+{{- if .Country}}
+- Country: {{.Country}}
+{{- end}}
+{{- if .OtherAddresses}}
+- Previous addresses: {{.OtherAddresses}}
 {{- end}}
 {{- if .DateOfBirth}}
-- Date of Birth: {{.DateOfBirth}}
+- Date of birth: {{.DateOfBirth}}
 {{- end}}
 
-REQUEST:
-I formally request that you:
+WHAT I ASK YOU TO DO
+1. Delete all personal information linked to me from your databases.
+2. Stop selling, sharing or distributing it to third parties.
+3. Take it out of any public people-search pages and search results.
+4. Confirm to me in writing once this is done.
 
-1. Remove all personal information associated with me from your databases
-2. Cease any sale, sharing, or distribution of my personal information to third parties
-3. Remove my information from any public-facing search results or people-search pages
-4. Confirm the completion of this removal in writing
+I make this request under the privacy laws that apply to me, which may include:
+- the General Data Protection Regulation (GDPR), in the EU and EEA;
+- the California Consumer Privacy Act and Privacy Rights Act (CCPA/CPRA);
+- the Virginia Consumer Data Protection Act (VCDPA);
+- the Colorado Privacy Act (CPA); and
+- other state and federal privacy laws.
 
-I am exercising my privacy rights under applicable data protection laws, which may include but are not limited to:
-- General Data Protection Regulation (GDPR) - EU
-- California Consumer Privacy Act (CCPA) / California Privacy Rights Act (CPRA) - California
-- Virginia Consumer Data Protection Act (VCDPA) - Virginia
-- Colorado Privacy Act (CPA) - Colorado
-- Other applicable state and federal privacy laws
+Please reply within 30 days. If you need anything more to verify my identity or process this request, contact me at {{.Email}}.
 
-Please respond to this request within 30 days. If you require any additional information to verify my identity or process this request, please contact me at {{.Email}}.
-
-Thank you for your prompt attention to this matter.
-
-Sincerely,
+Thank you,
 {{.FullName}}
 {{.Date}}

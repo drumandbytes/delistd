@@ -39,43 +39,6 @@ func TestIsContextErr(t *testing.T) {
 	}
 }
 
-// escapeSelector/jsStringLiteral feed directly into JS snippets spliced into
-// chromedp.Evaluate calls (see fillSelector, fillSelectElement). A value or
-// selector containing an unescaped quote could break out of the JS string
-// literal; this is cheap to check without a browser.
-func TestEscapeSelectorAndJSStringLiteral(t *testing.T) {
-	cases := []struct {
-		name  string
-		input string
-	}{
-		{"plain", `input[name='email']`},
-		{"double quote", `input[name="email"]`},
-		{"backslash", `input[name='a\b']`},
-		{"quote and backslash", `O'Brien\"s`},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			escaped := escapeSelector(tc.input)
-			// No unescaped double quote or backslash should survive: every
-			// backslash and every double quote in the output must be part
-			// of an escape pair introduced by escapeSelector.
-			for i := 0; i < len(escaped); i++ {
-				if escaped[i] == '"' {
-					if i == 0 || escaped[i-1] != '\\' {
-						t.Errorf("escapeSelector(%q) = %q has an unescaped double quote at %d", tc.input, escaped, i)
-					}
-				}
-			}
-
-			lit := jsStringLiteral(tc.input)
-			if len(lit) < 2 || lit[0] != '"' || lit[len(lit)-1] != '"' {
-				t.Errorf("jsStringLiteral(%q) = %q is not wrapped in double quotes", tc.input, lit)
-			}
-		})
-	}
-}
-
 // getFieldMappings needs no browser - it's pure profile-to-selector mapping
 // logic, so this is cheap to check without chromedp/Chrome.
 func TestGetFieldMappingsUsesProfileValues(t *testing.T) {

@@ -1,5 +1,6 @@
 {{ define "main" }}
 <div class="prose wide">
+  <p class="crumb"><a href="{{ "/" | relURL }}">Home</a> <span class="sep" aria-hidden="true">/</span> {{ "Broker directory" }}</p>
   <h1>Broker directory</h1>
   <p>Delistd sends removal requests to {{ len hugo.Data.brokers.brokers }} data brokers. {{ len .Pages }} of them
   have a full opt-out guide, listed below and marked <strong>guide</strong> in the

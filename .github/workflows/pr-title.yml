@@ -1,10 +1,8 @@
 name: PR title
 
-# release-please reads the squash-merge title to pick the version bump and the
-# changelog entry, so a wrong type or an unconventional title changes the
-# release. Advisory only: it isn't part of "Required checks passed" because
-# ci.yml's concurrency group would cancel a running CI whenever a title was
-# edited.
+# release-please reads the squash-merge title for the bump and the changelog.
+# Advisory only, not in "Required checks passed": editing a title would cancel
+# a running CI through ci.yml's concurrency group.
 
 on:
   pull_request:

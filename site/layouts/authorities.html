@@ -1,5 +1,6 @@
 {{ define "main" }}
 <div class="prose wide">
+  <p class="crumb"><a href="{{ "/" | relURL }}">Home</a> <span class="sep" aria-hidden="true">/</span> {{ .Title }}</p>
   <h1>{{ .Title }}</h1>
   {{ .Content }}
 

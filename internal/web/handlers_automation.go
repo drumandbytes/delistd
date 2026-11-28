@@ -50,7 +50,7 @@ func (s *Server) handleAutomation(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleAutomationApprove approves one batch. No token: browsers can't post this
-// cross-site (filippo.io/csrf checks Sec-Fetch-Site).
+// cross-site (CrossOriginProtection checks Sec-Fetch-Site).
 func (s *Server) handleAutomationApprove(w http.ResponseWriter, r *http.Request) {
 	if s.historyStore == nil {
 		http.Error(w, "Database not available", http.StatusInternalServerError)

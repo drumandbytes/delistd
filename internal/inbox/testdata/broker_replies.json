@@ -1,0 +1,284 @@
+[
+ {
+  "name": "Blackbaud - submit request at URL",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "please submit your request at https://www.blackbaud.com/company/Data-Subject-Rights-Request",
+  "want": "form_required"
+ },
+ {
+  "name": "FamilyTreeNow - use opt-out form",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "please use our Opt-Out Form, linked below, to submit your request",
+  "want": "form_required"
+ },
+ {
+  "name": "Civis - complete data subject request form",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "please complete the Data Subject Request Form, which you can find at",
+  "want": "form_required"
+ },
+ {
+  "name": "Affinity - does not accept privacy requests via email",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "does not accept privacy requests via email. You can submit a privacy request via our web form",
+  "want": "form_required"
+ },
+ {
+  "name": "33Across - visit opt-out page",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Please visit our opt-out page located at https://www.33across.com/opt-out",
+  "want": "form_required"
+ },
+ {
+  "name": "PeopleFinders - right to opt-out",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Right to Opt-out: If you wish to opt out of our website, you may do so at this link",
+  "want": "form_required"
+ },
+ {
+  "name": "01Advertising - click following link",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "please click on the following link to submit your data deletion request",
+  "want": "form_required"
+ },
+ {
+  "name": "Mediaocean - dedicated online form",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "we have established a dedicated online form that helps us verify your identity",
+  "want": "form_required"
+ },
+ {
+  "name": "Do not process via email",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "We do not process requests via email alone. Please submit via our web form.",
+  "want": "form_required"
+ },
+ {
+  "name": "Send to customer service",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Dear Customer, Please send your request to Customer Service at custserv@example.com",
+  "want": "form_required"
+ },
+ {
+  "name": "BeenVerified - received your request",
+  "subject": "Your Request Has Been Received",
+  "body": "we have received your request. One of our Privacy Specialists will reach out",
+  "want": "pending"
+ },
+ {
+  "name": "6sense - ticket assigned",
+  "subject": "Request Received - [#REQ-195698]",
+  "body": "ticket has been created. Please reference #REQ-195698",
+  "want": "pending"
+ },
+ {
+  "name": "Automatic reply in subject",
+  "subject": "Automatic reply: Personal Data Removal Request",
+  "body": "Thank you for contacting us.",
+  "want": "pending"
+ },
+ {
+  "name": "Out of office",
+  "subject": "Out of Office Re: Personal Data Removal Request",
+  "body": "I am currently out of the office",
+  "want": "pending"
+ },
+ {
+  "name": "Thank you for your inquiry",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Thank you for your inquiry. This email confirms that we have received your request.",
+  "want": "pending"
+ },
+ {
+  "name": "Click here to confirm",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Please click here to confirm your request",
+  "want": "confirmation_required"
+ },
+ {
+  "name": "Click below to verify",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Click below to verify your email address",
+  "want": "confirmation_required"
+ },
+ {
+  "name": "Please confirm your email",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Please confirm your email address to process your request",
+  "want": "confirmation_required"
+ },
+ {
+  "name": "Verification link",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "We have sent you a verification link. Please click it to continue.",
+  "want": "confirmation_required"
+ },
+ {
+  "name": "Click to confirm",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Click to confirm your data removal request",
+  "want": "confirmation_required"
+ },
+ {
+  "name": "Please verify your identity",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "For security purposes, please verify your identity by clicking the link below",
+  "want": "confirmation_required"
+ },
+ {
+  "name": "Confirm your request",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Click the link to confirm your request: https://example.com/confirm/abc123",
+  "want": "confirmation_required"
+ },
+ {
+  "name": "Verify SSN last 4",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Can you please verify last 4 of your social? We have several individuals with your name.",
+  "want": "confirmation_required"
+ },
+ {
+  "name": "ACUTRAQ - no record",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "we do not have any record of a report in our system. ACUTRAQ maintains no files on this person.",
+  "want": "no_data_held"
+ },
+ {
+  "name": "Atlantic Fox - no longer a data broker",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Atlantic Fox is no longer registered as an active data broker in any jurisdictions",
+  "want": "rejected"
+ },
+ {
+  "name": "Checkr - email no longer in use",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "The privacy@checkr.com email list is no longer in use",
+  "want": "rejected"
+ },
+ {
+  "name": "No data linked to email",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "We have no data linked to your email in our system.",
+  "want": "no_data_held"
+ },
+ {
+  "name": "B2B platform",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Tyler - we are a b2b platform and do not have your information.",
+  "want": "rejected"
+ },
+ {
+  "name": "Never existed in database",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "the information below has never existed in our database.",
+  "want": "no_data_held"
+ },
+ {
+  "name": "FCRA exempt",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "consumer reporting agencies are exempt as Fair Credit Reporting Act related data so we do not remove data by request.",
+  "want": "rejected"
+ },
+ {
+  "name": "Not identified in database",
+  "subject": "Re: Personal Data Removal Request",
+  "body": "Your email was not identified in our database. This means that we don't have any personal information.",
+  "want": "no_data_held"
+ },
+ {
+  "name": "Your Request Has Been Received",
+  "subject": "Your Request Has Been Received",
+  "body": "",
+  "want": "pending"
+ },
+ {
+  "name": "Thank you for your Privacy Request",
+  "subject": "Thank you for your Privacy Request",
+  "body": "",
+  "want": "pending"
+ },
+ {
+  "name": "Ticket number in subject - REQ format",
+  "subject": "Request Received - [#REQ-195698] Personal Data Removal Request",
+  "body": "",
+  "want": "pending"
+ },
+ {
+  "name": "Ticket number in subject - LD format",
+  "subject": "#LD00019726 Personal Data Removal Request Legal Request Received",
+  "body": "",
+  "want": "pending"
+ },
+ {
+  "name": "Support Request with number",
+  "subject": "Your Convex Support Request #317855",
+  "body": "",
+  "want": "pending"
+ },
+ {
+  "name": "Auto-reply with minimal body",
+  "subject": "Automatic reply: Personal Data Removal Request",
+  "body": "Thank you.",
+  "want": "pending"
+ },
+ {
+  "name": "Auto response variant",
+  "subject": "Auto-Response: Personal Data Removal Request",
+  "body": "",
+  "want": "pending"
+ },
+ {
+  "name": "Out of office with minimal body",
+  "subject": "Out of Office Re: Personal Data Removal Request",
+  "body": "",
+  "want": "pending"
+ },
+ {
+  "name": "I have left the company",
+  "subject": "I have now left Captify Re: Personal Data Removal Request",
+  "body": "",
+  "want": "pending"
+ },
+ {
+  "name": "Not Found in subject",
+  "subject": "[Convex] Re: Deletion Request Update - Not Found",
+  "body": "",
+  "want": "no_data_held"
+ },
+ {
+  "name": "No record in subject",
+  "subject": "Re: Personal Data Removal Request - No Record Found",
+  "body": "",
+  "want": "no_data_held"
+ },
+ {
+  "name": "Unable to locate",
+  "subject": "Unable to locate your data - Personal Data Removal Request",
+  "body": "",
+  "want": "no_data_held"
+ },
+ {
+  "name": "Delistd Test Email in subject",
+  "subject": "Delistd Test Email",
+  "body": "",
+  "want": "success"
+ },
+ {
+  "name": "Test email in body",
+  "subject": "Re: Test",
+  "body": "This is a test email from Delistd to verify your email configuration.",
+  "want": "success"
+ },
+ {
+  "name": "Ticket #: format",
+  "subject": "Ticket #: 259135 Re: Personal Data Removal Request",
+  "body": "",
+  "want": "pending"
+ },
+ {
+  "name": "Thank you for email to privacy team",
+  "subject": "Thank you for your email to Nielsen's Privacy Team Re: Personal Data Removal Request",
+  "body": "",
+  "want": "pending"
+ }
+]

@@ -249,7 +249,7 @@ func inboxServer(t *testing.T) *Server {
 	s := smokeServer(t)
 	cfg := *s.getConfig()
 	// Nothing listens on port 1: Connect fails fast.
-	cfg.Inbox = config.InboxConfig{Enabled: true, Server: "127.0.0.1", Port: 1, Email: "test@example.com", Password: "pw", ArchiveFolder: "Eraser"}
+	cfg.Inbox = config.InboxConfig{Enabled: true, Server: "127.0.0.1", Port: 1, Email: "test@example.com", Password: "pw", ArchiveFolder: "Delistd"}
 	s.config.Store(&cfg)
 	return s
 }

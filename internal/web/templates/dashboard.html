@@ -1,97 +1,34 @@
 {{define "content"}}
 <div class="fade-in-up">
-    {{with .WhatsNew}}
-    <section class="whatsnew mb-8" aria-labelledby="whats-new-title">
-        <div class="whatsnew-head">
-            <div class="notice-icon" aria-hidden="true">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-            </div>
-            <div class="notice-body">
-                <h2 id="whats-new-title" class="notice-title" style="font-size: 18px;">What's new in Eraser 2.0</h2>
-                <p class="notice-text">A few things changed with this version. Nothing needs doing, but they're worth knowing.</p>
-            </div>
-            <form method="POST" action="/whats-new/dismiss"><button type="submit" class="btn btn-primary">Got it</button></form>
-        </div>
-        <div class="whatsnew-grid">
-            <div class="whatsnew-item">
-                <h3>Countries</h3>
-                <p>Your profile's country is stored as an ISO code. Brokers that only cover one market (a German credit bureau, say) are skipped if you're elsewhere, and the Brokers page says how many are hidden.</p>
-            </div>
-            <div class="whatsnew-item">
-                <h3>Encrypted passwords</h3>
-                <p>Mail passwords are no longer stored as plain text. Settings has an optional passphrase for an extra gate; with one set, the OS schedule can't send, and <code>delistd serve</code> asks once at startup.</p>
-            </div>
-            <div class="whatsnew-item">
-                <h3>More in the web UI</h3>
-                <p>Check bounces and Reclassify on the Pipeline page, and download all drafts as a zip from Brokers. Every one has a CLI twin.</p>
-            </div>
-            <div class="whatsnew-item">
-                <h3>Live settings, tidier config</h3>
-                <p>Changes made in the CLI show up here without a restart. The old <code>profile:</code> block, <code>email.provider</code> and <code>monitor --once</code> are gone.</p>
-            </div>
-        </div>
-        {{with .Upgraded}}
-        <p class="notice-text" style="margin-top: 16px;"><strong style="color: var(--text-primary);">Your config was upgraded.</strong> The original is saved as <code title="{{.Backup}}">{{.BackupName}}</code> with passwords blanked; delete it when you're happy. Moved to a new machine? Re-enter your mail passwords in Settings.</p>
-        {{end}}
-        <div class="whatsnew-foot">
-            <a class="btn btn-secondary" href="https://github.com/drumandbytes/delistd/blob/main/docs/upgrading-to-2.0.md" target="_blank" rel="noopener">Read the upgrade guide</a>
-        </div>
-    </section>
-    {{end}}
-    {{if .RenameNotice}}
-    <section class="whatsnew mb-8" aria-labelledby="renamed-title">
-        <div class="whatsnew-head">
-            <div class="notice-body">
-                <h2 id="renamed-title" class="notice-title" style="font-size: 18px;">Eraser is now Delistd</h2>
-                <p class="notice-text">Same app, new name. Your settings and history are untouched and the <code>eraser</code> command keeps working for now. Use <code>delistd</code> from here on, and re-run <code>delistd schedule install</code> if you set up an OS schedule. <a href="https://delistd.dev/" target="_blank" rel="noopener">Details</a></p>
-            </div>
-            <form method="POST" action="/renamed/dismiss"><button type="submit" class="btn btn-primary">Got it</button></form>
-        </div>
-    </section>
-    {{end}}
     <!-- Header -->
-    <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 mb-8">
+    <div class="flex flex-col gap-4 items-start justify-between mb-8 md:flex-row md:items-end">
         <div>
-            <h1 class="font-display text-3xl font-semibold text-primary">Welcome back, {{.Profile.FirstName}}</h1>
-            <p class="text-secondary mt-1">Your privacy protection overview</p>
+            <h1 class="page-title">Welcome back, {{.Profile.FirstName}}</h1>
+            <p class="lede">Your privacy protection overview</p>
         </div>
         <a href="/brokers" class="btn btn-primary">Send Removal Requests</a>
     </div>
 
-    <!-- Figures: one sheet, no icon tiles -->
     <ul class="figures mb-8">
-        <li><a href="/brokers" class="figure-link">
-            <span class="figure-label">Total Brokers</span>
-            <span class="figure-value num">{{.Stats.TotalBrokers}}</span>
-            <span class="figure-hint">View all brokers</span>
+        {{range .Figures}}
+        <li><a href="{{.Href}}" class="figure-link">
+            <span class="figure-label">{{.Label}}</span>
+            <span class="figure-value num{{if .Class}} {{.Class}}{{end}}">{{.Value}}</span>
+            <span class="figure-hint">{{.Hint}}</span>
         </a></li>
-        <li><a href="/history?status=sent" class="figure-link">
-            <span class="figure-label">Requests Sent</span>
-            <span class="figure-value num">{{.Stats.Sent}}</span>
-            <span class="figure-hint">View sent requests</span>
-        </a></li>
-        <li><a href="/history?status=failed" class="figure-link">
-            <span class="figure-label">Failed</span>
-            <span class="figure-value num{{if gt .Stats.Failed 0}} text-error{{end}}">{{.Stats.Failed}}</span>
-            <span class="figure-hint">View failed requests</span>
-        </a></li>
-        <li><a href="/brokers?status=pending" class="figure-link">
-            <span class="figure-label">Pending</span>
-            <span class="figure-value num">{{.Stats.Pending}}</span>
-            <span class="figure-hint">View pending brokers</span>
-        </a></li>
+        {{end}}
     </ul>
 
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+    <div class="gap-6 grid grid-cols-1 lg:grid-cols-5 mb-8">
         <!-- The reply ledger -->
         {{if .PipelineStats}}
-        <div class="card p-6 lg:col-span-3">
+        <div class="card lg:col-span-3 p-6">
             <div class="flex items-baseline justify-between mb-2">
                 <div>
-                    <h2 class="font-display text-lg font-semibold text-primary">Response Pipeline</h2>
-                    <p class="text-sm text-muted">Track broker responses and required actions</p>
+                    <h2 class="font-display font-semibold text-lg text-primary">Response Pipeline</h2>
+                    <p class="note">Track broker responses and required actions</p>
                 </div>
-                <a href="/pipeline" class="text-sm text-accent hover:underline whitespace-nowrap ml-4">View Pipeline</a>
+                <a href="/pipeline" class="hover:underline ml-4 text-accent text-sm whitespace-nowrap">View Pipeline</a>
             </div>
             {{if gt .PipelineStats.PendingTasks 0}}
             <a href="/tasks" class="callout mt-4">
@@ -100,52 +37,30 @@
             </a>
             {{end}}
             <ul class="ledger-rows mt-4">
-                <li><a href="/pipeline?status=awaiting_response"><span>Waiting for Reply</span><span class="num">{{.PipelineStats.AwaitingResponse}}</span></a></li>
-                <li><a href="/pipeline?status=confirmed"><span>Removal Confirmed</span><span class="num{{if gt .PipelineStats.Confirmed 0}} text-success{{end}}">{{.PipelineStats.Confirmed}}</span></a></li>
-                <li><a href="/pipeline?status=rejected"><span>Request Rejected</span><span class="num{{if gt .PipelineStats.Rejected 0}} text-error{{end}}">{{.PipelineStats.Rejected}}</span></a></li>
-                <li><a href="/pipeline?status=no_data_held"><span>No data held</span><span class="num">{{.PipelineStats.NoData}}</span></a></li>
-                <li><a href="/pipeline?view=actions"><span>Action Needed</span><span class="num{{if gt .PipelineStats.PendingTasks 0}} text-warning{{end}}">{{.PipelineStats.PendingTasks}}</span></a></li>
+                {{range .Ledger}}<li><a href="{{.Href}}"><span>{{.Label}}</span><span class="num{{if .Class}} {{.Class}}{{end}}">{{.Value}}</span></a></li>{{end}}
             </ul>
         </div>
         {{end}}
 
         <!-- Coverage -->
         {{if gt .Stats.TotalBrokers 0}}
-        <div class="card p-6 lg:col-span-2">
-            <h2 class="font-display text-lg font-semibold text-primary mb-6">Coverage Progress</h2>
-            <div class="flex items-center gap-8">
+        <div class="card lg:col-span-2 p-6">
+            <h2 class="font-display font-semibold mb-6 text-lg text-primary">Coverage Progress</h2>
+            <div class="flex gap-8 items-center">
                 <div class="relative">
-                    <svg class="progress-ring w-32 h-32" viewBox="0 0 100 100">
+                    <svg class="h-32 progress-ring w-32" viewBox="0 0 100 100" role="img" aria-label="{{.Percent}}% of brokers contacted">
                         <circle class="progress-ring-bg" cx="50" cy="50" r="45" fill="none" stroke-width="8"/>
-                        <circle class="progress-ring-fill" cx="50" cy="50" r="45" fill="none" stroke-width="8"
-                            stroke-dasharray="283"
-                            id="progress-circle"/>
+                        <circle class="progress-ring-fill" cx="50" cy="50" r="45" fill="none" stroke-width="8" stroke-dasharray="283" style="stroke-dashoffset: {{.Offset}}"/>
                     </svg>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span class="num text-2xl font-medium text-primary" id="progress-percent">0%</span>
-                        <span class="text-xs text-muted">complete</span>
+                    <div class="absolute flex flex-col inset-0 items-center justify-center">
+                        <span class="font-medium num text-2xl text-primary">{{.Percent}}%</span>
+                        <span class="note-xs">complete</span>
                     </div>
                 </div>
-                <ul class="ledger-rows flex-1">
-                    <li><span>Sent</span><span class="num">{{.Stats.Sent}}</span></li>
-                    <li><span>Pending</span><span class="num">{{.Stats.Pending}}</span></li>
-                    <li><span>Failed</span><span class="num">{{.Stats.Failed}}</span></li>
+                <ul class="flex-1 ledger-rows">
+                    {{range .Coverage}}<li><span>{{.Label}}</span><span class="num">{{.Value}}</span></li>{{end}}
                 </ul>
             </div>
-            <script>
-                (function() {
-                    const sent = {{.Stats.Sent}};
-                    const total = {{.Stats.TotalBrokers}};
-                    const percent = total > 0 ? (sent / total * 100).toFixed(0) : 0;
-                    const circle = document.getElementById('progress-circle');
-                    const percentEl = document.getElementById('progress-percent');
-
-                    // Calculate stroke-dashoffset (283 is circumference of r=45)
-                    const offset = 283 - (283 * percent / 100);
-                    circle.style.strokeDashoffset = offset;
-                    percentEl.textContent = percent + '%';
-                })();
-            </script>
         </div>
         {{end}}
     </div>
@@ -153,31 +68,31 @@
     <!-- Recent activity -->
     <div class="card p-6">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="font-display text-lg font-semibold text-primary">Recent Activity</h2>
-            <a href="/history" class="text-sm text-accent hover:underline">View all</a>
+            <h2 class="font-display font-semibold text-lg text-primary">Recent Activity</h2>
+            <a href="/history" class="hover:underline text-accent text-sm">View all</a>
         </div>
         {{if .RecentHistory}}
         <ul class="ledger-rows">
             {{range .RecentHistory}}
             <li>
-                <span class="min-w-0"><span class="font-medium text-primary truncate">{{.BrokerName}}</span> <span class="text-muted text-sm ml-2">{{formatDate .SentAt}}</span></span>
+                <span class="min-w-0"><span class="font-medium text-primary truncate">{{.BrokerName}}</span> <span class="ml-2 text-muted text-sm">{{formatDate .SentAt}}</span></span>
                 {{if eq .Status "sent"}}<span class="badge badge-success">Sent</span>{{else}}<span class="badge badge-error">Failed</span>{{end}}
             </li>
             {{end}}
         </ul>
         {{else}}
         <div class="py-6">
-            <p class="text-secondary mb-1">No activity yet</p>
-            <p class="text-sm text-muted">Start sending removal requests to see your history</p>
+            <p class="mb-1 text-secondary">No activity yet</p>
+            <p class="note">Start sending removal requests to see your history</p>
         </div>
         {{end}}
     </div>
 
     <!-- Quick links -->
-    <p class="quick-links text-sm text-muted">
-        <a href="/brokers" class="text-accent hover:underline">Browse Data Brokers</a>
-        <a href="/history" class="text-accent hover:underline">View History</a>
-        <a href="/settings" class="text-accent hover:underline">Update Settings</a>
+    <p class="quick-links text-muted text-sm">
+        <a href="/brokers" class="link">Browse Data Brokers</a>
+        <a href="/history" class="link">View History</a>
+        <a href="/settings" class="link">Update Settings</a>
     </p>
 </div>
 {{end}}

@@ -49,22 +49,27 @@ func readMailForm(r *http.Request) mailForm {
 		if tok, ok := signIns.token(strings.TrimSpace(r.FormValue("oauth_id")), f.ClientID, f.Username); ok {
 			f.Password = tok
 		}
-		p := config.OutlookOAuth
-		if f.SMTPHost == "" {
-			f.SMTPHost, f.SMTPPort = p.SMTPHost, p.SMTPPort
-		}
-		if f.IMAPHost == "" {
-			f.IMAPHost, f.IMAPPort = p.IMAPHost, p.IMAPPort
-		}
-	} else if p, ok := config.ProviderByID(f.Provider); ok {
-		if f.SMTPHost == "" {
-			f.SMTPHost, f.SMTPPort = p.SMTPHost, p.SMTPPort
-		}
-		if f.IMAPHost == "" {
-			f.IMAPHost, f.IMAPPort = p.IMAPHost, p.IMAPPort
-		}
 	}
+	f.fillServers()
 	return f
+}
+
+// fillServers fills empty server fields from the provider preset (Outlook.com
+// sign-in has its own), so a form without JS still ends up with hosts.
+func (f *mailForm) fillServers() {
+	p, ok := config.ProviderByID(f.Provider)
+	if !ok && f.OAuth {
+		p, ok = config.OutlookOAuth, true
+	}
+	if !ok {
+		return
+	}
+	if f.SMTPHost == "" {
+		f.SMTPHost, f.SMTPPort = p.SMTPHost, p.SMTPPort
+	}
+	if f.IMAPHost == "" {
+		f.IMAPHost, f.IMAPPort = p.IMAPHost, p.IMAPPort
+	}
 }
 
 // mailFormFromConfig refills the form from a saved account (either may be zero).
@@ -154,22 +159,7 @@ func newMailFormView(mode string, f mailForm, errors map[string]string) mailForm
 	if f.Provider == config.OutlookOAuth.ID {
 		f.OAuth = true
 	}
-	if p, ok := config.ProviderByID(f.Provider); ok {
-		if f.SMTPHost == "" {
-			f.SMTPHost, f.SMTPPort = p.SMTPHost, p.SMTPPort
-		}
-		if f.IMAPHost == "" {
-			f.IMAPHost, f.IMAPPort = p.IMAPHost, p.IMAPPort
-		}
-	} else if f.OAuth {
-		p := config.OutlookOAuth
-		if f.SMTPHost == "" {
-			f.SMTPHost, f.SMTPPort = p.SMTPHost, p.SMTPPort
-		}
-		if f.IMAPHost == "" {
-			f.IMAPHost, f.IMAPPort = p.IMAPHost, p.IMAPPort
-		}
-	}
+	f.fillServers()
 	username := f.Username
 	if strings.EqualFold(username, f.Address) {
 		username = "" // only show a login that differs from the address

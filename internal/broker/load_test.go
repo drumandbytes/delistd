@@ -67,7 +67,7 @@ func TestLoadPrecedence(t *testing.T) {
 
 func TestLoadList(t *testing.T) {
 	tmp := t.TempDir()
-	testenv.SetHome(t, tmp) // isolate from any real ~/.eraser/brokers.yaml
+	testenv.SetHome(t, tmp) // isolate from any real ~/.delistd/brokers.yaml
 
 	full, err := LoadList("", "", "")
 	if err != nil {

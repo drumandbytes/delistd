@@ -1,0 +1,6 @@
+{{/* The auto / light / dark switch. Data: the extra class (theme-switch-bar or theme-switch-menu). */}}
+<div class="theme-switch {{.}}" role="radiogroup" aria-label="Theme">
+    <button type="button" role="radio" aria-checked="false" data-theme-set="auto" aria-label="Match the system theme" title="Auto">{{icon "desktop" ""}}</button>
+    <button type="button" role="radio" aria-checked="false" data-theme-set="light" aria-label="Light theme" title="Light">{{icon "sun" ""}}</button>
+    <button type="button" role="radio" aria-checked="false" data-theme-set="dark" aria-label="Dark theme" title="Dark">{{icon "moon" ""}}</button>
+</div>

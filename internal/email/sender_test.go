@@ -2,7 +2,7 @@ package email
 
 import "testing"
 
-// digisamroc/eraser#6: From/To go straight into header lines, so a CRLF in a
+// From/To go straight into header lines, so a CRLF in a
 // broker address could inject headers (e.g. Bcc). Guards validateMessage in Send.
 func TestValidateEmail_RejectsHeaderInjection(t *testing.T) {
 	tests := []struct {

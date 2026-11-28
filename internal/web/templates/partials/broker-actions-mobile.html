@@ -44,13 +44,11 @@
 {{end}}
 {{if .OptOutURL}}
 <a href="{{.OptOutURL}}" target="_blank" class="btn btn-secondary py-2">
-    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-    </svg>
+    {{icon "external-link" "w-4 h-4"}}
 </a>
 {{end}}
 <button
-    class="btn btn-ghost py-2 text-error ml-auto"
+    class="btn btn-ghost ml-auto py-2 text-error"
     hx-post="/api/brokers/{{.ID}}/exclude"
     hx-target="#actions-mobile-{{.ID}}"
     hx-swap="innerHTML"

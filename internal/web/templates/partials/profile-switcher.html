@@ -1,0 +1,11 @@
+{{/* The active-profile drop-down; only shown when there is more than one profile.
+     Data: dict with Page (the template data) and Class (extra classes for the form and select). */}}
+{{with .Page}}{{if gt (len .Profiles) 1}}
+<form method="POST" action="/api/profile" class="profile-switcher{{if $.FormClass}} {{$.FormClass}}{{end}}">
+    {{.CSRFField}}
+    <input type="hidden" name="redirect" value="{{.CurrentPath}}">
+    <select name="profile_id" data-autosubmit aria-label="Active profile"{{if $.SelectClass}} class="{{$.SelectClass}}"{{end}}>
+        {{range .Profiles}}<option value="{{.ID}}"{{if eq .ID $.Page.ActiveProfile.ID}} selected{{end}}>{{.FirstName}} {{.LastName}} ({{.ID}})</option>{{end}}
+    </select>
+</form>
+{{end}}{{end}}

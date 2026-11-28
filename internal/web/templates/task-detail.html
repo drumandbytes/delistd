@@ -1,240 +1,100 @@
 {{define "content"}}
-<div class="space-y-6 fade-in-up">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div class="flex items-center gap-4">
-            <a href="/tasks" class="btn btn-ghost p-2">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-            </a>
+<div class="fade-in-up space-y-6">
+    <div class="page-head">
+        <div class="flex gap-4 items-center">
+            <a href="/tasks" class="btn btn-ghost p-2">{{icon "arrow-left" "w-5 h-5"}}</a>
             <div>
-                <h1 class="font-display text-2xl font-bold text-primary">Task Details</h1>
-                <p class="text-secondary mt-1">{{.Task.BrokerName}}</p>
+                <h1 class="font-bold font-display text-2xl text-primary">Task Details</h1>
+                <p class="lede">{{.Task.BrokerName}}</p>
             </div>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="row">
             {{if .Task.FormURL}}
-            <a href="{{.Task.FormURL}}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                </svg>
-                Open Form
-            </a>
+            <a href="{{.Task.FormURL}}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">{{icon "external-link" "w-4 h-4"}} Open Form</a>
             {{end}}
             {{if eq .Task.Status "pending"}}
             <form action="/tasks/{{.Task.ID}}/complete" method="POST">
-                {{if .CSRFToken}}
-                <input type="hidden" name="gorilla.csrf.Token" value="{{.CSRFToken}}">
-                {{end}}
-                <button type="submit" class="btn btn-primary">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    Mark Complete
-                </button>
+                {{if .CSRFToken}}<input type="hidden" name="gorilla.csrf.Token" value="{{.CSRFToken}}">{{end}}
+                <button type="submit" class="btn btn-primary">{{icon "check" "w-4 h-4"}} Mark Complete</button>
             </form>
             {{end}}
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Main Content -->
+    <div class="gap-6 grid grid-cols-1 lg:grid-cols-3">
         <div class="lg:col-span-2 space-y-6">
-            <!-- Task Info Card -->
-            <div class="card p-6">
-                <h2 class="font-display text-lg font-semibold text-primary mb-4">Task Information</h2>
-
+            {{card "Task Information"}}
                 <div class="space-y-4">
-                    <div class="flex items-center gap-4">
-                        <div>
-                            <p class="text-sm text-muted">Task Type</p>
-                            <p class="text-lg font-semibold text-primary capitalize">{{.Task.TaskType}}</p>
-                        </div>
+                    <div>
+                        <p class="note">Task Type</p>
+                        <p class="capitalize font-semibold text-lg text-primary">{{.Task.TaskType}}</p>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--border)]">
+                    <div class="border-t gap-4 grid grid-cols-2 pt-4">
                         <div>
-                            <p class="text-sm text-muted">Broker ID</p>
-                            <p class="text-sm font-medium text-primary">{{.Task.BrokerID}}</p>
+                            <p class="note">Broker ID</p>
+                            <p class="font-medium text-primary text-sm">{{.Task.BrokerID}}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-muted">Status</p>
-                            <span class="inline-flex items-center gap-1.5 text-sm font-medium
-                                {{if eq .Task.Status "pending"}}text-warning
-                                {{else if eq .Task.Status "completed"}}text-success
-                                {{else}}text-muted{{end}}">
-                                <span class="w-2 h-2 rounded-full
-                                    {{if eq .Task.Status "pending"}}status-dot-warning
-                                    {{else if eq .Task.Status "completed"}}status-dot-success
-                                    {{else}}status-dot{{end}}" style="{{if and (ne .Task.Status "pending") (ne .Task.Status "completed")}}background: var(--text-muted);{{end}}"></span>
-                                {{.Task.Status}}
-                            </span>
+                            <p class="note">Status</p>
+                            {{if eq .Task.Status "pending"}}{{template "partials/status-dot.html" (dict "Text" .Task.Status "Color" "text-warning" "Dot" "status-dot-warning")}}
+                            {{else if eq .Task.Status "completed"}}{{template "partials/status-dot.html" (dict "Text" .Task.Status "Color" "text-success" "Dot" "status-dot-success")}}
+                            {{else}}{{template "partials/status-dot.html" (dict "Text" .Task.Status "Color" "text-muted" "Dot" "status-dot")}}{{end}}
                         </div>
                         <div>
-                            <p class="text-sm text-muted">Created</p>
-                            <p class="text-sm font-medium text-primary">{{.Task.CreatedAt.Format "Jan 2, 2006 3:04 PM"}}</p>
+                            <p class="note">Created</p>
+                            <p class="font-medium text-primary text-sm">{{formatTime .Task.CreatedAt}}</p>
                         </div>
                         {{if .Task.CompletedAt.Valid}}
                         <div>
-                            <p class="text-sm text-muted">Completed</p>
-                            <p class="text-sm font-medium text-primary">{{.Task.CompletedAt.Time.Format "Jan 2, 2006 3:04 PM"}}</p>
+                            <p class="note">Completed</p>
+                            <p class="font-medium text-primary text-sm">{{formatTime .Task.CompletedAt.Time}}</p>
                         </div>
                         {{end}}
                     </div>
                 </div>
-            </div>
+            {{endcard}}
 
-            <!-- Form URL -->
             {{if .Task.FormURL}}
-            <div class="card p-6">
-                <h2 class="font-display text-lg font-semibold text-primary mb-4">Form URL</h2>
-                <div class="p-4 rounded-lg font-mono text-sm break-all" style="background: var(--bg-elevated);">
-                    <a href="{{.Task.FormURL}}" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">
-                        {{.Task.FormURL}}
-                    </a>
+            {{card "Form URL"}}
+                <div class="bg-elevated break-all font-mono p-4 rounded-lg text-sm">
+                    <a href="{{.Task.FormURL}}" target="_blank" rel="noopener noreferrer" class="link">{{.Task.FormURL}}</a>
                 </div>
-                <p class="text-xs text-muted mt-2">Click the link above or use the "Open Form" button to navigate to the opt-out form.</p>
-            </div>
+                <p class="mt-2 text-muted text-xs">Click the link above or use the "Open Form" button to navigate to the opt-out form.</p>
+            {{endcard}}
             {{end}}
 
-            <!-- Notes -->
             {{if .Task.Notes}}
-            <div class="card p-6">
-                <h2 class="font-display text-lg font-semibold text-primary mb-4">Notes</h2>
-                <div class="p-4 rounded-lg text-sm text-secondary" style="background: var(--bg-elevated);">
-                    {{.Task.Notes}}
-                </div>
-            </div>
+            {{card "Notes"}}
+                <div class="bg-elevated p-4 rounded-lg text-secondary text-sm">{{.Task.Notes}}</div>
+            {{endcard}}
             {{end}}
 
-            <!-- Screenshot -->
             {{if .Task.ScreenshotPath}}
-            <div class="card p-6">
-                <h2 class="font-display text-lg font-semibold text-primary mb-4">Screenshot</h2>
-                <div class="rounded-lg overflow-hidden border border-[var(--border)]">
+            {{card "Screenshot"}}
+                <div class="border overflow-hidden rounded-lg">
                     <img src="/tasks/{{.Task.ID}}/screenshot" alt="Form screenshot" class="w-full">
                 </div>
-            </div>
+            {{endcard}}
             {{end}}
         </div>
 
-        <!-- Sidebar -->
         <div class="space-y-6">
-            <!-- Instructions -->
-            <div class="card p-6">
-                <h2 class="font-display text-lg font-semibold text-primary mb-4">Instructions</h2>
+            {{card "Instructions"}}
+                {{if .Steps}}{{template "partials/steps.html" .Steps}}{{else}}<p class="note-secondary">{{.Note}}</p>{{end}}
+            {{endcard}}
 
-                {{if eq .Task.Status "completed"}}
-                <p class="text-sm text-secondary">This task is complete. Review the saved notes and screenshot for its outcome. A submitted request does not by itself confirm that your data was removed.</p>
-                {{else if eq .Task.TaskType "captcha"}}
-                <div class="space-y-3">
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">1</span>
-                        <p class="text-sm text-secondary">Click "Open Form" to navigate to the data broker's opt-out form.</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">2</span>
-                        <p class="text-sm text-secondary">Your information may already be filled in. Verify it's correct.</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">3</span>
-                        <p class="text-sm text-secondary">Solve the CAPTCHA challenge (reCAPTCHA, hCaptcha, etc.).</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">4</span>
-                        <p class="text-sm text-secondary">Submit the form and return here to mark the task complete.</p>
-                    </div>
-                </div>
-                {{else if eq .Task.TaskType "manual_form"}}
-                <div class="space-y-3">
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">1</span>
-                        <p class="text-sm text-secondary">Click "Open Form" to navigate to the opt-out form.</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">2</span>
-                        <p class="text-sm text-secondary">Fill in your personal information as required.</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">3</span>
-                        <p class="text-sm text-secondary">Submit the form to complete your opt-out request.</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">4</span>
-                        <p class="text-sm text-secondary">Return here and mark the task as complete.</p>
-                    </div>
-                </div>
-                {{else if eq .Task.TaskType "review"}}
-                <div class="space-y-3">
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">1</span>
-                        <p class="text-sm text-secondary">Review the broker's response in your email inbox.</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">2</span>
-                        <p class="text-sm text-secondary">Determine if action is needed (form, confirmation, etc.).</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">3</span>
-                        <p class="text-sm text-secondary">Take appropriate action based on the response.</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">4</span>
-                        <p class="text-sm text-secondary">Mark this task complete after reviewing.</p>
-                    </div>
-                </div>
-                {{else if eq .Task.TaskType "confirmation"}}
-                <div class="space-y-3">
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">1</span>
-                        <p class="text-sm text-secondary">Check your email for a confirmation message from the broker.</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">2</span>
-                        <p class="text-sm text-secondary">Click the confirmation link in the email.</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">3</span>
-                        <p class="text-sm text-secondary">Wait for the confirmation page to load.</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center font-semibold">4</span>
-                        <p class="text-sm text-secondary">Return here and mark the task as complete.</p>
-                    </div>
-                </div>
-                {{else}}
-                <p class="text-sm text-secondary">Review the task details and take appropriate action.</p>
-                {{end}}
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="card p-6">
-                <h2 class="font-display text-lg font-semibold text-primary mb-4">Quick Actions</h2>
+            {{card "Quick Actions"}}
                 <div class="space-y-2">
                     {{if .Task.FormURL}}
-                    <a href="{{.Task.FormURL}}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary w-full justify-start">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                        </svg>
-                        Open Form in New Tab
-                    </a>
+                    <a href="{{.Task.FormURL}}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary justify-start w-full">{{icon "external-link" "w-4 h-4"}} Open Form in New Tab</a>
                     {{end}}
-                    <a href="/brokers?search={{.Task.BrokerID}}" class="btn btn-secondary w-full justify-start">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                        View Broker Details
-                    </a>
-                    <a href="/history?broker={{.Task.BrokerID}}" class="btn btn-secondary w-full justify-start">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        View History
-                    </a>
+                    <a href="/brokers?search={{.Task.BrokerID}}" class="btn btn-secondary justify-start w-full">{{icon "building" "w-4 h-4"}} View Broker Details</a>
+                    <a href="/history?broker={{.Task.BrokerID}}" class="btn btn-secondary justify-start w-full">{{icon "clock" "w-4 h-4"}} View History</a>
                 </div>
-            </div>
+            {{endcard}}
         </div>
     </div>
 </div>
 {{end}}
+
+{{template "layout" .}}

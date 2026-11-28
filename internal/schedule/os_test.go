@@ -38,7 +38,7 @@ func fakeOS(t *testing.T, platform string, fail ...string) *[]string {
 	return &calls
 }
 
-var testJob = Job{Exe: "/opt/delistd", ConfigPath: "/home/j/.eraser/config.yaml", LogPath: "/home/j/.eraser/auto.log"}
+var testJob = Job{Exe: "/opt/delistd", ConfigPath: "/home/j/.delistd/config.yaml", LogPath: "/home/j/.delistd/auto.log"}
 
 func TestInstallAndRemoveLaunchd(t *testing.T) {
 	calls := fakeOS(t, "darwin")
@@ -95,7 +95,7 @@ func TestInstallAndRemoveSystemd(t *testing.T) {
 	if !Installed() {
 		t.Error("Installed() false after Install")
 	}
-	if got := strings.Join(*calls, "\n"); !strings.Contains(got, "systemctl --user daemon-reload") || !strings.Contains(got, "enable --now eraser-auto.timer") {
+	if got := strings.Join(*calls, "\n"); !strings.Contains(got, "systemctl --user daemon-reload") || !strings.Contains(got, "enable --now delistd-auto.timer") {
 		t.Errorf("systemctl calls = %v", *calls)
 	}
 	if err := Remove(); err != nil {

@@ -13,7 +13,7 @@ import (
 // imapServer serves INBOX with the given (from, subject, body) messages.
 func imapServer(t *testing.T, mails ...[3]string) config.InboxConfig {
 	t.Helper()
-	srv := imaptest.Start(t, false)
+	srv := imaptest.StartWith(t, imaptest.Options{Move: false})
 	for _, m := range mails {
 		srv.Deliver(t, "INBOX", m[0], m[1], m[2])
 	}

@@ -53,7 +53,7 @@ jobs:
 
       - name: Generate content
         run: |
-          go run ./cmd/delistd guides --format md --output site/content
+          go run ./cmd/delistd guides --output site/data
           go run ./scripts/docs-versions
           mkdir -p site/data
           cp data/authorities.yaml site/data/authorities.yaml

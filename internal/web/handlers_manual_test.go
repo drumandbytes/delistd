@@ -42,13 +42,13 @@ func TestSetupCompleteManual(t *testing.T) {
 	}
 	s.sessions.Update(id, func(sess *Session) {
 		sess.Profile = config.Profile{FirstName: "Jane", LastName: "Doe", Email: "jane@example.com"}
-		sess.Email = config.Email{From: "stale@example.com"}
+		sess.Email = config.EmailConfig{From: "stale@example.com"}
 		sess.ManualSend = true
 		sess.Step = "complete"
 	})
 
 	req := httptest.NewRequest(http.MethodGet, "/setup/complete", nil)
-	req.AddCookie(&http.Cookie{Name: "eraser_session", Value: id})
+	req.AddCookie(&http.Cookie{Name: "delistd_session", Value: id})
 	w := httptest.NewRecorder()
 	s.handleSetupComplete(w, req)
 

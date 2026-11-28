@@ -52,9 +52,9 @@ func (s *Store) setPipelineStatus(profileID, brokerID string, status PipelineSta
 		args = append(args, pipelineRank[status])
 	}
 	query := `UPDATE removal_requests SET pipeline_status = ?, pipeline_actor = ? WHERE profile_id = ? AND broker_id = ? AND id = (
-		SELECT id FROM removal_requests WHERE profile_id = ? AND broker_id = ? ORDER BY sent_at DESC LIMIT 1
+		SELECT id FROM removal_requests WHERE profile_id = ? AND broker_id = ? ORDER BY sent_at DESC, id DESC LIMIT 1
 	)` + guard
-	if _, err := s.db.Exec(query, args...); err != nil {
+	if _, err := s.exec(query, args...); err != nil {
 		return fmt.Errorf("failed to update pipeline status: %w", err)
 	}
 	return nil

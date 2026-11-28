@@ -110,7 +110,7 @@ func TestValidateInbox(t *testing.T) {
 func TestApplyInboxDefaults(t *testing.T) {
 	in := InboxConfig{Provider: "fastmail"}
 	ApplyInboxDefaults(&in)
-	if in.Server != "imap.fastmail.com" || in.Port != 993 || in.Folder != "INBOX" || in.ArchiveFolder != "Eraser" {
+	if in.Server != "imap.fastmail.com" || in.Port != 993 || in.Folder != "INBOX" || in.ArchiveFolder != "Delistd" {
 		t.Errorf("fastmail defaults = %+v", in)
 	}
 	legacy := InboxConfig{Provider: "outlook"}
@@ -163,7 +163,7 @@ func TestTLSHelpers(t *testing.T) {
 func TestDefaultConfigPathAndPermissions(t *testing.T) {
 	home := t.TempDir()
 	testenv.SetHome(t, home)
-	if got := DefaultConfigPath(); got != filepath.Join(home, ".eraser", "config.yaml") {
+	if got := DefaultConfigPath(); got != filepath.Join(home, ".delistd", "config.yaml") {
 		t.Errorf("DefaultConfigPath = %q", got)
 	}
 

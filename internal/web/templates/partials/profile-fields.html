@@ -1,157 +1,23 @@
 {{define "profile-fields"}}
-<!-- Required Fields -->
-<div class="grid grid-cols-2 gap-4">
-    <div>
-        <label for="first_name" class="label">First Name <span class="text-error">*</span></label>
-        <input type="text" name="first_name" id="first_name" autocomplete="given-name" required
-            value="{{.Profile.FirstName}}"
-            class="input {{if .Errors.first_name}}border-error{{end}}"
-            placeholder="Jane">
-        {{if .Errors.first_name}}
-        <p class="mt-1 text-sm text-error">{{.Errors.first_name}}</p>
-        {{end}}
-    </div>
-    <div>
-        <label for="last_name" class="label">Last Name <span class="text-error">*</span></label>
-        <input type="text" name="last_name" id="last_name" autocomplete="family-name" required
-            value="{{.Profile.LastName}}"
-            class="input {{if .Errors.last_name}}border-error{{end}}"
-            placeholder="Doe">
-        {{if .Errors.last_name}}
-        <p class="mt-1 text-sm text-error">{{.Errors.last_name}}</p>
-        {{end}}
-    </div>
-</div>
-
-<div>
-    <label for="middle_name" class="label">Middle Name</label>
-    <input type="text" name="middle_name" id="middle_name" autocomplete="additional-name"
-        value="{{.Profile.MiddleName}}"
-        class="input"
-        placeholder="Optional">
-    <p class="mt-1 text-sm text-muted">Some brokers (especially background-check sites) match on full legal name</p>
-</div>
-
-<div>
-    <label for="email" class="label">Email Address <span class="text-error">*</span></label>
-    <input type="email" name="email" id="email" autocomplete="email" required
-        value="{{.Profile.Email}}"
-        class="input {{if .Errors.email}}border-error{{end}}"
-        placeholder="jane@example.com">
-    {{if .Errors.email}}
-    <p class="mt-1 text-sm text-error">{{.Errors.email}}</p>
+{{range profileForm .Profile .Errors}}
+{{if .Class}}<div class="{{.Class}}">{{end}}
+    {{range .Intro}}<p class="{{.Class}}">{{.Text}}</p>{{end}}
+    {{if .BodyClass}}<div class="{{.BodyClass}}">{{end}}
+    {{range .Rows}}
+        {{if .Class}}<div class="{{.Class}}">{{end}}
+        {{range .Fields}}{{template "partials/field.html" .}}{{end}}
+        {{if .Class}}</div>{{end}}
     {{end}}
-    <p class="mt-1 text-sm text-muted">This email will receive responses from data brokers, and identifies this profile in removal requests</p>
-</div>
+    {{if .BodyClass}}</div>{{end}}
+{{if .Class}}</div>{{end}}
+{{end}}
 
-<!-- Optional Fields -->
-<div class="pt-6 border-t border-[var(--border)]">
-    <p class="text-sm text-muted mb-4">Optional: Helps brokers find your records</p>
-
-    <div class="space-y-4">
-        <div>
-            <label for="address" class="label">Street Address</label>
-            <input type="text" name="address" id="address" autocomplete="street-address"
-                value="{{.Profile.Address}}"
-                class="input"
-                placeholder="123 Main St">
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="col-span-2">
-                <label for="city" class="label">City</label>
-                <input type="text" name="city" id="city" autocomplete="address-level2"
-                    value="{{.Profile.City}}"
-                    class="input"
-                    placeholder="New York">
-            </div>
-            <div>
-                <label for="state" class="label">State</label>
-                <input type="text" name="state" id="state" autocomplete="address-level1"
-                    value="{{.Profile.State}}"
-                    class="input"
-                    placeholder="NY">
-            </div>
-            <div>
-                <label for="zip_code" class="label">ZIP</label>
-                <input type="text" name="zip_code" id="zip_code" autocomplete="postal-code" maxlength="10" pattern="[A-Za-z0-9][A-Za-z0-9 \-]{1,8}[A-Za-z0-9]" title="Letters, digits, spaces or hyphens (3 to 10 characters)"
-                    value="{{.Profile.ZipCode}}"
-                    class="input"
-                    placeholder="10001">
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label for="country" class="label">Country</label>
-                <select name="country" id="country" autocomplete="country" class="input">
-                    <option value="">-</option>
-                    {{$cur := countryCode .Profile.Country}}
-                    {{range countries}}<option value="{{.Code}}"{{if eq .Code $cur}} selected{{end}}>{{.Name}}</option>{{end}}
-                </select>
-                {{if .Errors.country}}<p class="mt-1 text-sm text-error">{{.Errors.country}}</p>{{end}}
-            </div>
-            <div>
-                <label for="phone" class="label">Phone</label>
-                <input type="tel" name="phone" id="phone" autocomplete="tel" maxlength="30" pattern="[0-9+()\-. /]{6,30}" title="6 to 15 digits; spaces, + ( ) - . are fine"
-                    value="{{.Profile.Phone}}"
-                    class="input"
-                    placeholder="+1 (555) 123-4567">
-            </div>
-        </div>
-
-        <div>
-            <label for="date_of_birth" class="label">Date of Birth</label>
-            <input type="date" name="date_of_birth" id="date_of_birth" autocomplete="bday" min="1900-01-01"
-                value="{{.Profile.DateOfBirth}}"
-                class="input {{if .Errors.date_of_birth}}border-error{{end}}">
-            {{if .Errors.date_of_birth}}<p class="mt-1 text-sm text-error">{{.Errors.date_of_birth}}</p>{{end}}
-        </div>
-    </div>
-</div>
-
-<!-- Other identities: what a broker may have indexed you under instead -->
-<div class="pt-6 border-t border-[var(--border)]">
-    <p class="text-sm text-muted mb-1">Optional: other names, addresses and contacts</p>
-    <p class="text-xs text-muted mb-4">Brokers often hold records under an old address, a maiden name or a spelling without diacritics. One per line.</p>
-
-    <div class="space-y-4">
-        <div>
-            <label for="name_variants" class="label">Other Names</label>
-            <textarea name="name_variants" id="name_variants" rows="2" class="input"
-                placeholder="Jane D.&#10;Jane Smith">{{range .Profile.NameVariants}}{{.}}
-{{end}}</textarea>
-        </div>
-        <div>
-            <label for="additional_emails" class="label">Other Email Addresses</label>
-            <textarea name="additional_emails" id="additional_emails" rows="2"
-                class="input {{if .Errors.additional_emails}}border-error{{end}}"
-                placeholder="old.address@example.com">{{range .Profile.AdditionalEmails}}{{.}}
-{{end}}</textarea>
-            {{if .Errors.additional_emails}}<p class="mt-1 text-sm text-error">{{.Errors.additional_emails}}</p>{{end}}
-        </div>
-        <div>
-            <label for="additional_phones" class="label">Other Phone Numbers</label>
-            <textarea name="additional_phones" id="additional_phones" rows="2" class="input"
-                placeholder="+1 (555) 987-6543">{{range .Profile.AdditionalPhones}}{{.}}
-{{end}}</textarea>
-        </div>
-        <div>
-            <label for="previous_addresses" class="label">Previous Addresses</label>
-            <textarea name="previous_addresses" id="previous_addresses" rows="2" class="input"
-                placeholder="456 Old Street, San Francisco, CA">{{range .Profile.PreviousAddresses}}{{.}}
-{{end}}</textarea>
-            <p class="mt-1 text-xs text-muted">From roughly the last 5-7 years. A partial address still helps.</p>
-        </div>
-    </div>
-</div>
-
-<!-- Dedicated Email Account: profile add/edit only. The setup wizard reuses
+<!-- Dedicated email account: profile add/edit only. The setup wizard shows
      these fields without .Mail; its email account is the next step. -->
 {{if .Mail}}
-<div class="pt-6 border-t border-[var(--border)]">
-    <p class="text-sm text-muted mb-1">Optional: dedicated email account</p>
-    <p class="text-xs text-muted mb-4">By default this profile sends and gets its replies monitored through the account configured in <a href="/settings" class="text-accent hover:underline">Settings</a>. Give it its own account instead if you'd rather each profile send from (and get replies to) a different address - leave the address blank to use the shared account.</p>
+<div class="border-t pt-6">
+    <p class="mb-1 text-muted text-sm">Optional: dedicated email account</p>
+    <p class="mb-4 text-muted text-xs">By default this profile sends and gets its replies monitored through the account configured in <a href="/settings" class="link">Settings</a>. Give it its own account instead if you'd rather each profile send from (and get replies to) a different address - leave the address blank to use the shared account.</p>
 
     {{template "partials/mail-account.html" .Mail}}
 </div>

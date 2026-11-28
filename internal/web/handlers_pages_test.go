@@ -44,9 +44,6 @@ func TestPipelineShowsScanButtonForProfileMailOverride(t *testing.T) {
 	}
 }
 
-// TestSettingsShowsOwnAccountBadgeForProfileMailOverride checks the
-// Settings page's profile list flags which profiles have a dedicated mail
-// account, so it's visible without opening each one's Edit page.
 func TestSettingsShowsOwnAccountBadgeForProfileMailOverride(t *testing.T) {
 	s := newTestServer(t, &config.Config{
 		Profiles: []config.NamedProfile{

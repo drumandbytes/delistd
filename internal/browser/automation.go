@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -212,18 +211,31 @@ func (s *AutomationSession) Open(caller context.Context, raw string) (*Snapshot,
 	if err := s.b.start(); err != nil {
 		return nil, fmt.Errorf("start Chrome: %w", err)
 	}
-	chromedp.ListenTarget(s.b.ctx, func(event any) {
+	if err := chromedp.Listen(s.b.ctx, func(event any) {
 		switch e := event.(type) {
 		case *fetch.EventRequestPaused:
 			go s.checkRequest(e)
 		case *network.EventResponseReceived:
 			s.noteResponse(e)
 		}
-	})
+	}); err != nil {
+		return nil, fmt.Errorf("watch task page: %w", err)
+	}
 	ctx, cancel := s.operation(caller)
 	defer cancel()
 	patterns := []*fetch.RequestPattern{{URLPattern: "*", RequestStage: fetch.RequestStageRequest}, {URLPattern: "*", ResourceType: network.ResourceTypeDocument, RequestStage: fetch.RequestStageResponse}}
-	if err := chromedp.Run(ctx, network.Enable(), network.SetBypassServiceWorker(true), fetch.Enable().WithPatterns(patterns), chromedp.Navigate(raw), chromedp.WaitReady("body")); err != nil {
+	if err := chromedp.Do(ctx,
+		chromedp.Func(func(ctx context.Context, t *chromedp.Target) error {
+			if _, err := cdp.Call(ctx, t, network.Enable, network.EnableParams{}); err != nil {
+				return err
+			}
+			if _, err := cdp.Call(ctx, t, network.SetBypassServiceWorker, network.SetBypassServiceWorkerParams{Bypass: true}); err != nil {
+				return err
+			}
+			_, err := cdp.Call(ctx, t, fetch.Enable, fetch.EnableParams{Patterns: patterns})
+			return err
+		}),
+		chromedp.Navigate(raw), chromedp.WaitReady("body")); err != nil {
 		return nil, fmt.Errorf("open task page: %w", err)
 	}
 	return s.Observe(caller)
@@ -245,16 +257,16 @@ func (s *AutomationSession) restrictDocument(ctx context.Context, e *fetch.Event
 	var err error
 	if e.ResponseStatusCode >= 300 && e.ResponseStatusCode < 400 {
 		// A redirect has no page; the next hop comes back through the interceptor.
-		if err := fetch.ContinueResponse(e.RequestID).Do(ctx); err != nil {
-			_ = fetch.FailRequest(e.RequestID, network.ErrorReasonBlockedByClient).Do(ctx)
+		if _, err := chromedp.Call(ctx, fetch.ContinueResponse, fetch.ContinueResponseParams{RequestID: e.RequestID}); err != nil {
+			s.failRequest(ctx, e.RequestID)
 		}
 		return
 	}
-	body, bodyErr := fetch.GetResponseBody(e.RequestID).Do(ctx)
+	got, bodyErr := chromedp.Call(ctx, fetch.GetResponseBody, fetch.GetResponseBodyParams{RequestID: e.RequestID})
 	switch {
 	case bodyErr != nil:
 		// Nothing to read (an empty response): the sandbox still applies.
-		err = fetch.ContinueResponse(e.RequestID).WithResponseCode(e.ResponseStatusCode).WithResponseHeaders(headers).Do(ctx)
+		_, err = chromedp.Call(ctx, fetch.ContinueResponse, fetch.ContinueResponseParams{RequestID: e.RequestID, ResponseCode: e.ResponseStatusCode, ResponseHeaders: headers})
 	default:
 		// GetResponseBody returns the decoded body, so drop the encoding headers.
 		kept := make([]*fetch.HeaderEntry, 0, len(headers))
@@ -263,11 +275,15 @@ func (s *AutomationSession) restrictDocument(ctx context.Context, e *fetch.Event
 				kept = append(kept, h)
 			}
 		}
-		err = fetch.FulfillRequest(e.RequestID, e.ResponseStatusCode).WithResponseHeaders(kept).WithBody(base64.StdEncoding.EncodeToString(body)).Do(ctx)
+		_, err = chromedp.Call(ctx, fetch.FulfillRequest, fetch.FulfillRequestParams{RequestID: e.RequestID, ResponseCode: e.ResponseStatusCode, ResponseHeaders: kept, Body: got.Body})
 	}
 	if err != nil {
-		_ = fetch.FailRequest(e.RequestID, network.ErrorReasonBlockedByClient).Do(ctx)
+		s.failRequest(ctx, e.RequestID)
 	}
+}
+
+func (s *AutomationSession) failRequest(ctx context.Context, id fetch.RequestID) {
+	_, _ = chromedp.Call(ctx, fetch.FailRequest, fetch.FailRequestParams{RequestID: id, ErrorReason: network.ErrorReasonBlockedByClient})
 }
 
 // noteResponse stops the session when Chrome connected to a non-public address.
@@ -283,9 +299,8 @@ func (s *AutomationSession) noteResponse(e *network.EventResponseReceived) {
 func (s *AutomationSession) checkRequest(e *fetch.EventRequestPaused) {
 	ctx, cancel := context.WithTimeout(s.b.ctx, 10*time.Second)
 	defer cancel()
-	execCtx := cdp.WithExecutor(ctx, chromedp.FromContext(ctx).Target)
 	if e.ResponseStatusCode != 0 {
-		s.restrictDocument(execCtx, e)
+		s.restrictDocument(ctx, e)
 		return
 	}
 	// every request: redirects, frames, XHR, form actions. third-party portals must be in the catalog
@@ -297,32 +312,30 @@ func (s *AutomationSession) checkRequest(e *fetch.EventRequestPaused) {
 		s.mu.Lock()
 		s.blocked = "A destination outside the approved broker/portal was blocked. Review the broker's configured URLs."
 		s.mu.Unlock()
-		_ = fetch.FailRequest(e.RequestID, network.ErrorReasonBlockedByClient).Do(execCtx)
+		s.failRequest(ctx, e.RequestID)
 		return
 	}
 	// Chrome only pauses a document again at the response stage, where the CSP
 	// is added, when the request asks for it.
-	cont := fetch.ContinueRequest(e.RequestID)
+	cont := fetch.ContinueRequestParams{RequestID: e.RequestID}
 	if e.ResourceType == network.ResourceTypeDocument {
-		cont = cont.WithInterceptResponse(true)
+		cont.InterceptResponse = new(true)
 	}
-	_ = cont.Do(execCtx)
+	_, _ = chromedp.Call(ctx, fetch.ContinueRequest, cont)
 }
 
 func (s *AutomationSession) evaluate(ctx context.Context, expression string, out any) error {
-	return chromedp.Run(ctx, chromedp.ActionFunc(func(ctx context.Context) error {
-		r, exception, err := runtime.Evaluate(expression).WithContextID(s.world).WithReturnByValue(true).Do(ctx)
-		if err != nil {
-			return err
-		}
-		if exception != nil {
-			return fmt.Errorf("page changed; observe again before continuing")
-		}
-		if out == nil {
-			return nil
-		}
-		return json.Unmarshal(r.Value, out)
-	}))
+	res, err := chromedp.Call(ctx, runtime.Evaluate, runtime.EvaluateParams{Expression: expression, ContextID: s.world, ReturnByValue: new(true)})
+	if err != nil {
+		return err
+	}
+	if res.ExceptionDetails != nil {
+		return fmt.Errorf("page changed; observe again before continuing")
+	}
+	if out == nil {
+		return nil
+	}
+	return json.Unmarshal(res.Result.Value, out)
 }
 
 func (s *AutomationSession) Observe(caller context.Context) (*Snapshot, error) {
@@ -332,19 +345,20 @@ func (s *AutomationSession) Observe(caller context.Context) (*Snapshot, error) {
 	}
 	ctx, cancel := s.operation(caller)
 	defer cancel()
-	var current string
-	if err := chromedp.Run(ctx, chromedp.Location(&current)); err != nil {
+	current, err := chromedp.Run(ctx, chromedp.Location())
+	if err != nil {
 		return nil, err
 	}
 	if err := s.policy.ValidateNavigation(ctx, current); err != nil {
 		return nil, err
 	}
-	if err := chromedp.Run(ctx, chromedp.ActionFunc(func(ctx context.Context) error {
-		tree, err := page.GetFrameTree().Do(ctx)
+	if err := chromedp.Do(ctx, chromedp.Func(func(ctx context.Context, t *chromedp.Target) error {
+		tree, err := cdp.Call(ctx, t, page.GetFrameTree, cdp.Empty{})
 		if err != nil {
 			return err
 		}
-		s.world, err = page.CreateIsolatedWorld(tree.Frame.ID).WithWorldName("delistd-automation").Do(ctx)
+		world, err := cdp.Call(ctx, t, page.CreateIsolatedWorld, page.CreateIsolatedWorldParams{FrameID: tree.FrameTree.Frame.ID, WorldName: "delistd-automation"})
+		s.world = world.ExecutionContextID
 		return err
 	})); err != nil {
 		return nil, err

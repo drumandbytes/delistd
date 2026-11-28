@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"sort"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -118,8 +118,7 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringSliceVar(&regions, "region", nil, "Only audit brokers in these regions: us, eu, global (comma-separated or repeated)")
-	cmd.Flags().StringSliceVar(&categories, "category", nil, "Only audit brokers in these categories (comma-separated or repeated)")
+	addRegionCategoryFlags(cmd, &regions, &categories, "Only audit brokers")
 	cmd.Flags().IntVar(&timeoutSec, "timeout", 10, "Per-check timeout in seconds")
 	cmd.Flags().BoolVar(&failOnDead, "fail-on-dead", false, "Exit non-zero if any broker has a dead email domain or unreachable website (for scheduled CI)")
 	cmd.Flags().BoolVar(&fix, "fix", false, "Clear the email of every broker with a dead mail domain (keeps the row, adds a dated note) and save the broker file")
@@ -208,7 +207,7 @@ func applyAuditFix(db *broker.BrokerDatabase, results []auditResult) int {
 }
 
 // auditConcurrently runs auditOne for each broker with a bounded worker
-// pool - checking 700+ brokers one at a time over DNS/HTTP would be slow.
+// pool - checking 1,000+ brokers one at a time over DNS/HTTP would be slow.
 func auditConcurrently(targets []broker.Broker, checker *auditChecker, workers int) []auditResult {
 	results := make([]auditResult, len(targets))
 	sem := make(chan struct{}, workers)
@@ -333,7 +332,7 @@ func printAuditResults(results []auditResult) {
 	fmt.Printf("- skipped: %d\n", counts[verdictSkipped])
 
 	if len(emailDead) > 0 {
-		sort.Strings(emailDead)
+		slices.Sort(emailDead)
 		fmt.Println()
 		fmt.Println("Email domain appears dead (MX and host lookup both failed):")
 		for _, id := range emailDead {
@@ -341,7 +340,7 @@ func printAuditResults(results []auditResult) {
 		}
 	}
 	if len(noChannel) > 0 {
-		sort.Strings(noChannel)
+		slices.Sort(noChannel)
 		fmt.Println()
 		fmt.Println("No working channel left (dead email, unreachable website, no opt-out URL) - consider removing:")
 		for _, id := range noChannel {
@@ -349,7 +348,7 @@ func printAuditResults(results []auditResult) {
 		}
 	}
 	if len(websiteDead) > 0 {
-		sort.Strings(websiteDead)
+		slices.Sort(websiteDead)
 		fmt.Println()
 		fmt.Println("Website appears unreachable:")
 		for _, id := range websiteDead {

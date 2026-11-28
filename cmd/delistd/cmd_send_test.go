@@ -1,11 +1,13 @@
 package main
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/drumandbytes/delistd/internal/broker"
+	"github.com/drumandbytes/delistd/internal/config"
 	"github.com/drumandbytes/delistd/internal/history"
 )
 
@@ -58,5 +60,40 @@ func TestCapSendsIgnoresEmaillessBrokers(t *testing.T) {
 	}
 	if len(capSends(brokers, 5)) != 5 {
 		t.Error("budget above the list size trimmed it")
+	}
+}
+
+// A history database that fails must stop a send, not let it run unchecked
+// against the daily cap or the resend cooldown.
+func TestSendStepsStopWhenHistoryFails(t *testing.T) {
+	store, err := history.NewStore(filepath.Join(t.TempDir(), "history.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := store.Close(); err != nil {
+		t.Fatal(err)
+	}
+	profile := config.NamedProfile{ID: "default"}
+	list := []broker.Broker{{ID: "a", Email: "a@example.com"}}
+
+	if _, err := eligibleBrokers(store, profile, list); err == nil {
+		t.Error("eligibleBrokers ignored a failing history store")
+	}
+	cfg := &config.Config{Options: config.Options{DailySendLimit: 10}}
+	if _, err := applyDailyCap(store, cfg, profile, list); err == nil {
+		t.Error("applyDailyCap ignored a failing history store")
+	}
+}
+
+func TestEligibleBrokersRejectsAnUnknownStatus(t *testing.T) {
+	store, err := history.NewStore(filepath.Join(t.TempDir(), "history.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = store.Close() }()
+	defer func(s string) { statusFilter = s }(statusFilter)
+	statusFilter = "sent"
+	if _, err := eligibleBrokers(store, config.NamedProfile{ID: "default"}, []broker.Broker{{ID: "a"}}); err == nil || !strings.Contains(err.Error(), "invalid status") {
+		t.Errorf("err = %v", err)
 	}
 }

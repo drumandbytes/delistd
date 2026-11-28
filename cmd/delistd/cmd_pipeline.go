@@ -22,7 +22,7 @@ func pipelineCmd() *cobra.Command {
 }
 
 func runPipelineStatus() error {
-	cfg, err := config.Load(resolveConfigPath())
+	cfg, err := config.LoadWithoutPasswords(resolveConfigPath())
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
 	}

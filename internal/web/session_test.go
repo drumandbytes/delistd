@@ -91,36 +91,51 @@ func TestSessionUpdateExtendsExpiry(t *testing.T) {
 	}
 }
 
-func TestSessionCleanupRemovesExpired(t *testing.T) {
+func TestExpiredSessionsAreSweptOnCreate(t *testing.T) {
 	store := NewSessionStore(10 * time.Millisecond)
-
 	for i := 0; i < 5; i++ {
 		if _, err := store.Create(); err != nil {
 			t.Fatal(err)
 		}
 	}
-
 	time.Sleep(30 * time.Millisecond)
-	store.cleanup()
-
-	store.mu.RLock()
-	remaining := len(store.sessions)
-	store.mu.RUnlock()
-	if remaining != 0 {
-		t.Fatalf("cleanup left %d expired sessions", remaining)
+	if _, err := store.Create(); err != nil {
+		t.Fatal(err)
+	}
+	store.mu.Lock()
+	remaining := len(store.byID)
+	store.mu.Unlock()
+	if remaining != 1 {
+		t.Fatalf("%d sessions left, want only the new one", remaining)
 	}
 }
 
-func TestGenerateSessionIDIsUnique(t *testing.T) {
-	seen := make(map[string]bool)
+func TestSessionIDsAreUnique(t *testing.T) {
+	store := NewSessionStore(time.Hour)
+	seen := map[string]bool{}
 	for i := 0; i < 200; i++ {
-		id, err := generateSessionID()
+		id, err := store.Create()
 		if err != nil {
 			t.Fatal(err)
 		}
-		if seen[id] {
-			t.Fatalf("duplicate session id: %s", id)
+		if len(id) != 64 || seen[id] {
+			t.Fatalf("bad or duplicate session id %q", id)
 		}
 		seen[id] = true
+	}
+}
+
+// Get hands out a copy, so a reader is never looking at a session that
+// Update is changing in another request.
+func TestGetReturnsASnapshot(t *testing.T) {
+	store := NewSessionStore(time.Hour)
+	id, _ := store.Create()
+	snap := store.Get(id)
+	store.Update(id, func(s *Session) { s.Step = "changed" })
+	if snap.Step != "" {
+		t.Errorf("snapshot changed under the reader: %q", snap.Step)
+	}
+	if store.Get(id).Step != "changed" {
+		t.Error("the update was lost")
 	}
 }

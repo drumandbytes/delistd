@@ -113,8 +113,7 @@ func init() {
 		extraAllocatorOptions = append(extraAllocatorOptions, chromedp.ExecPath(path))
 	}
 	if os.Getenv("GITHUB_ACTIONS") == "true" {
-		// cold start under -race can outlast chromedp's 20s default
-		extraAllocatorOptions = append(extraAllocatorOptions, chromedp.NoSandbox, chromedp.WSURLReadTimeout(90*time.Second))
+		extraAllocatorOptions = append(extraAllocatorOptions, chromedp.NoSandbox)
 	}
 }
 
@@ -138,7 +137,7 @@ func requireChrome(t *testing.T) *Browser {
 
 	// Start Chrome on b.ctx itself: cancelling the context of the first Run
 	// closes the browser.
-	if err := chromedp.Run(b.ctx, chromedp.Navigate("about:blank")); err != nil {
+	if err := chromedp.Do(b.ctx, chromedp.Navigate("about:blank")); err != nil {
 		b.Close()
 		// GitHub's runners ship Chrome: there a missing browser is a broken
 		// setup, not a reason to quietly skip the browser tests.
@@ -163,7 +162,7 @@ func TestSubmitForm_ClicksButtonByVisibleText(t *testing.T) {
 	ctx, cancel := context.WithTimeout(b.ctx, b.config.Timeout)
 	defer cancel()
 
-	if err := chromedp.Run(ctx, chromedp.Navigate(page)); err != nil {
+	if err := chromedp.Do(ctx, chromedp.Navigate(page)); err != nil {
 		t.Fatalf("navigate failed: %v", err)
 	}
 
@@ -171,8 +170,8 @@ func TestSubmitForm_ClicksButtonByVisibleText(t *testing.T) {
 		t.Fatalf("submitForm returned an error: %v", err)
 	}
 
-	var title string
-	if err := chromedp.Run(ctx, chromedp.Title(&title)); err != nil {
+	title, err := chromedp.Run(ctx, chromedp.Title())
+	if err != nil {
 		t.Fatalf("could not read page title: %v", err)
 	}
 	if title != "clicked" {
@@ -201,7 +200,7 @@ func TestDetectCaptcha(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx, cancel := context.WithTimeout(b.ctx, b.config.Timeout)
 			defer cancel()
-			if err := chromedp.Run(ctx, chromedp.Navigate("data:text/html,<html><head></head><body>"+tc.body+"</body></html>")); err != nil {
+			if err := chromedp.Do(ctx, chromedp.Navigate("data:text/html,<html><head></head><body>"+tc.body+"</body></html>")); err != nil {
 				t.Fatalf("navigate: %v", err)
 			}
 			got, err := b.detectCaptcha(ctx)

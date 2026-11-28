@@ -16,7 +16,7 @@ import (
 const MachineIDFileEnv = "DELISTD_MACHINE_ID_FILE"
 
 func readMachineID() (string, error) {
-	if p := Getenv(MachineIDFileEnv); p != "" {
+	if p := os.Getenv(MachineIDFileEnv); p != "" {
 		return ensureMachineIDFile(p)
 	}
 	for _, p := range []string{"/etc/machine-id", "/var/lib/dbus/machine-id"} {

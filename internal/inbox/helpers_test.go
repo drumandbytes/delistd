@@ -116,16 +116,3 @@ func TestRecordReplyBackfillsBody(t *testing.T) {
 		t.Errorf("body not backfilled: %+v", all)
 	}
 }
-
-func TestIsTrackingURL(t *testing.T) {
-	for url, want := range map[string]bool{
-		"https://broker.example/open.gif":        true,
-		"https://broker.example/pixel/a.png":     true,
-		"https://broker.example/logo.png":        false,
-		"https://broker.example/privacy/opt-out": false,
-	} {
-		if got := isTrackingURL(url); got != want {
-			t.Errorf("isTrackingURL(%q) = %v", url, got)
-		}
-	}
-}

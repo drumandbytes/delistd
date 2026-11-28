@@ -11,8 +11,10 @@ enableGitInfo = true
   lastmod = ["last_checked", ":git", "lastmod", "date"]
 
 [params]
-  description = "Send data removal requests to data brokers. Open source, local-first, free."
+  description = "Send removal requests to 1,000+ data brokers worldwide from your own mailbox. Free, open source, and your details stay on your computer."
   repo = "https://github.com/drumandbytes/delistd"
+  # Drumandbytes OÜ support inbox; shown on /support/
+  supportEmail = "support@drumandbytes.com"
 
 [markup.goldmark.renderer]
   unsafe = true
@@ -42,6 +44,10 @@ enableGitInfo = true
   name = "Authorities"
   pageRef = "/authorities"
   weight = 30
+[[menu.main]]
+  name = "Support"
+  pageRef = "/support"
+  weight = 35
 
 [mediaTypes."text/x-redirects"]
   suffixes = [""]

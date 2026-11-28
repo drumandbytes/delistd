@@ -33,7 +33,7 @@ type imapFixture struct {
 
 func newIMAPFixture(t *testing.T, move bool) *imapFixture {
 	t.Helper()
-	srv := imaptest.Start(t, move)
+	srv := imaptest.StartWith(t, imaptest.Options{Move: move})
 	return &imapFixture{Server: srv, cfg: srv.Inbox, brokers: []broker.Broker{
 		{ID: "acme", Name: "Acme", Email: "privacy@acme.example"},
 		{ID: "globex", Name: "Globex", Website: "https://www.globex.example/privacy"},
@@ -153,14 +153,14 @@ func TestNotConnectedErrors(t *testing.T) {
 func TestEnsureFolderExists(t *testing.T) {
 	f := newIMAPFixture(t, false)
 	m := f.connect(t)
-	if err := m.EnsureFolderExists("Eraser"); err != nil {
+	if err := m.EnsureFolderExists("Delistd"); err != nil {
 		t.Fatal(err)
 	}
-	if err := m.EnsureFolderExists("eraser"); err != nil { // case-insensitive match, no duplicate
+	if err := m.EnsureFolderExists("delistd"); err != nil { // case-insensitive match, no duplicate
 		t.Fatal(err)
 	}
 	if boxes := f.MailboxNames(t); len(boxes) != 2 {
-		t.Errorf("mailboxes = %d, want INBOX + Eraser", len(boxes))
+		t.Errorf("mailboxes = %d, want INBOX + Delistd", len(boxes))
 	}
 }
 
@@ -193,8 +193,8 @@ func TestScanAndStoreArchives(t *testing.T) {
 			if res.Summary.Total != 2 || len(res.New) != 2 || res.Archived != 2 || res.Summary.Success != 1 || res.Summary.FormRequired != 1 {
 				t.Fatalf("result = %+v", res)
 			}
-			if f.Count(t, "INBOX") != before-2 || f.Count(t, "Eraser") != 2 {
-				t.Errorf("INBOX %d (was %d), Eraser %d", f.Count(t, "INBOX"), before, f.Count(t, "Eraser"))
+			if f.Count(t, "INBOX") != before-2 || f.Count(t, "Delistd") != 2 {
+				t.Errorf("INBOX %d (was %d), Delistd %d", f.Count(t, "INBOX"), before, f.Count(t, "Delistd"))
 			}
 			if jane, _ := store.GetBrokerResponses("jane", "", false, 10); len(jane) != 1 || jane[0].BrokerID != "acme" {
 				t.Errorf("acme reply not attributed to jane: %+v", jane)
@@ -223,7 +223,7 @@ func TestScanAndStoreFetchError(t *testing.T) {
 func TestArchiveEmailsNothingToDo(t *testing.T) {
 	f := newIMAPFixture(t, false)
 	m := f.connect(t)
-	if err := m.ArchiveEmails(nil, "Eraser"); err != nil {
+	if err := m.ArchiveEmails(nil, "Delistd"); err != nil {
 		t.Errorf("empty archive: %v", err)
 	}
 	if err := m.ArchiveEmails([]uint32{6}, "NoSuchFolder"); err == nil {
@@ -239,7 +239,7 @@ func TestArchiveEmailsWarnsWhenOtherMailIsAlreadyFlaggedDeleted(t *testing.T) {
 	f := newIMAPFixture(t, false) // no MOVE: COPY + \Deleted + EXPUNGE
 	f.Deliver(t, "INBOX", "privacy@acme.example", "Re: first", "first")
 	f.Deliver(t, "INBOX", "privacy@acme.example", "Re: second", "second")
-	f.Mailbox(t, "Eraser") // the archive folder must exist for COPY
+	f.Mailbox(t, "Delistd") // the archive folder must exist for COPY
 
 	inbox := f.Mailbox(t, "INBOX")
 	n := len(inbox.Messages)
@@ -252,7 +252,7 @@ func TestArchiveEmailsWarnsWhenOtherMailIsAlreadyFlaggedDeleted(t *testing.T) {
 	t.Cleanup(func() { log.SetOutput(os.Stderr) })
 
 	m := f.connect(t)
-	if err := m.ArchiveEmails([]uint32{ours.Uid}, "Eraser"); err != nil {
+	if err := m.ArchiveEmails([]uint32{ours.Uid}, "Delistd"); err != nil {
 		t.Fatal(err)
 	}
 	out := logs.String()
@@ -274,7 +274,7 @@ func TestArchiveEmailsWarnsWhenOtherMailIsAlreadyFlaggedDeleted(t *testing.T) {
 func TestArchiveEmailsWithoutStrayFlagsDoesNotWarn(t *testing.T) {
 	f := newIMAPFixture(t, false)
 	f.Deliver(t, "INBOX", "privacy@acme.example", "Re: only", "only")
-	f.Mailbox(t, "Eraser")
+	f.Mailbox(t, "Delistd")
 	inbox := f.Mailbox(t, "INBOX")
 	ours := inbox.Messages[len(inbox.Messages)-1]
 
@@ -282,10 +282,66 @@ func TestArchiveEmailsWithoutStrayFlagsDoesNotWarn(t *testing.T) {
 	log.SetOutput(&logs)
 	t.Cleanup(func() { log.SetOutput(os.Stderr) })
 
-	if err := f.connect(t).ArchiveEmails([]uint32{ours.Uid}, "Eraser"); err != nil {
+	if err := f.connect(t).ArchiveEmails([]uint32{ours.Uid}, "Delistd"); err != nil {
 		t.Fatal(err)
 	}
 	if strings.Contains(logs.String(), "WARNING") {
 		t.Errorf("unexpected warning:\n%s", logs.String())
+	}
+}
+
+// With UIDPLUS the expunge is scoped to our UIDs, so mail another client
+// flagged \Deleted survives and nothing warns.
+func TestArchiveEmailsWithUIDPlusLeavesOtherFlaggedMailAlone(t *testing.T) {
+	srv := imaptest.StartWith(t, imaptest.Options{UIDPlus: true})
+	f := &imapFixture{Server: srv, cfg: srv.Inbox, brokers: []broker.Broker{{ID: "acme", Name: "Acme", Email: "privacy@acme.example"}}}
+	f.Deliver(t, "INBOX", "privacy@acme.example", "Re: first", "first")
+	f.Deliver(t, "INBOX", "privacy@acme.example", "Re: second", "second")
+	f.Mailbox(t, "Delistd")
+
+	inbox := f.Mailbox(t, "INBOX")
+	n := len(inbox.Messages)
+	stray, ours := inbox.Messages[n-2], inbox.Messages[n-1]
+	stray.Flags = append(stray.Flags, imap.DeletedFlag)
+	before := f.Count(t, "INBOX")
+
+	var logs bytes.Buffer
+	log.SetOutput(&logs)
+	t.Cleanup(func() { log.SetOutput(os.Stderr) })
+
+	if err := f.connect(t).ArchiveEmails([]uint32{ours.Uid}, "Delistd"); err != nil {
+		t.Fatal(err)
+	}
+	if got := f.Count(t, "INBOX"); got != before-1 {
+		t.Errorf("INBOX has %d messages, want %d (the stray flagged one must stay)", got, before-1)
+	}
+	if strings.Contains(logs.String(), "WARNING") {
+		t.Errorf("unexpected warning:\n%s", logs.String())
+	}
+}
+
+// A connection the server dropped must surface as errors from every
+// operation, never as an empty mailbox.
+func TestOperationsFailWhenTheConnectionIsGone(t *testing.T) {
+	f := newIMAPFixture(t, false)
+	f.Deliver(t, "INBOX", "privacy@acme.example", "Re: x", "x")
+	m := f.connect(t)
+	if err := m.client.Terminate(); err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	calls := map[string]func() error{
+		"FetchBrokerEmails":           func() error { _, err := m.FetchBrokerEmails(ctx, 7); return err },
+		"FetchBrokerEmailsFromFolder": func() error { _, err := m.FetchBrokerEmailsFromFolder(ctx, "INBOX", 7); return err },
+		"FetchBounceEmails":           func() error { _, err := m.FetchBounceEmails(ctx, 7); return err },
+		"EnsureFolderExists":          func() error { return m.EnsureFolderExists("Delistd") },
+		"ArchiveEmails":               func() error { return m.ArchiveEmails([]uint32{1}, "Delistd") },
+		"deletedUIDsBesides":          func() error { _, err := m.deletedUIDsBesides([]uint32{1}); return err },
+		"WatchForNewEmails":           func() error { return m.WatchForNewEmails(ctx, func(Email) {}) },
+	}
+	for name, call := range calls {
+		if err := call(); err == nil {
+			t.Errorf("%s succeeded on a dead connection", name)
+		}
 	}
 }

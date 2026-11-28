@@ -66,7 +66,7 @@ func TestSetupCompleteReportsSaveFailure(t *testing.T) {
 		sess.Step = "complete"
 	})
 	req := httptest.NewRequest(http.MethodGet, "/setup/complete", nil)
-	req.AddCookie(&http.Cookie{Name: "eraser_session", Value: id})
+	req.AddCookie(&http.Cookie{Name: "delistd_session", Value: id})
 	rec := httptest.NewRecorder()
 	s.handleSetupComplete(rec, req)
 	if !strings.Contains(rec.Body.String(), "Setup - Error") && !strings.Contains(rec.Body.String(), "failed") {
@@ -98,7 +98,7 @@ func TestBrokerListHonoursConfiguredRegions(t *testing.T) {
 		{ID: "eu-one", Name: "EU One", Region: "eu"},
 		{ID: "global-one", Name: "Global One", Region: "global"},
 	}
-	got := s.getBrokersWithStatus("default", "", "", "", "", nil, nil, false, false)
+	got := s.listBrokers("default", brokerQuery{})
 	if len(got) != 2 || got[0].ID == "us-one" || got[1].ID == "us-one" {
 		t.Errorf("regions: [eu] should keep eu and global only, got %+v", got)
 	}

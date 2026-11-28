@@ -1,6 +1,7 @@
 package browser
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -8,7 +9,7 @@ import (
 	"time"
 )
 
-// ConfirmationResult holds the outcome of clicking a confirmation link
+// ConfirmationResult is what came of opening a confirmation link.
 type ConfirmationResult struct {
 	Success      bool
 	URL          string
@@ -19,219 +20,151 @@ type ConfirmationResult struct {
 	RedirectPath []string
 }
 
-// ConfirmationHandler handles clicking confirmation links from emails
+// ConfirmationHandler opens the confirmation links brokers email, and only
+// those on a known broker domain.
 type ConfirmationHandler struct {
 	client        *http.Client
-	brokerDomains map[string]bool
+	brokerDomains []string
 }
 
-// NewConfirmationHandler creates a new handler with known broker domains
+const (
+	maxRedirects    = 10
+	maxConfirmBytes = 64 * 1024
+)
+
+var errTooManyRedirects = errors.New("too many redirects")
+
+// NewConfirmationHandler trusts brokerDomains and their subdomains.
 func NewConfirmationHandler(brokerDomains []string) *ConfirmationHandler {
-	domains := make(map[string]bool)
-	for _, d := range brokerDomains {
-		d = strings.ToLower(d)
-		domains[d] = true
-		// Also allow subdomains
-		if !strings.HasPrefix(d, "www.") {
-			domains["www."+d] = true
-		}
-		if !strings.HasPrefix(d, "mail.") {
-			domains["mail."+d] = true
-		}
-		if !strings.HasPrefix(d, "email.") {
-			domains["email."+d] = true
-		}
-	}
-
 	return &ConfirmationHandler{
-		client: &http.Client{
-			Timeout: 30 * time.Second,
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				// Allow up to 10 redirects
-				if len(via) >= 10 {
-					return fmt.Errorf("too many redirects")
-				}
-				return nil
-			},
-		},
-		brokerDomains: domains,
+		client:        &http.Client{Timeout: 30 * time.Second},
+		brokerDomains: brokerDomains,
 	}
 }
 
-// ValidateDomain checks if the URL belongs to a known broker domain
+// ValidateDomain reports whether the URL is on a known broker domain.
 func (h *ConfirmationHandler) ValidateDomain(confirmURL string) (bool, string, error) {
-	return matchesAllowedDomain(confirmURL, h.domainList())
+	return matchesAllowedDomain(confirmURL, h.brokerDomains)
 }
 
-// domainList returns the handler's known broker domains (including the
-// www./mail./email. variants added in NewConfirmationHandler) as a slice,
-// for use with the shared matchesAllowedDomain helper.
-func (h *ConfirmationHandler) domainList() []string {
-	domains := make([]string, 0, len(h.brokerDomains))
-	for d := range h.brokerDomains {
-		domains = append(domains, d)
-	}
-	return domains
-}
-
-// ClickConfirmationLink sends a GET request to the confirmation URL
+// ClickConfirmationLink GETs the link as a browser would and judges the page.
+// Every redirect hop is checked against the broker domains, validateDomain or
+// not, so an open redirect cannot carry the token to a third party.
 func (h *ConfirmationHandler) ClickConfirmationLink(confirmURL string, validateDomain bool) (*ConfirmationResult, error) {
-	result := &ConfirmationResult{
-		URL:          confirmURL,
-		RedirectPath: []string{confirmURL},
+	result := &ConfirmationResult{URL: confirmURL, RedirectPath: []string{confirmURL}}
+	fail := func(err error, format string, args ...any) (*ConfirmationResult, error) {
+		result.ErrorMessage = fmt.Sprintf(format, args...)
+		return result, err
 	}
 
 	if validateDomain {
-		valid, domain, err := h.ValidateDomain(confirmURL)
+		ok, domain, err := h.ValidateDomain(confirmURL)
 		if err != nil {
-			result.ErrorMessage = err.Error()
-			return result, err
+			return fail(err, "%v", err)
 		}
-		if !valid {
-			result.ErrorMessage = fmt.Sprintf("domain %s is not a known broker domain", domain)
-			return result, fmt.Errorf("domain %s is not a known broker domain", domain)
+		if !ok {
+			err := fmt.Errorf("domain %s is not a known broker domain", domain)
+			return fail(err, "%v", err)
 		}
 	}
 
-	// Create request with browser-like headers
-	req, err := http.NewRequest("GET", confirmURL, nil)
+	req, err := http.NewRequest(http.MethodGet, confirmURL, nil)
 	if err != nil {
-		result.ErrorMessage = fmt.Sprintf("failed to create request: %v", err)
-		return result, err
+		return fail(err, "failed to create request: %v", err)
+	}
+	for k, v := range map[string]string{
+		"User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+		"Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+		"Accept-Language": "en-US,en;q=0.5",
+		"Connection":      "keep-alive",
+	} {
+		req.Header.Set(k, v)
 	}
 
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.5")
-	req.Header.Set("Connection", "keep-alive")
-
-	// re-validate every redirect hop, or an open redirect could carry the
-	// token to a third party
-	var redirects []string
-	h.client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-		if len(via) >= 10 {
-			return fmt.Errorf("too many redirects")
+	// a copy, so concurrent clicks do not share one redirect log
+	var hops []string
+	client := *h.client
+	client.CheckRedirect = func(next *http.Request, via []*http.Request) error {
+		if len(via) >= maxRedirects {
+			return errTooManyRedirects
 		}
-
-		valid, domain, err := matchesAllowedDomain(req.URL.String(), h.domainList())
+		ok, domain, err := matchesAllowedDomain(next.URL.String(), h.brokerDomains)
 		if err != nil {
 			return fmt.Errorf("redirect validation failed: %w", err)
 		}
-		if !valid {
+		if !ok {
 			return fmt.Errorf("redirect to disallowed domain %s blocked", domain)
 		}
-
-		redirects = append(redirects, req.URL.String())
+		hops = append(hops, next.URL.String())
 		return nil
 	}
 
-	// Make the request
-	resp, err := h.client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
-		result.ErrorMessage = fmt.Sprintf("request failed: %v", err)
-		return result, err
+		return fail(err, "request failed: %v", err)
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	result.StatusCode = resp.StatusCode
-	result.FinalURL = resp.Request.URL.String()
-	result.RedirectPath = append(result.RedirectPath, redirects...)
+	result.StatusCode, result.FinalURL = resp.StatusCode, resp.Request.URL.String()
+	result.RedirectPath = append(result.RedirectPath, hops...)
 
-	body, err := io.ReadAll(io.LimitReader(resp.Body, 64*1024))
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxConfirmBytes))
 	if err != nil {
-		result.ErrorMessage = fmt.Sprintf("failed to read response: %v", err)
-		return result, err
+		return fail(err, "failed to read response: %v", err)
 	}
 	result.ResponseBody = string(body)
-
-	// Check for success indicators
-	result.Success = h.isSuccessResponse(resp.StatusCode, result.ResponseBody)
-
-	if !result.Success && result.ErrorMessage == "" {
+	result.Success = confirmationSucceeded(resp.StatusCode, result.ResponseBody)
+	if !result.Success {
 		result.ErrorMessage = fmt.Sprintf("confirmation may have failed (status %d)", resp.StatusCode)
 	}
-
 	return result, nil
 }
 
-// isSuccessResponse checks if the response indicates successful confirmation
-func (h *ConfirmationHandler) isSuccessResponse(statusCode int, body string) bool {
-	// Check HTTP status
-	if statusCode < 200 || statusCode >= 400 {
-		return false
-	}
-
-	bodyLower := strings.ToLower(body)
-
-	// Success indicators
-	successPatterns := []string{
-		"successfully",
-		"confirmed",
-		"verification complete",
-		"verified",
-		"opt-out complete",
-		"removal complete",
-		"request received",
-		"request confirmed",
-		"thank you",
-		"has been removed",
-		"been deleted",
-		"been processed",
-		"unsubscribed",
-		"opted out",
-	}
-
-	for _, pattern := range successPatterns {
-		if strings.Contains(bodyLower, pattern) {
-			return true
-		}
-	}
-
-	// Failure indicators (if these are present, it's NOT a success)
-	failurePatterns := []string{
-		"link expired",
-		"link invalid",
-		"already confirmed",
-		"error occurred",
-		"something went wrong",
-		"could not",
-		"unable to",
-		"failed",
-	}
-
-	for _, pattern := range failurePatterns {
-		if strings.Contains(bodyLower, pattern) {
-			return false
-		}
-	}
-
-	// If status is 200 and no failure patterns, assume success
-	return statusCode == 200
+// what a page says when the link did not work; checked before the success
+// phrases, because "failed" and "thank you" can share a page and a wrongly
+// confirmed removal is worse than a retried one
+var failurePhrases = []string{
+	"link expired", "link invalid", "already confirmed", "error occurred",
+	"something went wrong", "could not", "unable to", "failed",
 }
 
-// ExtractConfirmationStatus extracts a human-readable status from the response
+var successPhrases = []string{
+	"successfully", "confirmed", "verification complete", "verified", "opt-out complete",
+	"removal complete", "request received", "request confirmed", "thank you", "has been removed",
+	"been deleted", "been processed", "unsubscribed", "opted out",
+}
+
+// confirmationSucceeded judges a response: a 2xx or 3xx status is needed; a
+// failure phrase rules it out; a success phrase confirms it; and a plain 200
+// with neither counts as success.
+func confirmationSucceeded(status int, body string) bool {
+	if status < 200 || status >= 400 {
+		return false
+	}
+	text := strings.ToLower(body)
+	if containsAny(text, failurePhrases) {
+		return false
+	}
+	return containsAny(text, successPhrases) || status == http.StatusOK
+}
+
+// ExtractConfirmationStatus summarises a failed confirmation for a person.
 func (h *ConfirmationHandler) ExtractConfirmationStatus(result *ConfirmationResult) string {
 	if result.Success {
 		return "Confirmation successful"
 	}
-
-	bodyLower := strings.ToLower(result.ResponseBody)
-
-	if strings.Contains(bodyLower, "expired") {
+	text := strings.ToLower(result.ResponseBody)
+	switch {
+	case strings.Contains(text, "expired"):
 		return "Link expired"
-	}
-	if strings.Contains(bodyLower, "already") {
+	case strings.Contains(text, "already"):
 		return "Already confirmed/processed"
-	}
-	if strings.Contains(bodyLower, "invalid") {
+	case strings.Contains(text, "invalid"):
 		return "Invalid link"
-	}
-	if result.StatusCode == 404 {
+	case result.StatusCode == http.StatusNotFound:
 		return "Link not found (404)"
-	}
-	if result.StatusCode >= 500 {
+	case result.StatusCode >= 500:
 		return "Server error"
 	}
-
 	return "Unknown status"
 }

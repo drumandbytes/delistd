@@ -18,7 +18,7 @@ func TestGetBrokersWithStatusRecipientFilters(t *testing.T) {
 		{ID: "noemail", Name: "No Email", Region: "eu", Category: "people-search"},
 	}
 
-	got := s.getBrokersWithStatus("default", "alpha", "marketing", "us", "all", []string{"alpha", "beta"}, []string{"beta"}, false, false)
+	got := s.listBrokers("default", brokerQuery{Search: "alpha", Category: "marketing", Region: "us", Status: "all", Only: []string{"alpha", "beta"}, Skip: []string{"beta"}})
 	if len(got) != 1 || got[0].ID != "alpha" {
 		t.Fatalf("filtered brokers = %+v, want alpha", got)
 	}

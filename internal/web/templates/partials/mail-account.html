@@ -12,35 +12,35 @@
                 data-note="{{.Note}}" data-help="{{.HelpURL}}" data-oauth="{{if .OAuth}}1{{end}}">{{.Name}}</option>
             {{end}}
         </select>
-        <p class="mt-1 text-xs text-muted">
+        <p class="field-hint">
             <span id="mail_provider_note">{{range .Providers}}{{if eq .ID $.Provider}}{{.Note}}{{end}}{{end}}</span>
-            <a id="mail_provider_help" href="{{range .Providers}}{{if eq .ID $.Provider}}{{.HelpURL}}{{end}}{{end}}" target="_blank" rel="noopener" class="text-accent hover:underline">Setup guide</a>
+            <a id="mail_provider_help" href="{{range .Providers}}{{if eq .ID $.Provider}}{{.HelpURL}}{{end}}{{end}}" target="_blank" rel="noopener" class="link">Setup guide</a>
         </p>
-        <p class="mt-1 text-xs text-muted">Missing your provider? <a href="https://github.com/drumandbytes/delistd/issues/new?template=mail_provider.yml" target="_blank" rel="noopener" class="text-accent hover:underline">Request it</a> or use "Other".</p>
+        <p class="field-hint">Missing your provider? <a href="https://github.com/drumandbytes/delistd/issues/new?template=mail_provider.yml" target="_blank" rel="noopener" class="link">Request it</a> or use "Other".</p>
     </div>
 
     <div>
         <label for="mail_address" class="label">Email address</label>
         <input type="email" name="mail_address" id="mail_address" autocomplete="email" value="{{.Address}}"
             class="input {{if .Errors.mail_address}}border-error{{end}}" placeholder="you@example.org">
-        {{if .Errors.mail_address}}<p class="mt-1 text-sm text-error">{{.Errors.mail_address}}</p>{{end}}
+        {{if .Errors.mail_address}}<p class="field-error">{{.Errors.mail_address}}</p>{{end}}
     </div>
 
     <div id="oauth_block" class="space-y-3" {{if not .OAuth}}hidden{{end}}>
-        <p class="text-sm text-muted">Microsoft no longer accepts passwords for Outlook.com, Hotmail and Live. Sign in with a short code instead. Personal accounts only, not Microsoft 365 work accounts. Microsoft will call the Delistd app an "unverified" publisher on its approval page; that is expected.</p>
+        <p class="note">Microsoft no longer accepts passwords for Outlook.com, Hotmail and Live. Sign in with a short code instead. Personal accounts only, not Microsoft 365 work accounts. Microsoft will call the Delistd app an "unverified" publisher on its approval page; that is expected.</p>
         <div>
             <button type="button" class="btn btn-secondary" hx-post="/oauth/start" hx-include="#oauth_client_id, #mail_address, #mail_username" hx-target="#oauth_status" hx-swap="outerHTML">Sign in with Microsoft</button>
             {{if .SignedIn}}<span id="oauth_signed_in" data-address="{{.Address}}" class="ml-2 text-sm text-success">Signed in already as {{.Address}}. Sign in again only to replace it.</span>{{end}}
-            <span id="oauth_other_address" hidden class="ml-2 text-sm text-muted">This is a different address from the saved sign-in: sign in again for it.</span>
+            <span id="oauth_other_address" hidden class="ml-2 text-muted text-sm">This is a different address from the saved sign-in: sign in again for it.</span>
         </div>
         <div id="oauth_status"></div>
-        {{if .Errors.oauth}}<p class="text-sm text-error">{{.Errors.oauth}}</p>{{end}}
+        {{if .Errors.oauth}}<p class="text-error text-sm">{{.Errors.oauth}}</p>{{end}}
         <details {{if or (not .SharedApp) .ClientID}}open{{end}}>
-            <summary class="text-sm text-muted cursor-pointer">{{if .SharedApp}}Use my own Microsoft app instead (advanced){{else}}Register a Microsoft app first (required){{end}}</summary>
-            <div class="text-sm space-y-2 rounded border p-3 mt-2">
+            <summary class="cursor-pointer text-muted text-sm">{{if .SharedApp}}Use my own Microsoft app instead (advanced){{else}}Register a Microsoft app first (required){{end}}</summary>
+            <div class="border mt-2 p-3 rounded space-y-2 text-sm">
                 <p class="text-muted">{{if .SharedApp}}Only if the shared Delistd app doesn't work for you.{{else}}Microsoft only allows sign-in through a registered app. It's free and takes about 5 minutes.{{end}}</p>
                 <ol class="list-decimal list-inside space-y-1">
-                    <li>Open <a href="https://entra.microsoft.com" target="_blank" rel="noopener" class="text-accent hover:underline">entra.microsoft.com</a> &rarr; <em>App registrations</em> &rarr; <em>New registration</em>, signed in with your Microsoft account. Microsoft refuses this for some personal accounts (a free Azure account or Microsoft 365 Developer Program tenant gets around it); the full guide explains.</li>
+                    <li>Open <a href="https://entra.microsoft.com" target="_blank" rel="noopener" class="link">entra.microsoft.com</a> &rarr; <em>App registrations</em> &rarr; <em>New registration</em>, signed in with your Microsoft account. Microsoft refuses this for some personal accounts (a free Azure account or Microsoft 365 Developer Program tenant gets around it); the full guide explains.</li>
                     <li>Name it anything. Supported account types: <strong>Personal Microsoft accounts only</strong>. Leave the redirect URI empty. Register.</li>
                     <li><em>Authentication</em> &rarr; <em>Advanced settings</em> &rarr; <strong>Allow public client flows: Yes</strong> &rarr; Save.</li>
                     <li>If signing in later says the app lacks permission, add <code>IMAP.AccessAsUser.All</code>, <code>SMTP.Send</code> and <code>offline_access</code> under <em>API permissions</em>.</li>
@@ -48,9 +48,9 @@
                 </ol>
                 <div>
                     <label for="oauth_client_id" class="label">Application (client) ID{{if .SharedApp}} (leave empty to use the shared app){{end}}</label>
-                    <input type="text" name="oauth_client_id" id="oauth_client_id" value="{{.ClientID}}" class="input font-mono" autocomplete="off" placeholder="00000000-0000-0000-0000-000000000000">
+                    <input type="text" name="oauth_client_id" id="oauth_client_id" value="{{.ClientID}}" class="font-mono input" autocomplete="off" placeholder="00000000-0000-0000-0000-000000000000">
                 </div>
-                <p class="text-xs text-muted">Full guide: <a href="https://github.com/drumandbytes/delistd/blob/main/docs/outlook.md" target="_blank" rel="noopener" class="text-accent hover:underline">docs/outlook.md</a>. A user has reported it working; tell us how it goes in <a href="https://github.com/drumandbytes/delistd/issues/293" target="_blank" rel="noopener" class="text-accent hover:underline">#293</a>.</p>
+                <p class="note-xs">Full guide: <a href="https://github.com/drumandbytes/delistd/blob/main/docs/outlook.md" target="_blank" rel="noopener" class="link">docs/outlook.md</a>. A user has reported it working; tell us how it goes in <a href="https://github.com/drumandbytes/delistd/issues/293" target="_blank" rel="noopener" class="link">#293</a>.</p>
             </div>
         </details>
     </div>
@@ -60,18 +60,18 @@
         <input type="password" name="mail_password" id="mail_password"
             class="input {{if .Errors.mail_password}}border-error{{end}}"
             placeholder="{{if .PasswordPlaceholder}}{{.PasswordPlaceholder}}{{else}}App, Bridge or SMTP password{{end}}">
-        {{if .Errors.mail_password}}<p class="mt-1 text-sm text-error">{{.Errors.mail_password}}</p>{{end}}
-        <p class="mt-1 text-xs text-muted">Use an app password from your provider, not your main account password.</p>
+        {{if .Errors.mail_password}}<p class="field-error">{{.Errors.mail_password}}</p>{{end}}
+        <p class="field-hint">Use an app password from your provider, not your main account password.</p>
     </div>
 
     <details id="mail_server" {{if or (eq .Provider "custom") (eq .Provider "ses") .Errors.smtp_host .Errors.imap_host}}open{{end}}>
-        <summary class="text-sm text-muted cursor-pointer">Server settings</summary>
-        <div class="space-y-4 mt-3">
+        <summary class="cursor-pointer text-muted text-sm">Server settings</summary>
+        <div class="mt-3 space-y-4">
             <div>
                 <label for="mail_username" class="label">Login username</label>
                 <input type="text" name="mail_username" id="mail_username" value="{{.Username}}" class="input"
                     placeholder="Leave blank to use the email address" autocomplete="off">
-                <p class="mt-1 text-xs text-muted">Only if your provider's login differs from the address (e.g. Amazon SES SMTP credentials).</p>
+                <p class="field-hint">Only if your provider's login differs from the address (e.g. Amazon SES SMTP credentials).</p>
             </div>
             {{if ne .Mode "imap"}}
             <div class="flex gap-3">
@@ -84,7 +84,7 @@
                     <input type="number" name="smtp_port" id="smtp_port" value="{{if .SMTPPort}}{{.SMTPPort}}{{end}}" class="input" placeholder="465">
                 </div>
             </div>
-            {{if .Errors.smtp_host}}<p class="text-sm text-error">{{.Errors.smtp_host}}</p>{{end}}
+            {{if .Errors.smtp_host}}<p class="text-error text-sm">{{.Errors.smtp_host}}</p>{{end}}
             {{end}}
             {{if ne .Mode "smtp"}}
             <div class="flex gap-3">
@@ -97,9 +97,9 @@
                     <input type="number" name="imap_port" id="imap_port" value="{{if .IMAPPort}}{{.IMAPPort}}{{end}}" class="input" placeholder="993">
                 </div>
             </div>
-            {{if .Errors.imap_host}}<p class="text-sm text-error">{{.Errors.imap_host}}</p>{{end}}
+            {{if .Errors.imap_host}}<p class="text-error text-sm">{{.Errors.imap_host}}</p>{{end}}
             {{end}}
-            <p class="text-xs text-muted">Ports 465 (SMTP) and 993 (IMAP) use TLS directly; any other port must support STARTTLS. Delistd never logs in without encryption.</p>
+            <p class="note-xs">Ports 465 (SMTP) and 993 (IMAP) use TLS directly; any other port must support STARTTLS. Delistd never logs in without encryption.</p>
         </div>
     </details>
 </div>

@@ -186,7 +186,7 @@ func TestMarkFailedOnlyTouchesMostRecentSentRecord(t *testing.T) {
 	}
 }
 
-// digisamroc/eraser#3: email_body was queried but missing from CREATE TABLE.
+// email_body was queried but missing from CREATE TABLE.
 func TestAddBrokerResponse_EmailBodyColumn(t *testing.T) {
 	s := newTestStore(t)
 

@@ -1,0 +1,2 @@
+{{/* A result message under a form. Data: dict with Text and OK. */}}
+{{if .Text}}<div class="mt-4 alert {{if .OK}}alert-success{{else}}alert-error{{end}}">{{.Text}}</div>{{end}}

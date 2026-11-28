@@ -1,14 +1,14 @@
 package main
 
 import (
+	"cmp"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
+	"slices"
 	"strings"
-	"text/template"
 
 	"github.com/drumandbytes/delistd/internal/broker"
 	"github.com/drumandbytes/delistd/internal/config"
@@ -34,29 +34,23 @@ func hasGuide(b broker.Broker) bool {
 }
 
 func guidesCmd() *cobra.Command {
-	var (
-		output string
-		format string
-	)
+	var output string
 
 	cmd := &cobra.Command{
 		Use: "guides",
 		// maintainer tool for the project website; not part of the stable CLI
 		Hidden: true,
-		Short:  "Generate opt-out guide pages from the broker list",
-		Long: `Write a "how to opt out of <broker>" page for each people-search /
-background-check / financial / device-ID broker, plus a JSON directory of the
-whole list. Feeds the documentation site.
-
---format md  (default) writes Hugo content (content/brokers/*.md + data/brokers.json)
---format html writes self-contained pages that open offline`,
+		Short:  "Write the broker data the documentation site builds its guide pages from",
+		Long: `Write brokers.json (the whole list, for the directory page) and guides.json
+(one entry per opt-out guide: the broker's facts, the editorial text and the
+rendered request letters) into the site's data directory. Hugo turns guides.json
+into the "how to opt out of <broker>" pages (site/content/brokers/_content.gotmpl).`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runGuides(output, format)
+			return runGuides(output)
 		},
 	}
 
-	cmd.Flags().StringVarP(&output, "output", "o", "site/content", "output directory")
-	cmd.Flags().StringVar(&format, "format", "md", "md (Hugo content) or html (standalone pages)")
+	cmd.Flags().StringVarP(&output, "output", "o", "site/data", "Hugo data directory")
 
 	return cmd
 }
@@ -78,24 +72,42 @@ func placeholderProfile() config.Profile {
 
 var dateInText = regexp.MustCompile(`\b(\d{4}-\d{2}-\d{2})\b`)
 
-type guidePage struct {
-	Broker      broker.Broker
-	LastChecked string // extracted from Notes, if any
-	Description string
-	Timeline    string
-	Noindex     bool
-	GDPRBody    string
-	CCPABody    string
-
-	CategoryLabel string
-	CategoryIntro string
-	Law           string
-	Route         string
-	NeedsID       bool
-	Related       []relatedGuide
+// guideEntry is one opt-out page's data. The site's content adapter lays it out.
+type guideEntry struct {
+	ID            string         `json:"id"`
+	Name          string         `json:"name"`
+	Title         string         `json:"title"`
+	Description   string         `json:"description"`
+	Region        string         `json:"region"`
+	Category      string         `json:"category"`
+	CategoryTitle string         `json:"category_title"`
+	CategoryLabel string         `json:"category_label,omitempty"`
+	CategoryIntro string         `json:"category_intro,omitempty"`
+	Email         string         `json:"email,omitempty"`
+	OptOutURL     string         `json:"opt_out_url,omitempty"`
+	LastChecked   string         `json:"last_checked,omitempty"`
+	Noindex       bool           `json:"noindex,omitempty"`
+	Notes         string         `json:"notes,omitempty"`
+	Timeline      string         `json:"timeline"`
+	Law           string         `json:"law"`
+	Route         string         `json:"route"`
+	NeedsID       bool           `json:"needs_id,omitempty"`
+	Parent        string         `json:"parent,omitempty"`
+	HQ            string         `json:"hq,omitempty"`
+	Holds         string         `json:"holds,omitempty"`
+	Verification  string         `json:"verification,omitempty"`
+	ResponseTime  string         `json:"response_time,omitempty"`
+	Researched    string         `json:"researched,omitempty"`
+	Sources       []string       `json:"sources,omitempty"`
+	Related       []relatedGuide `json:"related,omitempty"`
+	GDPR          string         `json:"gdpr,omitempty"`
+	CCPA          string         `json:"ccpa,omitempty"`
 }
 
-type relatedGuide struct{ ID, Name string }
+type relatedGuide struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
 
 // noindexedBrokers: reachable but kept out of search and the sitemap, as they
 // offer nothing actionable. Curated by hand; a dead end is an editorial call.
@@ -176,7 +188,7 @@ func relatedGuides(b broker.Broker, curated []broker.Broker, n int) []relatedGui
 		if noindexedBrokers[o.ID] {
 			continue
 		}
-		out = append(out, relatedGuide{o.ID, o.Name})
+		out = append(out, relatedGuide{ID: o.ID, Name: o.Name})
 	}
 	return out
 }
@@ -225,13 +237,7 @@ func truncateRunes(s string, max int) string {
 	return strings.TrimSpace(string(r[:max-1])) + "…"
 }
 
-func runGuides(outDir, format string) error {
-	switch format {
-	case "md", "html":
-	default:
-		return fmt.Errorf("unknown --format %q (want md or html)", format)
-	}
-
+func runGuides(dataDir string) error {
 	db, err := broker.Load(brokerFile)
 	if err != nil {
 		return fmt.Errorf("failed to load brokers: %w", err)
@@ -241,9 +247,7 @@ func runGuides(outDir, format string) error {
 		return fmt.Errorf("failed to init template engine: %w", err)
 	}
 	pp := placeholderProfile()
-
-	brokersDir := filepath.Join(outDir, "brokers")
-	if err := os.MkdirAll(brokersDir, 0o755); err != nil {
+	if err := os.MkdirAll(dataDir, 0o755); err != nil {
 		return err
 	}
 
@@ -253,56 +257,34 @@ func runGuides(outDir, format string) error {
 			curated = append(curated, b)
 		}
 	}
-	sort.Slice(curated, func(i, j int) bool { return curated[i].Name < curated[j].Name })
+	slices.SortFunc(curated, func(a, b broker.Broker) int { return cmp.Compare(a.Name, b.Name) })
 
-	written := 0
+	guides := make([]guideEntry, 0, len(curated))
 	for _, b := range curated {
-		page := guidePage{Broker: b}
-		if m := dateInText.FindStringSubmatch(b.Notes); m != nil {
-			page.LastChecked = m[1]
+		g := guideEntry{
+			ID: b.ID, Name: b.Name, Title: "How to opt out of " + b.Name,
+			Region: b.Region, Category: b.Category, CategoryTitle: titleCase(b.Category),
+			Email: b.Email, OptOutURL: b.OptOutURL, Notes: b.Notes,
+			Timeline: timelineText(b.Region), Law: lawText(b.Region), Route: routeText(b),
+			Parent: b.Parent, HQ: b.HQ, Holds: b.Holds, Verification: b.Verification,
+			ResponseTime: b.ResponseTime, Researched: b.Researched, Sources: b.Sources,
+			Related: relatedGuides(b, curated, 5), Noindex: noindexedBrokers[b.ID],
 		}
-		page.Timeline = timelineText(b.Region)
+		if m := dateInText.FindStringSubmatch(b.Notes); m != nil {
+			g.LastChecked = m[1]
+		}
 		cat := strings.ToLower(b.Category)
-		page.CategoryLabel, page.CategoryIntro = categoryInfo[cat].Label, categoryInfo[cat].Intro
-		page.Law, page.Route, page.NeedsID = lawText(b.Region), routeText(b), cat == "requires-id"
-		page.Related = relatedGuides(b, curated, 5)
-		page.Noindex = noindexedBrokers[b.ID]
+		g.CategoryLabel, g.CategoryIntro, g.NeedsID = categoryInfo[cat].Label, categoryInfo[cat].Intro, cat == "requires-id"
 		if gdpr, err := engine.Render("gdpr", pp, b); err == nil {
-			page.GDPRBody = gdpr.Body
+			g.GDPR = gdpr.Body
 		}
 		if ccpa, err := engine.Render("ccpa", pp, b); err == nil {
-			page.CCPABody = ccpa.Body
+			g.CCPA = ccpa.Body
 		}
-		page.Description = guideDescription(b, page.LastChecked, page.GDPRBody != "" || page.CCPABody != "")
-
-		var (
-			content []byte
-			ext     string
-		)
-		if format == "md" {
-			content, err = renderGuideMarkdown(page)
-			ext = ".md"
-		} else {
-			content, err = renderGuideHTML(page)
-			ext = ".html"
-		}
-		if err != nil {
-			return fmt.Errorf("rendering %s: %w", b.ID, err)
-		}
-		if err := os.WriteFile(filepath.Join(brokersDir, b.ID+ext), content, 0o644); err != nil {
-			return err
-		}
-		written++
+		g.Description = guideDescription(b, g.LastChecked, g.GDPR != "" || g.CCPA != "")
+		guides = append(guides, g)
 	}
 
-	// JSON directory of the entire list (curated + long tail) for the site's
-	// filterable directory page - written into the site's static/ dir so the
-	// browser can fetch it directly (a top-level JSON array isn't a valid Hugo
-	// data file).
-	dataDir := filepath.Join(filepath.Dir(strings.TrimRight(outDir, "/")), "static")
-	if err := os.MkdirAll(dataDir, 0o755); err != nil {
-		return err
-	}
 	type dirEntry struct {
 		ID       string `json:"id"`
 		Name     string `json:"name"`
@@ -317,175 +299,33 @@ func runGuides(outDir, format string) error {
 	for _, b := range db.Brokers {
 		dir = append(dir, dirEntry{
 			ID: b.ID, Name: b.Name, Region: b.Region, Category: b.Category,
-			Email: b.Email, OptOut: b.OptOutURL,
-			Curated: hasGuide(b), Notes: b.Notes,
+			Email: b.Email, OptOut: b.OptOutURL, Curated: hasGuide(b), Notes: b.Notes,
 		})
 	}
-	sort.Slice(dir, func(i, j int) bool { return strings.ToLower(dir[i].Name) < strings.ToLower(dir[j].Name) })
-	jsonBytes, _ := json.MarshalIndent(dir, "", "  ")
-	if err := os.WriteFile(filepath.Join(dataDir, "brokers.json"), jsonBytes, 0o644); err != nil {
-		return err
+	slices.SortFunc(dir, func(a, b dirEntry) int { return cmp.Compare(strings.ToLower(a.Name), strings.ToLower(b.Name)) })
+
+	// Hugo data files must be objects, not top-level arrays.
+	for name, v := range map[string]any{"guides.json": map[string]any{"guides": guides}, "brokers.json": map[string]any{"brokers": dir}} {
+		out, err := json.MarshalIndent(v, "", "  ")
+		if err != nil {
+			return err
+		}
+		if err := os.WriteFile(filepath.Join(dataDir, name), out, 0o644); err != nil {
+			return err
+		}
 	}
 
-	// Hugo reads the same list from site/data to server-render the full directory, so the
-	// long tail is in the HTML and not only in what directory.js fetches.
-	hugoData := filepath.Join(filepath.Dir(dataDir), "data")
-	if err := os.MkdirAll(hugoData, 0o755); err != nil {
-		return err
-	}
-	wrapped, _ := json.MarshalIndent(map[string]any{"brokers": dir}, "", "  ")
-	if err := os.WriteFile(filepath.Join(hugoData, "brokers.json"), wrapped, 0o644); err != nil {
-		return err
-	}
-
-	fmt.Println("📚 Guides generated")
+	fmt.Println("📚 Guide data written")
 	fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-	fmt.Printf("   %d guide page(s) in %s\n", written, brokersDir)
-	fmt.Printf("   directory of %d brokers in %s\n", len(dir), filepath.Join(dataDir, "brokers.json"))
+	fmt.Printf("   %d guide(s) and a directory of %d brokers in %s\n", len(guides), len(dir), dataDir)
 	return nil
 }
 
-func renderGuideMarkdown(p guidePage) ([]byte, error) {
-	var buf strings.Builder
-	if err := guideMD.Execute(&buf, p); err != nil {
-		return nil, err
+// titleCase turns "people-search" into "People Search".
+func titleCase(s string) string {
+	words := strings.Fields(strings.ReplaceAll(s, "-", " "))
+	for i, w := range words {
+		words[i] = strings.ToUpper(w[:1]) + w[1:]
 	}
-	return []byte(buf.String()), nil
+	return strings.Join(words, " ")
 }
-
-func renderGuideHTML(p guidePage) ([]byte, error) {
-	var buf strings.Builder
-	if err := guideHTML.Execute(&buf, p); err != nil {
-		return nil, err
-	}
-	return []byte(buf.String()), nil
-}
-
-var guideFuncs = template.FuncMap{
-	"lower": strings.ToLower,
-	"title": func(s string) string {
-		words := strings.Fields(strings.ReplaceAll(s, "-", " "))
-		for i, w := range words {
-			words[i] = strings.ToUpper(w[:1]) + w[1:]
-		}
-		return strings.Join(words, " ")
-	},
-}
-
-var guideMD = template.Must(template.New("md").Funcs(guideFuncs).Parse(`---
-title: "How to opt out of {{.Broker.Name}}"
-description: "{{.Description}}"
-broker_id: "{{.Broker.ID}}"
-region: "{{.Broker.Region}}"
-category: "{{.Broker.Category}}"
-{{if .Broker.Email}}email: "{{.Broker.Email}}"{{end}}
-{{if .Broker.OptOutURL}}opt_out_url: "{{.Broker.OptOutURL}}"{{end}}
-{{if .LastChecked}}last_checked: "{{.LastChecked}}"{{end}}
-{{if .Noindex}}robots: "noindex,follow"
-sitemap:
-  disable: true
-{{end}}
----
-
-**{{.Broker.Name}}** is a {{title .Broker.Category}} data broker{{if eq .Broker.Region "eu"}} (EU){{else if eq .Broker.Region "us"}} (US){{end}}.
-{{if .Broker.Notes}}
-
-> {{.Broker.Notes}}
-{{end}}
-
-## At a glance
-
-- **Type:** {{.CategoryLabel}}
-- **Law that applies:** {{.Law}}
-- **How to opt out:** {{.Route}}
-- **Response deadline:** {{.Timeline}}{{if .Broker.Parent}}
-- **Operated by:** {{.Broker.Parent}}{{if .Broker.HQ}}, {{.Broker.HQ}}{{end}}{{else if .Broker.HQ}}
-- **Based in:** {{.Broker.HQ}}{{end}}{{if .Broker.Holds}}
-- **Data they say they hold:** {{.Broker.Holds}}{{end}}{{if .Broker.Verification}}
-- **Identity check:** {{.Broker.Verification}}{{else if .NeedsID}}
-- **Identity check:** expect to be asked for proof of identity{{end}}{{if .Broker.ResponseTime}}
-- **Response time in their policy:** {{.Broker.ResponseTime}}{{end}}
-
-## Opt out
-
-{{if .Broker.OptOutURL}}
-1. Go to **[{{.Broker.OptOutURL}}]({{.Broker.OptOutURL}})**.
-2. Follow their removal / suppression process. You may need to confirm by email or verify your identity.
-{{if .Broker.Email}}3. If the form fails, email **{{.Broker.Email}}** with the request below.{{end}}
-{{else if .Broker.Email}}
-Email **{{.Broker.Email}}** with the request below.
-{{else}}
-No public opt-out URL or email is on file for this broker yet. Try their website's privacy page, or contact them and cite the laws below.
-{{end}}
-
-{{if or .GDPRBody .CCPABody}}
-<details>
-<summary>Request letter templates</summary>
-
-{{if .GDPRBody}}
-### GDPR request (EU/EEA residents)
-
-` + "```" + `
-{{.GDPRBody}}
-` + "```" + `
-{{end}}
-{{if .CCPABody}}
-### CCPA request (California residents)
-
-` + "```" + `
-{{.CCPABody}}
-` + "```" + `
-{{end}}
-
-</details>
-{{end}}
-{{if .CategoryIntro}}
-## About {{.CategoryLabel | lower}}s
-
-{{.CategoryIntro}}
-{{end}}
-{{if .Broker.Sources}}
-## Sources
-
-Facts above come from the broker's own pages{{if .Broker.Researched}}, read on {{.Broker.Researched}}{{end}}:
-
-{{range .Broker.Sources}}- <{{.}}>
-{{end}}{{end}}
-{{if .Related}}
-## Related guides
-
-{{range .Related}}- [How to opt out of {{.Name}}](/brokers/{{.ID}}/)
-{{end}}{{end}}
-## Related reading
-
-- [Sending a GDPR Article 17 request](/guides/sending-a-gdpr-article-17-request/)
-- [When a broker ignores you](/guides/when-a-broker-ignores-you/)
-- [Opting out of advertising data brokers](/guides/opting-out-of-advertising-data-brokers/)
-- [All brokers Delistd covers](/brokers/)
-
----
-
-*Fill in the bracketed placeholders before sending. [Delistd](https://github.com/drumandbytes/delistd) can send this and track the reply for you, or you can send it yourself.*
-`))
-
-var guideHTML = template.Must(template.New("html").Funcs(guideFuncs).Parse(`<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<title>How to opt out of {{.Broker.Name}}</title>
-<style>body{font:15px/1.6 -apple-system,"Segoe UI",sans-serif;max-width:780px;margin:2rem auto;padding:0 1rem;color:#1a1a1a}
-h1{font-size:1.5rem}pre{white-space:pre-wrap;background:#f6f6f6;border:1px solid #e2e2e2;padding:1rem;border-radius:6px;font-size:.85rem;overflow-x:auto}
-blockquote{border-left:3px solid #ccc;margin:1rem 0;padding-left:1rem;color:#555}a{color:#2657c8}</style>
-</head><body>
-<h1>How to opt out of {{.Broker.Name}}</h1>
-<p><strong>{{.Broker.Name}}</strong> is a {{title .Broker.Category}} data broker{{if .Broker.Region}} ({{.Broker.Region}}){{end}}.</p>
-{{if .Broker.Notes}}<blockquote>{{.Broker.Notes}}</blockquote>{{end}}
-<h2>Opt out</h2>
-{{if .Broker.OptOutURL}}<ol><li>Go to <a href="{{.Broker.OptOutURL}}">{{.Broker.OptOutURL}}</a>.</li>
-<li>Follow their removal process (you may need to confirm by email).</li>
-{{if .Broker.Email}}<li>If the form fails, email <strong>{{.Broker.Email}}</strong> with the request below.</li>{{end}}</ol>
-{{else if .Broker.Email}}<p>Email <strong>{{.Broker.Email}}</strong> with the request below.</p>
-{{else}}<p>No public opt-out URL or email on file yet - try their website's privacy page.</p>{{end}}
-{{if .GDPRBody}}<h3>GDPR request (EU/EEA)</h3><pre>{{.GDPRBody}}</pre>{{end}}
-{{if .CCPABody}}<h3>CCPA request (California)</h3><pre>{{.CCPABody}}</pre>{{end}}
-<hr><p><em>Fill in the bracketed placeholders before sending.</em></p>
-</body></html>
-`))

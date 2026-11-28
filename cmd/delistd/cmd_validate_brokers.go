@@ -18,7 +18,7 @@ entry count, missing id or name, duplicate ids, unknown region values,
 implausible email addresses, and malformed opt-out/website URLs.
 
 With no argument it checks the list this binary would load (--brokers,
-then ~/.eraser/brokers.yaml, then the embedded copy). Pass a path to check
+then ~/.delistd/brokers.yaml, then the embedded copy). Pass a path to check
 a candidate file before committing it. Exits non-zero if anything is wrong,
 so it doubles as a CI check.`,
 		Args: cobra.MaximumNArgs(1),

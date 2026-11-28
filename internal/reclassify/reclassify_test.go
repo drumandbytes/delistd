@@ -75,7 +75,7 @@ func TestRunBackfillsMissingBodiesFromTheInbox(t *testing.T) {
 	defer func() { _ = store.Close() }()
 	seed(t, store, "1", "acme", "unknown", "Re: your request", "")
 
-	srv := imaptest.Start(t, false)
+	srv := imaptest.StartWith(t, imaptest.Options{Move: false})
 	srv.Deliver(t, "INBOX", "privacy@acme.example", "Re: your request", "We have deleted your data and removed all records as requested.")
 	brokers := []broker.Broker{{ID: "acme", Name: "Acme", Email: "privacy@acme.example"}}
 

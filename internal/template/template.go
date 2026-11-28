@@ -1,3 +1,4 @@
+// Package template renders the removal-request emails.
 package template
 
 import (
@@ -5,6 +6,7 @@ import (
 	"embed"
 	"fmt"
 	"io"
+	"path"
 	"strings"
 	"sync"
 	"text/template"
@@ -18,75 +20,82 @@ import (
 //go:embed templates/*.tmpl
 var embeddedTemplates embed.FS
 
-// EmailData contains all data available to email templates
+// CustomName is the template name backed by Options.CustomTemplate.
+const CustomName = "custom"
+
+// subjects maps a built-in template to its subject line; anything else gets defaultSubject.
+var subjects = map[string]string{
+	"gdpr": "GDPR Data Erasure Request - Article 17 Right to Erasure",
+	"ccpa": "CCPA Data Deletion Request - Right to Delete Personal Information",
+}
+
+const defaultSubject = "Personal Data Removal Request"
+
+// EmailData is everything a template can reference. The Other* fields join a
+// profile's alternate identities and are empty when there are none.
 type EmailData struct {
-	// User profile
-	FirstName      string
-	LastName       string
-	FullName       string
+	// the person
+	FirstName   string
+	LastName    string
+	FullName    string
+	DateOfBirth string
+
+	// contact details
 	Email          string
-	OtherEmails    string // comma-separated additional emails, empty if none
-	OtherNames     string // comma-separated name variants, empty if none
-	OtherAddresses string // semicolon-separated previous addresses, empty if none
+	OtherEmails    string // comma-separated
+	Phone          string
+	OtherPhones    string // comma-separated
+	OtherNames     string // comma-separated name variants
 	Address        string
 	City           string
 	State          string
 	ZipCode        string
 	Country        string
-	Phone          string
-	OtherPhones    string // comma-separated additional phone numbers, empty if none
-	DateOfBirth    string
+	OtherAddresses string // semicolon-separated previous addresses
 
-	// Broker info
+	// the broker
 	BrokerName    string
 	BrokerEmail   string
 	BrokerWebsite string
 	BrokerOptOut  string
 
-	// Metadata
+	// when and what
 	Date     string
 	Year     int
 	Month    string
 	Template string
 }
 
-// Email represents a rendered email ready to send
+// Email is a rendered message.
 type Email struct {
 	Subject string
 	Body    string
 }
 
-// Engine handles email template rendering
+// Engine renders the built-in templates plus an optional custom one.
 type Engine struct {
-	mu        sync.RWMutex
-	templates map[string]*template.Template
-	subject   string // subject of the custom template, "" = default
+	mu            sync.RWMutex
+	byName        map[string]*template.Template
+	customSubject string // "" = use the default subject
 }
 
-// CustomName is the template name backed by Options.CustomTemplate.
-const CustomName = "custom"
-
-// NewEngine creates a new template engine
+// NewEngine parses every embedded template.
 func NewEngine() (*Engine, error) {
-	e := &Engine{
-		templates: make(map[string]*template.Template),
+	entries, err := embeddedTemplates.ReadDir("templates")
+	if err != nil {
+		return nil, fmt.Errorf("read embedded templates: %w", err)
 	}
-
-	templateNames := []string{"gdpr", "ccpa", "generic"}
-	for _, name := range templateNames {
-		content, err := embeddedTemplates.ReadFile("templates/" + name + ".tmpl")
+	e := &Engine{byName: make(map[string]*template.Template, len(entries))}
+	for _, entry := range entries {
+		name := strings.TrimSuffix(entry.Name(), path.Ext(entry.Name()))
+		src, err := embeddedTemplates.ReadFile(path.Join("templates", entry.Name()))
 		if err != nil {
-			return nil, fmt.Errorf("failed to read embedded template %s: %w", name, err)
+			return nil, fmt.Errorf("read embedded template %s: %w", name, err)
 		}
-
-		tmpl, err := template.New(name).Parse(string(content))
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse template %s: %w", name, err)
+		if e.byName[name], err = template.New(name).Parse(string(src)); err != nil {
+			return nil, fmt.Errorf("parse template %s: %w", name, err)
 		}
-
-		e.templates[name] = tmpl
 	}
-
 	return e, nil
 }
 
@@ -94,7 +103,7 @@ func NewEngine() (*Engine, error) {
 // parses the rest as a template.
 func ParseCustom(body string) (*template.Template, string, error) {
 	body = strings.ReplaceAll(body, "\r\n", "\n")
-	subject := ""
+	var subject string
 	if first, rest, _ := strings.Cut(body, "\n"); strings.HasPrefix(strings.ToLower(first), "subject:") {
 		subject = strings.TrimSpace(first[len("subject:"):])
 		body = strings.TrimLeft(rest, "\n")
@@ -109,8 +118,8 @@ func ParseCustom(body string) (*template.Template, string, error) {
 	return tmpl, subject, nil
 }
 
-// CheckCustom reports whether body parses and renders (so a bad field name
-// fails here, not at send time).
+// CheckCustom reports whether body parses and renders, so a bad field name
+// fails here and not at send time.
 func CheckCustom(body string) error {
 	tmpl, _, err := ParseCustom(body)
 	if err != nil {
@@ -119,24 +128,24 @@ func CheckCustom(body string) error {
 	return tmpl.Execute(io.Discard, EmailData{})
 }
 
-// SetCustom installs (or, with an empty body, removes) the custom template.
+// SetCustom installs the custom template, or removes it when body is blank.
 func (e *Engine) SetCustom(body string) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if strings.TrimSpace(body) == "" {
-		delete(e.templates, CustomName)
-		e.subject = ""
+		delete(e.byName, CustomName)
+		e.customSubject = ""
 		return nil
 	}
 	tmpl, subject, err := ParseCustom(body)
 	if err != nil {
 		return err
 	}
-	e.templates[CustomName], e.subject = tmpl, subject
+	e.byName[CustomName], e.customSubject = tmpl, subject
 	return nil
 }
 
-// UseConfig registers cfg's custom template, if it has one.
+// UseConfig registers the config's custom template, if it has one.
 func (e *Engine) UseConfig(cfg *config.Config) error {
 	if cfg == nil {
 		return nil
@@ -144,33 +153,48 @@ func (e *Engine) UseConfig(cfg *config.Config) error {
 	return e.SetCustom(cfg.Options.CustomTemplate)
 }
 
-// Render generates an email from a template
-func (e *Engine) Render(templateName string, profile config.Profile, b broker.Broker) (*Email, error) {
+// Render fills the named template with the profile and broker.
+func (e *Engine) Render(name string, profile config.Profile, b broker.Broker) (*Email, error) {
 	e.mu.RLock()
-	tmpl, ok := e.templates[templateName]
-	customSubject := e.subject
+	tmpl, ok := e.byName[name]
+	custom := e.customSubject
 	e.mu.RUnlock()
 	if !ok {
-		return nil, fmt.Errorf("unknown template: %s", templateName)
+		return nil, fmt.Errorf("unknown template: %s", name)
 	}
 
-	now := time.Now()
-	data := EmailData{
-		FirstName:      profile.FirstName,
-		LastName:       profile.LastName,
-		FullName:       profile.FullName(),
-		Email:          profile.Email,
-		OtherEmails:    strings.Join(profile.AdditionalEmails, ", "),
-		OtherNames:     strings.Join(profile.NameVariants, ", "),
-		OtherAddresses: strings.Join(profile.PreviousAddresses, "; "),
-		Address:        profile.Address,
-		City:           profile.City,
-		State:          profile.State,
-		ZipCode:        profile.ZipCode,
-		Country:        country.Display(profile.Country),
-		Phone:          profile.Phone,
-		OtherPhones:    strings.Join(profile.AdditionalPhones, ", "),
-		DateOfBirth:    profile.DateOfBirth,
+	var body bytes.Buffer
+	if err := tmpl.Execute(&body, newEmailData(name, profile, b, time.Now())); err != nil {
+		return nil, fmt.Errorf("failed to render template: %w", err)
+	}
+
+	subject, ok := subjects[name]
+	switch {
+	case name == CustomName && custom != "":
+		subject = custom
+	case !ok:
+		subject = defaultSubject
+	}
+	return &Email{Subject: subject, Body: body.String()}, nil
+}
+
+func newEmailData(name string, p config.Profile, b broker.Broker, now time.Time) EmailData {
+	return EmailData{
+		FirstName:      p.FirstName,
+		LastName:       p.LastName,
+		FullName:       p.FullName(),
+		DateOfBirth:    p.DateOfBirth,
+		Email:          p.Email,
+		OtherEmails:    strings.Join(p.AdditionalEmails, ", "),
+		Phone:          p.Phone,
+		OtherPhones:    strings.Join(p.AdditionalPhones, ", "),
+		OtherNames:     strings.Join(p.NameVariants, ", "),
+		Address:        p.Address,
+		City:           p.City,
+		State:          p.State,
+		ZipCode:        p.ZipCode,
+		Country:        country.Display(p.Country),
+		OtherAddresses: strings.Join(p.PreviousAddresses, "; "),
 		BrokerName:     b.Name,
 		BrokerEmail:    b.Email,
 		BrokerWebsite:  b.Website,
@@ -178,32 +202,6 @@ func (e *Engine) Render(templateName string, profile config.Profile, b broker.Br
 		Date:           now.Format("January 2, 2006"),
 		Year:           now.Year(),
 		Month:          now.Format("January"),
-		Template:       templateName,
-	}
-
-	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, data); err != nil {
-		return nil, fmt.Errorf("failed to render template: %w", err)
-	}
-
-	subject := e.getSubject(templateName, b.Name)
-	if templateName == CustomName && customSubject != "" {
-		subject = customSubject
-	}
-
-	return &Email{
-		Subject: subject,
-		Body:    buf.String(),
-	}, nil
-}
-
-func (e *Engine) getSubject(templateName, brokerName string) string {
-	switch templateName {
-	case "gdpr":
-		return "GDPR Data Erasure Request - Article 17 Right to Erasure"
-	case "ccpa":
-		return "CCPA Data Deletion Request - Right to Delete Personal Information"
-	default:
-		return "Personal Data Removal Request"
+		Template:       name,
 	}
 }

@@ -65,7 +65,7 @@ brew install --cask drumandbytes/tap/delistd
 
 1. Open the [Releases page](https://github.com/drumandbytes/delistd/releases/latest).
 2. Under **Assets**, download the file for your system:
-   - Windows: the file ending in `_windows_amd64.exe` (for example `delistd_2.0.1_windows_amd64.exe`)
+   - Windows: the file ending in `_windows_amd64.exe` (for example `delistd_<version>_windows_amd64.exe`)
    - Mac with Apple chip (M1 or newer): `_darwin_arm64.tar.gz`
    - Mac with Intel chip: `_darwin_amd64.tar.gz`
    - Linux: `_linux_amd64.tar.gz` (or `_arm64` on ARM)
@@ -129,7 +129,7 @@ Brokers re-list people over time, so repeat every few weeks. To have Delistd do 
 
 ## Sending by hand
 
-With the Skip option chosen, Delistd never sends anything. On the **Brokers** page each broker has an **Email** link showing the ready-to-send message with an **Open in mail app** button. Send it from your normal mail app, then press **Mark sent** so Delistd tracks it. It is slower for 700+ brokers, so many people use it for a handful of important ones and let Delistd send the rest.
+With the Skip option chosen, Delistd never sends anything. On the **Brokers** page each broker has an **Email** link showing the ready-to-send message with an **Open in mail app** button. Send it from your normal mail app, then press **Mark sent** so Delistd tracks it. It is slower for 1,000+ brokers, so many people use it for a handful of important ones and let Delistd send the rest.
 
 ## Troubleshooting
 
@@ -155,6 +155,7 @@ Still stuck? [Open an issue](https://github.com/drumandbytes/delistd/issues/new)
 
 ## What next
 
+- If this saved you time, a star on [GitHub](https://github.com/drumandbytes/delistd) or a few words of [feedback](https://github.com/drumandbytes/delistd/issues/new?template=feedback.yml) helps others find it.
 - [broker-replies.md](broker-replies.md): what to do with each kind of response
 - [multi-profile.md](multi-profile.md): sending for a partner or relative as well
 - [commands.md](commands.md): the full command and settings reference for when you want more control

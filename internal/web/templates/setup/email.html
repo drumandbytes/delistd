@@ -1,12 +1,12 @@
 {{define "content"}}
-<div class="min-h-[80vh] flex items-center justify-center py-8">
-    <div class="max-w-lg w-full fade-in-up">
+<div class="page-center py-8">
+    <div class="fade-in-up narrow">
         <div class="card p-8">
             {{template "partials/setup-steps.html" 3}}
 
             <!-- Header -->
             <div class="mb-6">
-                <h1 class="font-display text-2xl font-semibold text-primary mb-2">Connect Your Email</h1>
+                <h1 class="font-display font-semibold mb-2 text-2xl text-primary">Connect Your Email</h1>
                 <p class="text-secondary">We'll send removal requests from your own email account</p>
             </div>
 
@@ -18,21 +18,17 @@
                 <!-- Navigation -->
                 <div class="flex items-center justify-between pt-4">
                     <a href="/setup/profile" class="btn btn-ghost">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
+                        {{icon "chevron-left" "w-4 h-4"}}
                         Back
                     </a>
                     <button type="submit" class="btn btn-primary">
                         Continue
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
+                        {{icon "chevron-right" "w-4 h-4"}}
                     </button>
                 </div>
 
-                <div class="text-center pt-2">
-                    <button type="submit" name="manual" value="1" class="text-sm text-muted hover:text-primary hover:underline">
+                <div class="pt-2 text-center">
+                    <button type="submit" name="manual" value="1" class="hover:text-primary hover:underline text-muted text-sm">
                         Skip &mdash; I'll send the emails myself
                     </button>
                 </div>
@@ -40,7 +36,7 @@
         </div>
 
         <!-- Security Note -->
-        <p class="text-center text-xs text-muted mt-4 px-4">
+        <p class="mt-4 px-4 text-center text-muted text-xs">
             Your password is stored on your computer and only used to talk to your email provider.
             Or skip this step and send the removal emails from your own mail client.
         </p>

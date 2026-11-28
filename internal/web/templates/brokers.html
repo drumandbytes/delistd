@@ -1,12 +1,12 @@
 {{define "content"}}
 <div class="fade-in-up">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div class="flex flex-col gap-4 justify-between mb-8 sm:flex-row sm:items-center">
         <div>
-            <h1 class="font-display text-3xl font-semibold text-primary">Data Brokers</h1>
-            <p class="text-secondary mt-1">{{.Total}} brokers in database</p>
+            <h1 class="page-title">Data Brokers</h1>
+            <p class="lede">{{.Total}} brokers in database</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2 sm:ml-auto">
+        <div class="flex flex-wrap gap-2 items-center sm:ml-auto">
         <a href="/export/drafts.zip" class="btn btn-secondary" title="Download every in-scope removal email as a .eml file to send by hand, then use Mark sent">Download drafts (.zip)</a>
         <a href="/brokers/new" class="btn btn-secondary" title="Add a broker that's missing from the list - kept on your machine, safe from list updates">+ Add broker</a>
         {{if not .ManualMode}}
@@ -17,9 +17,7 @@
                 onclick="startSendAll('failed')"
                 title="Re-send to brokers whose last attempt failed"
             >
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
+                {{icon "refresh" "w-5 h-5"}}
                 <span id="retry-failed-text">Retry Failed</span>
                 <span id="retry-failed-spinner" class="hidden">
                     <span class="spinner"></span>
@@ -30,9 +28,7 @@
                 class="btn btn-primary"
                 onclick="startSendAll()"
             >
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                </svg>
+                {{icon "send" "w-5 h-5"}}
                 <span id="send-all-text">Send to All</span>
                 <span id="send-all-spinner" class="hidden">
                     <span class="spinner"></span>
@@ -45,10 +41,8 @@
 
     {{if .ManualMode}}
     <div class="alert alert-info mb-6">
-        <div class="flex items-start gap-3">
-            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+        <div class="row-top">
+            {{icon "info" "w-5 h-5 flex-shrink-0 mt-0.5"}}
             <p class="text-sm">
                 <strong>Manual mode.</strong> Delistd won't send anything. For each broker,
                 open <em>Email</em>, send it from your own mail client, then click
@@ -61,13 +55,11 @@
     <!-- Daily limit info banner -->
     {{if and (not .ManualMode) (gt .Filtered .DailyLimit)}}
     <div class="alert alert-info mb-6">
-        <div class="flex items-start gap-3">
-            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+        <div class="row-top">
+            {{icon "info" "w-5 h-5 flex-shrink-0 mt-0.5"}}
             <div>
                 <p class="text-sm">
-                    <strong>Sending {{.Filtered}} emails will take multiple days.</strong>
+                    <strong>Sending {{.Filtered}} emails will take several days.</strong>
                     To avoid email provider rate limits, Delistd sends up to {{.DailyLimit}} emails per day.
                     The rest go out with the next automatic run (<a href="/settings#automation" class="underline">Settings &rarr; Automation</a>), or click Send all again the next day.
                 </p>
@@ -77,108 +69,39 @@
     {{end}}
 
     <!-- Send progress area -->
-    <div id="send-all-progress" class="mb-6"></div>
+    <div class="mb-6" id="send-all-progress"></div>
 
-    <!-- Search and Filters -->
-    <div class="card p-4 mb-6">
-        <div class="flex flex-col md:flex-row gap-4">
-            <!-- Search Input -->
-            <div class="flex-1 relative">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                <input
-                    type="text"
-                    id="broker-search"
-                    name="search"
-                    placeholder="Search by ID, name, or email..."
-                    value="{{.Search}}"
-                    class="input pl-10"
-                    hx-get="/api/brokers"
-                    hx-trigger="keyup changed delay:300ms"
-                    hx-target="#broker-list"
-                    hx-include="[name='status'],[name='category'],[name='region'],[name='missing_email'],[name='show_excluded']"
-                >
-            </div>
-
-            <!-- Filters -->
-            <div class="flex flex-wrap items-center gap-3">
-                <select
-                    name="status"
-                    aria-label="Status"
-                    class="input w-auto min-w-[120px]"
-                    hx-get="/api/brokers"
-                    hx-trigger="change"
-                    hx-target="#broker-list"
-                    hx-include="#broker-search,[name='category'],[name='region'],[name='missing_email'],[name='show_excluded']"
-                >
-                    <option value="">All Statuses</option>
-                    <option value="pending" {{if eq $.Status "pending"}}selected{{end}}>Pending</option>
-                    <option value="sent" {{if eq $.Status "sent"}}selected{{end}}>Sent</option>
-                    <option value="failed" {{if eq $.Status "failed"}}selected{{end}}>Failed</option>
-                </select>
-                <select
-                    name="category"
-                    aria-label="Category"
-                    class="input w-auto min-w-[140px]"
-                    hx-get="/api/brokers"
-                    hx-trigger="change"
-                    hx-target="#broker-list"
-                    hx-include="#broker-search,[name='status'],[name='region'],[name='missing_email'],[name='show_excluded']"
-                >
-                    <option value="">All Categories</option>
-                    {{range .Categories}}
-                    <option value="{{.}}" {{if eq . $.Category}}selected{{end}}>{{.}}</option>
+    <div class="card mb-6 p-4">
+        <form id="broker-filters" hx-get="/api/brokers" hx-target="#broker-list" hx-trigger="change, submit, keyup changed delay:300ms from:#broker-search">
+            <div class="flex flex-col gap-4 md:flex-row">
+                <div class="flex-1 relative">
+                    {{icon "search" "absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted pointer-events-none"}}
+                    <input type="text" id="broker-search" name="search" placeholder="Search by ID, name, or email..." value="{{.Search}}" class="input pl-10">
+                </div>
+                <div class="flex flex-wrap gap-3 items-center">
+                    {{range .Filters}}
+                    <select name="{{.Name}}" aria-label="{{.Label}}" class="input w-auto {{.MinWidthClass}}">
+                        <option value="">{{.AllLabel}}</option>
+                        {{range .Options}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}
+                    </select>
                     {{end}}
-                </select>
-                <select
-                    name="region"
-                    aria-label="Region"
-                    class="input w-auto min-w-[120px]"
-                    hx-get="/api/brokers"
-                    hx-trigger="change"
-                    hx-target="#broker-list"
-                    hx-include="#broker-search,[name='status'],[name='category'],[name='missing_email'],[name='show_excluded']"
-                >
-                    <option value="">All Regions</option>
-                    {{range .Regions}}
-                    <option value="{{.}}" {{if eq . $.Region}}selected{{end}}>{{.}}</option>
-                    {{end}}
-                </select>
-                <label class="flex items-center gap-2 text-sm text-secondary select-none cursor-pointer whitespace-nowrap">
-                    <input
-                        type="checkbox"
-                        name="missing_email"
-                        value="true"
-                        {{if .MissingEmail}}checked{{end}}
-                        hx-get="/api/brokers"
-                        hx-trigger="change"
-                        hx-target="#broker-list"
-                        hx-include="#broker-search,[name='status'],[name='category'],[name='region'],[name='show_excluded']"
-                    >
-                    Missing email only
-                </label>
-                <label class="flex items-center gap-2 text-sm text-secondary select-none cursor-pointer whitespace-nowrap">
-                    <input
-                        type="checkbox"
-                        name="show_excluded"
-                        value="true"
-                        {{if .ShowExcluded}}checked{{end}}
-                        hx-get="/api/brokers"
-                        hx-trigger="change"
-                        hx-target="#broker-list"
-                        hx-include="#broker-search,[name='status'],[name='category'],[name='region'],[name='missing_email']"
-                    >
-                    Show excluded
-                </label>
+                    <label class="cursor-pointer flex gap-2 items-center select-none text-secondary text-sm whitespace-nowrap">
+                        <input type="checkbox" name="missing_email" value="true"{{if .MissingEmail}} checked{{end}}>
+                        Missing email only
+                    </label>
+                    <label class="cursor-pointer flex gap-2 items-center select-none text-secondary text-sm whitespace-nowrap">
+                        <input type="checkbox" name="show_excluded" value="true"{{if .ShowExcluded}} checked{{end}}>
+                        Show excluded
+                    </label>
+                </div>
             </div>
-        </div>
+        </form>
         {{if not .ManualMode}}
         <details class="mt-4">
-            <summary class="text-sm font-medium text-secondary cursor-pointer">Advanced send filters</summary>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+            <summary class="cursor-pointer font-medium text-secondary text-sm">Advanced send filters</summary>
+            <div class="gap-3 grid grid-cols-1 md:grid-cols-3 mt-3">
                 <div>
-                    <label for="send-status" class="block text-xs text-muted mb-1">History status</label>
+                    <label for="send-status" class="block mb-1 text-muted text-xs">History status</label>
                     <select id="send-status" class="input">
                         <option value="eligible">Eligible (25-day cooldown)</option>
                         <option value="never">Never sent</option>
@@ -187,15 +110,15 @@
                     </select>
                 </div>
                 <div>
-                    <label for="send-broker-ids" class="block text-xs text-muted mb-1">Only broker IDs</label>
+                    <label for="send-broker-ids" class="block mb-1 text-muted text-xs">Only broker IDs</label>
                     <input id="send-broker-ids" class="input" placeholder="spokeo, pipl">
                 </div>
                 <div>
-                    <label for="send-exclude-ids" class="block text-xs text-muted mb-1">Exclude broker IDs</label>
+                    <label for="send-exclude-ids" class="block mb-1 text-muted text-xs">Exclude broker IDs</label>
                     <input id="send-exclude-ids" class="input" placeholder="broker-a, broker-b">
                 </div>
             </div>
-            <p class="text-xs text-muted mt-2">Search, category, and region above are also applied. “All” ignores send history; review the list before sending.</p>
+            <p class="mt-2 text-muted text-xs">Search, category, and region above are also applied. “All” ignores send history; review the list before sending.</p>
         </details>
         {{end}}
     </div>
@@ -206,294 +129,16 @@
     <div id="broker-list" class="card overflow-hidden" aria-live="polite">{{template "partials/broker-list.html" .}}</div>
 
     <!-- Help text -->
-    <p class="text-center text-sm text-muted mt-6">
-        Use search and filters to narrow down the list before sending.
+    <p class="mt-6 text-center text-muted text-sm">
+        Narrow the list with search and filters before you send.
     </p>
 </div>
 
 <script>
-// Job tracking comes from window.delistdJobPoll (layout.html); this page only
-// reacts to "delistd:job-update". delistdJobPoll.jobId is the source of truth.
-let lastSeenBrokerId = null;
-
-window.addEventListener('delistd:job-update', (e) => handleJobUpdate(e.detail));
-
-function handleJobUpdate(job) {
-    // build the card on the first update, whatever its status: the job may
-    // have finished before this page's first poll
-    if (!document.getElementById('progress-bar')) {
-        showProgressUI();
-    }
-
-    if (job.status === 'error' && job.error_type === 'lost') {
-        // Polling itself failed (job vanished - profile switch, or aged
-        // out of the job manager) - we have no real progress data, so
-        // don't try to render it as one.
-        showLostJobMessage();
-        resetButtons();
-        htmx.ajax('GET', '/api/brokers', {target: '#broker-list', swap: 'innerHTML'});
-        return;
-    }
-
-    updateProgressDisplay(job);
-    maybeRefreshBrokerRow(job);
-
-    if (job.status !== 'running') {
-        if (lastSeenBrokerId) {
-            refreshBrokerRow(lastSeenBrokerId);
-            lastSeenBrokerId = null;
-        }
-        showCompletionMessage(job);
-        resetButtons();
-        // One full refresh at the very end to catch anything the
-        // per-row updates above missed (e.g. several brokers completing
-        // within a single 1.5s poll tick).
-        htmx.ajax('GET', '/api/brokers', {target: '#broker-list', swap: 'innerHTML'});
-    }
-}
-
-// During a send, refresh just the row that finished (the previous
-// current_broker_id) instead of refetching the ~700-row table every tick.
-function maybeRefreshBrokerRow(job) {
-    if (job.current_broker_id && job.current_broker_id !== lastSeenBrokerId) {
-        if (lastSeenBrokerId) {
-            refreshBrokerRow(lastSeenBrokerId);
-        }
-        lastSeenBrokerId = job.current_broker_id;
-    }
-}
-
-function refreshBrokerRow(brokerId) {
-    const statusEl = document.getElementById('status-' + brokerId);
-    if (!statusEl) {
-        // Not present in the current filtered/searched view - nothing to
-        // update; the final full refresh on completion covers it.
-        return;
-    }
-    htmx.ajax('GET', '/api/brokers/' + brokerId + '/status', { target: '#status-' + brokerId, swap: 'innerHTML' });
-}
-
-function showLostJobMessage() {
-    const progressArea = document.getElementById('send-all-progress');
-    progressArea.innerHTML = `
-        <div class="alert alert-warning px-4 py-3 rounded">
-            <strong>Lost track of this send.</strong> It may have finished, or you switched profiles mid-send.
-            <a href="/brokers" class="underline ml-2">Refresh page</a> to check the latest status.
-        </div>
-    `;
-}
-
-// statusFilter is optional: pass 'failed' from the Retry Failed button to
-// target only brokers whose last send attempt failed. Left empty, the
-// backend defaults to 'pending' (never-sent brokers) - same as before.
-async function startSendAll(statusOverride) {
-    const isRetry = statusOverride === 'failed';
-    const btn = document.getElementById(isRetry ? 'retry-failed-btn' : 'send-all-btn');
-    const btnText = document.getElementById(isRetry ? 'retry-failed-text' : 'send-all-text');
-    const spinner = document.getElementById(isRetry ? 'retry-failed-spinner' : 'send-all-spinner');
-
-    // Disable both buttons so a job can't be started twice from either one
-    setButtonsDisabled(true);
-    btnText.textContent = 'Starting...';
-    spinner.classList.remove('hidden');
-
-    // Get filter values
-    const search = document.getElementById('broker-search').value;
-    const category = document.querySelector('[name="category"]').value;
-    const region = document.querySelector('[name="region"]').value;
-    const status = statusOverride || document.getElementById('send-status').value;
-    const brokerIds = document.getElementById('send-broker-ids').value;
-    const excludeIds = document.getElementById('send-exclude-ids').value;
-
-    if (status === 'all' && !confirm('Send to all matching brokers regardless of send history?')) {
-        resetButtons();
-        return;
-    }
-
-    // Get CSRF token
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-
-    const params = { search, category, region, status, broker_ids: brokerIds, exclude_ids: excludeIds };
-
-    try {
-        const resp = await fetch('/api/send-all', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRF-Token': csrfToken
-            },
-            body: new URLSearchParams(params)
-        });
-
-        const data = await resp.json();
-
-        if (!resp.ok) {
-            showError(data.error || 'Failed to start sending');
-            resetButtons();
-            return;
-        }
-
-        showProgressUI();
-        window.delistdJobPoll.start(data.job_id);
-
-    } catch (err) {
-        showError('Network error: ' + err.message);
-        resetButtons();
-    }
-}
-
-function showProgressUI() {
-    const progressArea = document.getElementById('send-all-progress');
-    progressArea.innerHTML = `
-        <div class="card p-4">
-            <div class="flex items-center justify-between mb-2">
-                <span class="font-medium text-primary">Sending emails...</span>
-                <button onclick="cancelJob()" class="btn btn-ghost text-sm py-1 px-3 text-error">
-                    Cancel
-                </button>
-            </div>
-            <div id="current-broker" class="text-sm text-secondary mb-2"></div>
-            <div class="w-full rounded-full h-2 mb-2" style="background: var(--bg-elevated);">
-                <div id="progress-bar" class="h-2 rounded-full transition-all" style="width: 0%; background: var(--accent);"></div>
-            </div>
-            <div id="progress-text" class="text-xs text-muted">0 of 0 complete (0 sent, 0 failed)</div>
-        </div>
-    `;
-}
-
-function updateProgressDisplay(job) {
-    const currentBroker = document.getElementById('current-broker');
-    const progressBar = document.getElementById('progress-bar');
-    const progressText = document.getElementById('progress-text');
-
-    if (currentBroker) {
-        currentBroker.textContent = job.current_broker ? `Sending to: ${job.current_broker}` : '';
-    }
-    if (progressBar) {
-        progressBar.style.width = job.progress + '%';
-    }
-    if (progressText) {
-        const processed = job.sent + job.failed;
-        progressText.textContent = `${processed} of ${job.total} complete (${job.sent} sent, ${job.failed} failed)`;
-    }
-}
-
-function showCompletionMessage(job) {
-    const progressArea = document.getElementById('send-all-progress');
-
-    // Handle auth errors with specific guidance
-    if (job.error_type === 'auth') {
-        progressArea.innerHTML = `
-            <div class="alert alert-error">
-                <div class="flex items-start gap-3">
-                    <svg class="w-6 h-6 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
-                    <div>
-                        <h3 class="font-semibold" style="color: var(--text-primary);">Email Authentication Failed</h3>
-                        <p class="text-sm mt-1">Sent ${job.sent} emails before stopping. Your email provider blocked further sends.</p>
-                        <div class="mt-3 p-3 rounded" style="background: var(--bg-surface); border: 1px solid var(--border);">
-                            <p class="font-medium mb-2" style="color: var(--text-primary);">What to do:</p>
-                            <ol class="text-sm space-y-1 list-decimal list-inside" style="color: var(--text-secondary);">
-                                <li>Check your email account for security alerts</li>
-                                <li>Generate a new app password with your provider and update it in <a href="/settings" class="text-accent hover:underline">Settings</a></li>
-                                <li>Wait 24 hours before trying again (rate limits reset daily)</li>
-                                <li>Check your <a href="/settings" class="text-accent hover:underline">SMTP settings</a> - some providers cap how many emails an app password can send per day</li>
-                            </ol>
-                        </div>
-                        <p class="text-sm mt-3" style="color: var(--text-secondary);">
-                            <strong>${job.total - job.sent - job.failed} brokers remaining.</strong>
-                            Filter by "Pending" status to send to them later.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        `;
-        return;
-    }
-
-    // Handle daily limit pause
-    if (job.status === 'paused') {
-        progressArea.innerHTML = `
-            <div class="alert alert-info">
-                <div class="flex items-start gap-3">
-                    <svg class="w-6 h-6 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <div>
-                        <h3 class="font-semibold" style="color: var(--text-primary);">Daily Limit Reached</h3>
-                        <p class="text-sm mt-1">Sent ${job.sent} emails today.</p>
-                        <p class="text-sm mt-2" style="color: var(--text-secondary);">${job.total - job.sent - job.failed} brokers left. They go out with the next automatic run (<a href="/settings#automation" class="underline">Settings &rarr; Automation</a>), or click Send all again tomorrow.</p>
-                    </div>
-                </div>
-            </div>
-        `;
-        return;
-    }
-
-    // Normal completion
-    const statusClass = job.status === 'cancelled' ? 'alert alert-warning' : 'alert alert-success';
-    const statusText = job.status === 'cancelled' ? 'Cancelled' : 'Complete';
-
-    progressArea.innerHTML = `
-        <div class="${statusClass} px-4 py-3 rounded">
-            <strong>${statusText}!</strong> Sent ${job.sent} emails (${job.failed} failed).
-            <a href="/brokers" class="underline ml-2">Refresh page</a>
-        </div>
-    `;
-}
-
-async function cancelJob() {
-    const jobId = window.delistdJobPoll.jobId;
-    if (!jobId) return;
-
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-
-    try {
-        await fetch(`/api/job/${jobId}/cancel`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-Token': csrfToken
-            }
-        });
-    } catch (err) {
-        console.error('Error cancelling job:', err);
-    }
-}
-
-function showError(message) {
-    const progressArea = document.getElementById('send-all-progress');
-    progressArea.innerHTML = `
-        <div class="alert alert-error">
-            <strong>Error:</strong> ${message}
-        </div>
-    `;
-}
-
-function setButtonsDisabled(disabled) {
-    const sendBtn = document.getElementById('send-all-btn');
-    const retryBtn = document.getElementById('retry-failed-btn');
-    if (sendBtn) sendBtn.disabled = disabled;
-    if (retryBtn) retryBtn.disabled = disabled;
-}
-
-function resetButtons() {
-    const sendBtn = document.getElementById('send-all-btn');
-    const sendText = document.getElementById('send-all-text');
-    const sendSpinner = document.getElementById('send-all-spinner');
-    const retryBtn = document.getElementById('retry-failed-btn');
-    const retryText = document.getElementById('retry-failed-text');
-    const retrySpinner = document.getElementById('retry-failed-spinner');
-
-    setButtonsDisabled(false);
-    if (sendText) sendText.textContent = 'Send to All';
-    if (sendSpinner) sendSpinner.classList.add('hidden');
-    if (retryText) retryText.textContent = 'Retry Failed';
-    if (retrySpinner) retrySpinner.classList.add('hidden');
-    lastListRefreshProcessed = -1;
-    lastListRefreshAt = 0;
-}
+// the two icons the script draws into the progress card
+window.brokerIcons = {warning: `{{icon "warning" "w-6 h-6 flex-shrink-0 mt-0.5"}}`, clock: `{{icon "clock" "w-6 h-6 flex-shrink-0 mt-0.5"}}`};
 </script>
+<script src="/static/js/brokers.js"></script>
 {{end}}
 
 {{template "layout" .}}

@@ -41,7 +41,7 @@ func TestStateRoundTrip(t *testing.T) {
 	}
 }
 
-var job = Job{Exe: "/opt/my apps/delistd", ConfigPath: `/home/u/.eraser/co"nf 100%.yaml`, LogPath: "/home/u/.eraser/auto.log"}
+var job = Job{Exe: "/opt/my apps/delistd", ConfigPath: `/home/u/.delistd/co"nf 100%.yaml`, LogPath: "/home/u/.delistd/auto.log"}
 
 func TestRenderPlist(t *testing.T) {
 	p := renderPlist(job)
@@ -49,10 +49,10 @@ func TestRenderPlist(t *testing.T) {
 		"<string>" + launchdLabel + "</string>",
 		"<string>/opt/my apps/delistd</string>",
 		"<string>auto</string>", "<string>--once</string>", "<string>--config</string>",
-		"<string>/home/u/.eraser/co&#34;nf 100%.yaml</string>",
+		"<string>/home/u/.delistd/co&#34;nf 100%.yaml</string>",
 		"<key>StartCalendarInterval</key>",
 		"<key>Hour</key><integer>18</integer>",
-		"<key>StandardOutPath</key>\n\t<string>/home/u/.eraser/auto.log</string>",
+		"<key>StandardOutPath</key>\n\t<string>/home/u/.delistd/auto.log</string>",
 	} {
 		if !strings.Contains(p, want) {
 			t.Errorf("plist missing %q:\n%s", want, p)
@@ -62,7 +62,7 @@ func TestRenderPlist(t *testing.T) {
 
 func TestRenderSystemd(t *testing.T) {
 	service, timer := renderSystemd(job)
-	wantExec := `ExecStart="/opt/my apps/delistd" "auto" "--once" "--config" "/home/u/.eraser/co\"nf 100%%.yaml"`
+	wantExec := `ExecStart="/opt/my apps/delistd" "auto" "--once" "--config" "/home/u/.delistd/co\"nf 100%%.yaml"`
 	if !strings.Contains(service, wantExec) {
 		t.Errorf("service missing %q:\n%s", wantExec, service)
 	}

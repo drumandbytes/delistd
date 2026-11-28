@@ -19,7 +19,7 @@ func updateBrokersCmd() *cobra.Command {
 		Use:   "update-brokers",
 		Short: "Fetch the latest broker list from the public repository",
 		Long: `Download a fresh data/brokers.yaml from the public repo into
-~/.eraser/brokers.yaml, which then takes precedence over the copy built into
+~/.delistd/brokers.yaml, which then takes precedence over the copy built into
 this binary. The request is conditional (If-None-Match): if nothing has
 changed it costs a few hundred bytes and writes nothing.
 

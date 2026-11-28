@@ -4,21 +4,57 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
-	"regexp"
 	"runtime"
 	"strings"
 
-	"github.com/drumandbytes/delistd/internal/country"
 	"gopkg.in/yaml.v3"
+
+	"github.com/drumandbytes/delistd/internal/datadir"
+	"github.com/drumandbytes/delistd/internal/fsutil"
 )
 
-const defaultRateLimitMs = 2000
+const (
+	// DefaultRateLimitMs is the pause between emails.
+	DefaultRateLimitMs = 2000
+	// DefaultDailySendLimit stays under Gmail's ~500/day for a regular account,
+	// leaving room for the other mail sent that day.
+	DefaultDailySendLimit = 450
 
-// defaultDailySendLimit stays safely under Gmail's ~500/day cap for a
-// regular (non-Workspace) account, leaving headroom for other mail you send
-// that same day.
-const defaultDailySendLimit = 450
+	defaultBrowserTimeoutSec = 30
+)
+
+// Config is the contents of config.yaml.
+type Config struct {
+	// Profiles are the people requests are sent for. They share the brokers,
+	// the mail account and the options; history is kept per profile.
+	Profiles []NamedProfile `yaml:"profiles,omitempty"`
+	// PassphraseProtected means the mail passwords are encrypted with a
+	// passphrase on top of the machine binding (secret.go). Set by `delistd
+	// passphrase set`.
+	PassphraseProtected bool        `yaml:"passphrase_protected,omitempty"`
+	Email               EmailConfig `yaml:"email"`              // shared SMTP account
+	Options             Options     `yaml:"options"`            // sending and selection
+	Inbox               InboxConfig `yaml:"inbox,omitempty"`    // shared IMAP account
+	Pipeline            Pipeline    `yaml:"pipeline,omitempty"` // browser automation
+	Schedule            Schedule    `yaml:"schedule,omitempty"` // in-app scheduler
+}
+
+// DefaultConfigPath is ~/.delistd/config.yaml (or the legacy directory), or a
+// bare config.yaml when there is no home directory.
+func DefaultConfigPath() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "config.yaml"
+	}
+	return filepath.Join(datadir.Of(home), "config.yaml")
+}
+
+// warnIfReadable prints a warning when other users can read the file.
+func warnIfReadable(path string) {
+	if err := checkFilePermissions(path); err != nil {
+		fmt.Fprintf(os.Stderr, "WARNING: %v\n", err)
+	}
+}
 
 func checkFilePermissions(path string) error {
 	if runtime.GOOS == "windows" {
@@ -28,505 +64,103 @@ func checkFilePermissions(path string) error {
 	if err != nil {
 		return err
 	}
-	if perm := info.Mode().Perm(); perm&0077 != 0 {
+	if perm := info.Mode().Perm(); perm&0o077 != 0 {
 		return fmt.Errorf("config file %s has insecure permissions %04o; should be 0600", path, perm)
 	}
 	return nil
 }
 
-type Config struct {
-	// Profiles tracks removal requests for several people against the same
-	// brokers, mail account and options; history is kept per profile
-	// (profile_id). Takes precedence over Profile.
-	Profiles []NamedProfile `yaml:"profiles,omitempty"`
-	// PassphraseProtected: mail passwords are encrypted with a passphrase on
-	// top of the machine binding (see secret.go). Set with `delistd passphrase set`.
-	PassphraseProtected bool        `yaml:"passphrase_protected,omitempty"`
-	Email               EmailConfig `yaml:"email"`
-	Options             Options     `yaml:"options"`
-	Inbox               InboxConfig `yaml:"inbox,omitempty"`
-	Pipeline            Pipeline    `yaml:"pipeline,omitempty"`
-	Schedule            Schedule    `yaml:"schedule,omitempty"`
-}
+// Load reads and decrypts the config at path, fills the defaults and upgrades
+// a 1.x file in place (migrate.go).
+func Load(path string) (*Config, error) { return load(path, true) }
 
-// Schedule is the in-app fallback for automated cycles when the OS scheduler
-// ('delistd schedule install') isn't set up.
-type Schedule struct {
-	// Enabled makes a running 'delistd serve' run a cycle every 6 hours.
-	// Ignored while the OS job is installed.
-	Enabled bool `yaml:"enabled,omitempty"`
-}
+// LoadWithoutPasswords is Load for commands that never log in to a mail
+// server (status, pipeline, export, draft, dry runs). Stored passwords stay
+// encrypted, so it skips the machine-ID lookup (an ioreg subprocess on macOS)
+// that decrypting them costs. Anything that connects to SMTP or IMAP must use
+// Load: an encrypted value is not a usable password. Save round-trips such a
+// config unchanged.
+func LoadWithoutPasswords(path string) (*Config, error) { return load(path, false) }
 
-// NamedProfile is a person's identity plus the stable ID used by --profile,
-// history rows and the web UI's switcher.
-type NamedProfile struct {
-	// ID: short, lowercase, hyphenated. Stored verbatim in history.db, so
-	// renaming it orphans the profile's existing history.
-	ID      string `yaml:"id"`
-	Profile `yaml:",inline"`
-	// Mail overrides the shared email:/inbox: blocks for this profile only
-	// (see EmailForProfile/InboxForProfile). nil = use the shared blocks.
-	Mail *MailConfig `yaml:"mail,omitempty"`
-}
+func load(path string, decrypt bool) (*Config, error) {
+	warnIfReadable(path)
 
-// MailConfig holds one profile's email/inbox overrides. Either field may be
-// set independently - e.g. a profile can send from its own SMTP account
-// while still sharing the default inbox for reply monitoring.
-type MailConfig struct {
-	Email *EmailConfig `yaml:"email,omitempty"`
-	Inbox *InboxConfig `yaml:"inbox,omitempty"`
-}
-
-// EmailForProfile returns the SMTP config to use for sends made under this
-// profile: its Mail.Email override if set, otherwise the shared top-level
-// Email block.
-func (c *Config) EmailForProfile(p NamedProfile) EmailConfig {
-	if p.Mail != nil && p.Mail.Email != nil {
-		return *p.Mail.Email
-	}
-	return c.Email
-}
-
-// InboxForProfile returns the IMAP config to use when monitoring replies for
-// this profile: its Mail.Inbox override if set, otherwise the shared
-// top-level Inbox block.
-func (c *Config) InboxForProfile(p NamedProfile) InboxConfig {
-	if p.Mail != nil && p.Mail.Inbox != nil {
-		return *p.Mail.Inbox
-	}
-	return c.Inbox
-}
-
-// ConfiguredInboxes returns every enabled IMAP inbox across profiles (overrides
-// or the shared one), deduplicated by address, so `monitor` covers everyone.
-func (c *Config) ConfiguredInboxes() []InboxConfig {
-	seen := make(map[string]bool)
-	var result []InboxConfig
-	for _, p := range c.GetProfiles() {
-		inbox := c.InboxForProfile(p)
-		if !inbox.Enabled {
-			continue
-		}
-		key := strings.ToLower(inbox.Email)
-		if seen[key] {
-			continue
-		}
-		seen[key] = true
-		result = append(result, inbox)
-	}
-	return result
-}
-
-// DefaultProfileID is the synthetic ID used for the legacy single Profile
-// block when no profiles: list is configured, and is what pre-multi-profile
-// history rows are attributed to after the profile_id migration.
-const DefaultProfileID = "default"
-
-// GetProfiles returns every profile; before setup that's one empty "default"
-// profile, so callers always have someone to edit.
-func (c *Config) GetProfiles() []NamedProfile {
-	if len(c.Profiles) > 0 {
-		return c.Profiles
-	}
-	return []NamedProfile{{ID: DefaultProfileID}}
-}
-
-// PrimaryProfile is the "default" profile if there is one, else the first:
-// the one `delistd init` edits and fresh-profile forms prefill from.
-func (c *Config) PrimaryProfile() NamedProfile {
-	profiles := c.GetProfiles()
-	for _, p := range profiles {
-		if strings.EqualFold(p.ID, DefaultProfileID) {
-			return p
-		}
-	}
-	return profiles[0]
-}
-
-// HasProfile reports whether setup has stored anyone's details yet.
-func (c *Config) HasProfile() bool {
-	for _, p := range c.GetProfiles() {
-		if p.FirstName != "" {
-			return true
-		}
-	}
-	return false
-}
-
-// GetProfile resolves a profile by ID. Empty id works only when exactly one
-// profile exists; otherwise it errors with the available IDs.
-func (c *Config) GetProfile(id string) (NamedProfile, error) {
-	profiles := c.GetProfiles()
-	if id == "" {
-		if len(profiles) == 1 {
-			return profiles[0], nil
-		}
-		return NamedProfile{}, fmt.Errorf("multiple profiles configured (%s) - specify one with --profile", strings.Join(profileIDs(profiles), ", "))
-	}
-	for _, p := range profiles {
-		if strings.EqualFold(p.ID, id) {
-			return p, nil
-		}
-	}
-	return NamedProfile{}, fmt.Errorf("no profile %q configured (available: %s)", id, strings.Join(profileIDs(profiles), ", "))
-}
-
-func profileIDs(profiles []NamedProfile) []string {
-	ids := make([]string, len(profiles))
-	for i, p := range profiles {
-		ids[i] = p.ID
-	}
-	return ids
-}
-
-var nonSlugChars = regexp.MustCompile(`[^a-z0-9]+`)
-
-// SlugifyID lowercases and hyphenates s, keeping only [a-z0-9]. Every profile
-// ID must go through it: net/http silently drops non-ASCII bytes from
-// Set-Cookie, so an ID with diacritics breaks the web UI's profile cookie.
-func SlugifyID(s string) string {
-	base := nonSlugChars.ReplaceAllString(strings.ToLower(strings.TrimSpace(s)), "-")
-	base = strings.Trim(base, "-")
-	if base == "" {
-		return "profile"
-	}
-	return base
-}
-
-// SlugifyProfileID derives an ID from first/last name (see SlugifyID),
-// appending -2, -3, ... when taken.
-func SlugifyProfileID(firstName, lastName string, existing []NamedProfile) string {
-	base := SlugifyID(firstName + "-" + lastName)
-
-	taken := make(map[string]bool, len(existing))
-	for _, p := range existing {
-		taken[strings.ToLower(p.ID)] = true
-	}
-
-	id := base
-	for n := 2; taken[id]; n++ {
-		id = fmt.Sprintf("%s-%d", base, n)
-	}
-	return id
-}
-
-// InboxConfig holds IMAP settings for monitoring broker responses
-type InboxConfig struct {
-	Enabled       bool   `yaml:"enabled"`
-	Provider      string `yaml:"provider,omitempty"`  // preset id (see Providers) that fills Server/Port; optional when they're set
-	Server        string `yaml:"server"`              // e.g., "imap.fastmail.com"
-	Port          int    `yaml:"port"`                // 993 = implicit TLS, anything else = STARTTLS
-	Email         string `yaml:"email"`               // Email address to monitor
-	Password      string `yaml:"password"`            // App password (not main password); with auth: oauth2, the refresh token
-	Auth          string `yaml:"auth,omitempty"`      // "oauth2" signs in with OAuth (see AuthOAuth2); empty = password
-	ClientID      string `yaml:"client_id,omitempty"` // OAuth app (client) id; empty = the shared default (DefaultOAuthClientID)
-	Folder        string `yaml:"folder"`              // Folder to monitor (default: "INBOX")
-	AutoArchive   bool   `yaml:"auto_archive"`        // Automatically move processed emails to archive folder
-	ArchiveFolder string `yaml:"archive_folder"`      // Folder to archive emails to (default: "Eraser")
-}
-
-// Pipeline holds settings for the automation pipeline
-type Pipeline struct {
-	// BrowserHeadless is a pointer so an explicit false survives loading (a
-	// plain bool was forced back to true). Read it via Headless().
-	BrowserHeadless   *bool `yaml:"browser_headless,omitempty"`
-	BrowserTimeoutSec int   `yaml:"browser_timeout_sec"` // Browser operation timeout
-}
-
-// Headless returns the effective headless setting, defaulting to true when
-// BrowserHeadless was never set in the config.
-func (p Pipeline) Headless() bool {
-	if p.BrowserHeadless == nil {
-		return true
-	}
-	return *p.BrowserHeadless
-}
-
-type Profile struct {
-	FirstName string `yaml:"first_name"`
-	// MiddleName: some brokers (background-check, financial-b2b) match on
-	// full legal name.
-	MiddleName string `yaml:"middle_name,omitempty"`
-	LastName   string `yaml:"last_name"`
-	Email      string `yaml:"email"`
-	// AdditionalEmails: older addresses a broker may have indexed you under.
-	AdditionalEmails []string `yaml:"additional_emails,omitempty"`
-	// NameVariants covers other spellings brokers may have indexed you under -
-	// e.g. a diacritic-free version of your name ("Maris" for "Māris"), a
-	// maiden name, or a nickname you've used to sign up for things.
-	NameVariants []string `yaml:"name_variants,omitempty"`
-	// PreviousAddresses: partial ones still help, since matching keys off
-	// street/city/postal code.
-	PreviousAddresses []string `yaml:"previous_addresses,omitempty"`
-	Address           string   `yaml:"address,omitempty"`
-	City              string   `yaml:"city,omitempty"`
-	State             string   `yaml:"state,omitempty"`
-	ZipCode           string   `yaml:"zip_code,omitempty"`
-	Country           string   `yaml:"country,omitempty"`
-	Phone             string   `yaml:"phone,omitempty"`
-	// AdditionalPhones covers other numbers you've used to sign up for
-	// things (an old number, a work line) that a broker might have on file
-	// instead of your current one.
-	AdditionalPhones []string `yaml:"additional_phones,omitempty"`
-	DateOfBirth      string   `yaml:"date_of_birth,omitempty"`
-}
-
-func (p Profile) FullName() string {
-	if p.MiddleName == "" {
-		return p.FirstName + " " + p.LastName
-	}
-	return p.FirstName + " " + p.MiddleName + " " + p.LastName
-}
-
-type EmailConfig struct {
-	From string     `yaml:"from"`
-	SMTP SMTPConfig `yaml:"smtp,omitempty"`
-}
-
-// Configured reports whether a sending account is set up at all.
-func (e EmailConfig) Configured() bool {
-	return e.SMTP.Host != ""
-}
-
-type Email = EmailConfig
-
-type SMTPConfig struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"` // with auth: oauth2, the refresh token
-	// Auth is "oauth2" for providers that refuse passwords (Outlook.com); the
-	// refresh token then lives in Password and ClientID names the OAuth app.
-	Auth     string `yaml:"auth,omitempty"`
-	ClientID string `yaml:"client_id,omitempty"`
-	// UseTLS defaults to true; the mode follows the port (465 implicit TLS,
-	// anything else STARTTLS). false is only for an unauthenticated local
-	// relay. Read it via TLS().
-	UseTLS *bool `yaml:"use_tls,omitempty"`
-}
-
-// TLS returns the effective use_tls, true unless explicitly turned off.
-func (s SMTPConfig) TLS() bool {
-	return s.UseTLS == nil || *s.UseTLS
-}
-
-type Options struct {
-	Template string `yaml:"template"`
-	// CustomTemplate is the body of the user-written "custom" template
-	// (Go text/template, same fields as the built-ins). An optional first
-	// line "Subject: ..." sets the subject. Used when Template is "custom".
-	CustomTemplate string `yaml:"custom_template,omitempty"`
-	// SendMode:
-	//   "" / "smtp" - Delistd sends over the configured SMTP account.
-	//   "manual"    - Delistd renders the emails for you to send yourself and
-	//                 record with `delistd mark-sent` / "Mark sent". No email:
-	//                 block needed; for users who won't share mailbox credentials.
-	SendMode    string `yaml:"send_mode,omitempty"`
-	DryRun      bool   `yaml:"dry_run,omitempty"`
-	RateLimitMs int    `yaml:"rate_limit_ms"`
-	// DailySendLimit caps sends per rolling 24h to stay under provider limits
-	// (Gmail ~500/day). 0 = 450. Bypass with --ignore-daily-limit.
-	DailySendLimit int `yaml:"daily_send_limit,omitempty"`
-	// BrokerList: "" / "full" (~720 entries, default) or "verified"
-	// (data/brokers-verified.yaml). Overridden by `send --list`; ignored when
-	// BrokerFile or --brokers is set.
-	BrokerList string `yaml:"broker_list,omitempty"`
-	// BrokerFile points the send-family commands at your own broker list,
-	// the config equivalent of the global --brokers flag (which still wins).
-	// Takes precedence over BrokerList.
-	BrokerFile      string   `yaml:"broker_file,omitempty"`
-	Regions         []string `yaml:"regions,omitempty"`
-	ExcludedBrokers []string `yaml:"excluded_brokers,omitempty"`
-	// ExcludedCategories skips brokers by category (case-insensitive), e.g.
-	// "requires-id" for brokers that demand an ID document.
-	ExcludedCategories []string `yaml:"excluded_categories,omitempty"`
-}
-
-func DefaultConfigPath() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "config.yaml"
-	}
-	return filepath.Join(home, ".eraser", "config.yaml")
-}
-
-func Load(path string) (*Config, error) {
-	if err := checkFilePermissions(path); err != nil {
-		fmt.Fprintf(os.Stderr, "WARNING: %v\n", err)
-	}
-
-	data, err := os.ReadFile(path)
+	raw, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
-
 	var cfg Config
-	if err := yaml.Unmarshal(data, &cfg); err != nil {
+	if err := yaml.Unmarshal(raw, &cfg); err != nil {
 		return nil, fmt.Errorf("failed to parse config file: %w", err)
 	}
 
-	if cfg.Options.Template == "" {
-		// Fork default is gdpr, not upstream's generic - see EU-NOTES.md.
-		// Only fills in a genuinely missing field; an explicit template in
-		// config.yaml (which every real user of this fork will have) wins.
-		cfg.Options.Template = "gdpr"
-	}
-	if cfg.Options.RateLimitMs == 0 {
-		cfg.Options.RateLimitMs = defaultRateLimitMs
-	}
-	if cfg.Options.DailySendLimit == 0 {
-		cfg.Options.DailySendLimit = defaultDailySendLimit
-	}
-
-	plaintext := false
-	cfg.eachSecret(func(p *string) {
-		if *p != "" && !isEncrypted(*p) {
-			plaintext = true
-			return
-		}
-		if strings.HasPrefix(*p, secretPrefixV2) {
-			return // decrypted by Reveal, when the passphrase is available
-		}
-		plain, err := decryptSecret(*p)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "WARNING: %v; re-enter it with `delistd init` or in Settings\n", err)
-			plain = ""
-		}
-		*p = plain
-	})
-	migrateFrom1x(path, data, &cfg, plaintext)
-	applyInboxDefaults(&cfg.Inbox)
-	for i := range cfg.Profiles {
-		if cfg.Profiles[i].Mail != nil && cfg.Profiles[i].Mail.Inbox != nil {
-			applyInboxDefaults(cfg.Profiles[i].Mail.Inbox)
-		}
-	}
-
-	if cfg.Pipeline.BrowserTimeoutSec == 0 {
-		cfg.Pipeline.BrowserTimeoutSec = 30
-	}
-	// BrowserHeadless is intentionally left as-is here (nil if unset) -
-	// see Pipeline.Headless(), which applies the true default without
-	// clobbering an explicit false.
-
+	cfg.applyDefaults()
+	plaintext := cfg.decryptPasswords(decrypt)
+	migrateFrom1x(path, raw, &cfg, plaintext)
+	cfg.applyInboxDefaults()
 	return &cfg, nil
 }
 
-// maskPasswords blanks every non-empty password: value in a config document, so
-// the 1.x backup never keeps a password in plain text. A document without any
-// comes back byte for byte; one it can't parse yields nothing rather than risk
-// keeping a password.
-func maskPasswords(doc []byte) []byte {
-	var root yaml.Node
-	if err := yaml.Unmarshal(doc, &root); err != nil {
-		return nil
+// applyDefaults fills only genuinely missing fields; an explicit value wins.
+// The template default is gdpr because the tool is aimed at EU use
+// (EU-NOTES.md). BrowserHeadless stays nil when unset: Pipeline.Headless
+// supplies true without overwriting an explicit false.
+func (c *Config) applyDefaults() {
+	if c.Options.Template == "" {
+		c.Options.Template = "gdpr"
 	}
-	masked := 0
-	var walk func(n *yaml.Node)
-	walk = func(n *yaml.Node) {
-		if n.Kind == yaml.MappingNode {
-			for i := 0; i+1 < len(n.Content); i += 2 {
-				if v := n.Content[i+1]; n.Content[i].Value == "password" && v.Kind == yaml.ScalarNode && v.Value != "" {
-					v.Value, v.Tag = "", "!!str"
-					masked++
-				}
+	if c.Options.RateLimitMs == 0 {
+		c.Options.RateLimitMs = DefaultRateLimitMs
+	}
+	if c.Options.DailySendLimit == 0 {
+		c.Options.DailySendLimit = DefaultDailySendLimit
+	}
+	if c.Pipeline.BrowserTimeoutSec == 0 {
+		c.Pipeline.BrowserTimeoutSec = defaultBrowserTimeoutSec
+	}
+}
+
+// decryptPasswords turns each stored password into plaintext in memory (when
+// decrypt is set) and reports whether any was stored unencrypted (a legacy
+// file, to be re-saved encrypted). Passphrase-protected values stay as they
+// are until Reveal.
+func (c *Config) decryptPasswords(decrypt bool) (foundPlaintext bool) {
+	c.eachSecret(func(p *string) {
+		switch {
+		case *p != "" && !isEncrypted(*p):
+			foundPlaintext = true
+		case !decrypt, strings.HasPrefix(*p, secretPrefixV2):
+		default:
+			plain, err := decryptSecret(*p)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "WARNING: %v; re-enter it with `delistd init` or in Settings\n", err)
+				plain = ""
 			}
+			*p = plain
 		}
-		for _, c := range n.Content {
-			walk(c)
-		}
-	}
-	walk(&root)
-	if masked == 0 {
-		return doc
-	}
-	out, err := yaml.Marshal(&root)
-	if err != nil {
-		return nil
-	}
-	return out
+	})
+	return foundPlaintext
 }
 
-// migrateFrom1x upgrades a 1.x config in memory and on disk: the pre-0.11
-// top-level profile: block becomes profiles: [{id: default}], and free-text
-// profile countries become ISO alpha-2 codes. Before the first rewrite the
-// original file is kept as <path>.1x.bak. A country that doesn't resolve is
-// left alone and warned about. email.provider needs no step: it is no longer
-// read and drops out on the next save.
-func migrateFrom1x(path string, orig []byte, cfg *Config, plaintextSecrets bool) {
-	changed := plaintextSecrets
-	var legacy struct {
-		Profile Profile `yaml:"profile"`
-	}
-	if len(cfg.Profiles) == 0 && yaml.Unmarshal(orig, &legacy) == nil && !reflect.ValueOf(legacy.Profile).IsZero() {
-		cfg.Profiles, changed = []NamedProfile{{ID: DefaultProfileID, Profile: legacy.Profile}}, true
-	}
-	for i := range cfg.Profiles {
-		p := &cfg.Profiles[i]
-		if p.Country == "" {
-			continue
+// applyInboxDefaults fills the server settings of the shared inbox and of each
+// profile's own one.
+func (c *Config) applyInboxDefaults() {
+	ApplyInboxDefaults(&c.Inbox)
+	for _, p := range c.Profiles {
+		if p.Mail != nil && p.Mail.Inbox != nil {
+			ApplyInboxDefaults(p.Mail.Inbox)
 		}
-		code, ok := country.Code(p.Country)
-		if !ok {
-			fmt.Fprintf(os.Stderr, "WARNING: profile %q: country %q isn't a known country; fix it with `delistd profile edit` (country-scoped brokers aren't filtered until then)\n", p.ID, p.Country)
-			continue
-		}
-		if code != p.Country {
-			p.Country, changed = code, true
-		}
-	}
-	if !changed {
-		return
-	}
-	bak := path + ".1x.bak"
-	if _, err := os.Stat(bak); err != nil {
-		masked := maskPasswords(orig)
-		if masked == nil {
-			fmt.Fprintf(os.Stderr, "WARNING: could not back up config before migrating it from 1.x; leaving it unchanged\n")
-			return
-		}
-		if err := os.WriteFile(bak, masked, 0600); err != nil {
-			fmt.Fprintf(os.Stderr, "WARNING: could not back up config before migrating it from 1.x: %v\n", err)
-			return
-		}
-	}
-	if err := Save(path, cfg); err != nil {
-		fmt.Fprintf(os.Stderr, "WARNING: could not save the migrated config: %v\n", err)
-		return
-	}
-	fmt.Fprintf(os.Stderr, "Upgraded %s from 1.x (country codes, encrypted passwords). The original is kept as %s with passwords blanked.\n", filepath.Base(path), filepath.Base(bak))
-}
-
-// applyInboxDefaults fills Folder/ArchiveFolder and, for known providers,
-// Server/Port. Shared by the top-level inbox and per-profile overrides.
-func applyInboxDefaults(inbox *InboxConfig) {
-	if inbox.Folder == "" {
-		inbox.Folder = "INBOX"
-	}
-	if inbox.ArchiveFolder == "" {
-		inbox.ArchiveFolder = "Eraser"
-	}
-	if inbox.Server != "" {
-		return
-	}
-	if p, ok := ProviderByID(inbox.Provider); ok && p.IMAPHost != "" {
-		inbox.Server, inbox.Port = p.IMAPHost, p.IMAPPort
-	} else if inbox.Provider == "outlook" { // pre-preset configs; Microsoft has since dropped basic auth
-		inbox.Server, inbox.Port = "outlook.office365.com", 993
 	}
 }
 
-// ApplyInboxDefaults is applyInboxDefaults for configs edited at runtime
-// (Load's defaults only run at startup).
-func ApplyInboxDefaults(inbox *InboxConfig) { applyInboxDefaults(inbox) }
-
+// Save encrypts the passwords and writes the config atomically with 0600.
 func Save(path string, cfg *Config) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return fmt.Errorf("failed to create config directory: %w", err)
 	}
 
-	out := cfg.cloneForSecrets() // cfg may be the live config others read
-	if err := out.secretFields(func(p *string) error {
+	out := cfg.Clone() // cfg may be the live config others are reading
+	protect := func(p *string) error {
 		if out.PassphraseProtected && *p != "" && !isEncrypted(*p) {
 			pass, err := passphrase()
 			if err != nil {
@@ -537,21 +171,23 @@ func Save(path string, cfg *Config) error {
 		}
 		*p = encryptSecret(*p)
 		return nil
-	}); err != nil {
+	}
+	if err := out.secretFields(protect); err != nil {
 		return fmt.Errorf("failed to protect passwords: %w", err)
 	}
-	data, err := yaml.Marshal(out)
+	doc, err := yaml.Marshal(out)
 	if err != nil {
 		return fmt.Errorf("failed to serialize config: %w", err)
 	}
-	return os.WriteFile(path, data, 0600)
+	return fsutil.WriteFileAtomic(path, doc, 0o600)
 }
 
+// Validate checks every profile and, unless sending is manual, the shared
+// email account.
 func (c *Config) Validate() error {
-	profiles := c.GetProfiles()
-	seen := make(map[string]bool, len(profiles))
 	manual := c.IsManualSend()
-	for _, np := range profiles {
+	seen := map[string]bool{}
+	for _, np := range c.GetProfiles() {
 		if np.ID == "" {
 			return fmt.Errorf("profiles: every profile needs an id")
 		}
@@ -560,10 +196,11 @@ func (c *Config) Validate() error {
 			return fmt.Errorf("profiles: duplicate profile id %q", np.ID)
 		}
 		seen[key] = true
-		if np.FirstName == "" || np.LastName == "" {
+
+		switch {
+		case np.FirstName == "" || np.LastName == "":
 			return fmt.Errorf("profile %q: first_name and last_name are required", np.ID)
-		}
-		if np.Email == "" {
+		case np.Email == "":
 			return fmt.Errorf("profile %q: email is required", np.ID)
 		}
 		if !manual && np.Mail != nil && np.Mail.Email != nil {
@@ -572,80 +209,8 @@ func (c *Config) Validate() error {
 			}
 		}
 	}
-
-	// Manual mode sends nothing itself, so it needs no email configuration.
 	if manual {
-		return nil
+		return nil // nothing is sent, so no mail account is needed
 	}
-
 	return validateEmailConfig(c.Email)
-}
-
-func validateEmailConfig(e EmailConfig) error {
-	if !e.Configured() {
-		return fmt.Errorf("email.smtp: host is required (or set options.send_mode: manual)")
-	}
-	if e.From == "" {
-		return fmt.Errorf("email: from address is required")
-	}
-	if e.SMTP.Port == 0 {
-		return fmt.Errorf("email.smtp: port is required")
-	}
-	if e.SMTP.Auth != "" && e.SMTP.Auth != AuthOAuth2 {
-		return fmt.Errorf("email.smtp: unknown auth %q (use oauth2 or leave empty)", e.SMTP.Auth)
-	}
-	if e.SMTP.Auth == AuthOAuth2 {
-		if OAuthClientID(e.SMTP.ClientID) == "" {
-			return fmt.Errorf("email.smtp: client_id is required with auth: oauth2")
-		}
-		if e.SMTP.Password == "" {
-			return fmt.Errorf("email.smtp: not signed in yet: run `delistd oauth login`")
-		}
-	}
-	if !e.SMTP.TLS() && e.SMTP.Username != "" {
-		return fmt.Errorf("email.smtp: use_tls: false can't be combined with a username (passwords are never sent unencrypted)")
-	}
-	return nil
-}
-
-// IsManualSend reports whether the user opted out of automated sending -
-// Delistd renders the emails but never transmits them.
-func (c *Config) IsManualSend() bool {
-	return strings.EqualFold(c.Options.SendMode, "manual")
-}
-
-// ValidateInbox validates inbox configuration (only called when inbox monitoring is used)
-func (c *Config) ValidateInbox() error {
-	return validateInboxConfig(c.Inbox)
-}
-
-func validateInboxConfig(inbox InboxConfig) error {
-	if !inbox.Enabled {
-		return fmt.Errorf("inbox: monitoring is not enabled in config")
-	}
-	if inbox.Email == "" {
-		return fmt.Errorf("inbox: email address is required")
-	}
-	if inbox.Password == "" {
-		if inbox.Auth == AuthOAuth2 {
-			return fmt.Errorf("inbox: not signed in yet: run `delistd oauth login`")
-		}
-		return fmt.Errorf("inbox: password (app password) is required")
-	}
-	if inbox.Auth != "" && inbox.Auth != AuthOAuth2 {
-		return fmt.Errorf("inbox: unknown auth %q (use oauth2 or leave empty)", inbox.Auth)
-	}
-	if inbox.Auth == AuthOAuth2 && OAuthClientID(inbox.ClientID) == "" {
-		return fmt.Errorf("inbox: client_id is required with auth: oauth2")
-	}
-	if inbox.Server == "" {
-		if inbox.Provider != "" {
-			return fmt.Errorf("inbox: unknown provider %q - set server and port, or use one of: %s", inbox.Provider, strings.Join(providerIDsWithIMAP(), ", "))
-		}
-		return fmt.Errorf("inbox: server is required (or a provider preset: %s)", strings.Join(providerIDsWithIMAP(), ", "))
-	}
-	if inbox.Port == 0 {
-		return fmt.Errorf("inbox: IMAP port is required")
-	}
-	return nil
 }

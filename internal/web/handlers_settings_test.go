@@ -114,7 +114,7 @@ func TestHandleSettingsOptionsManualSend(t *testing.T) {
 
 	// Turning it off with no email account must be refused.
 	cfg := *s.getConfig()
-	cfg.Email = config.Email{}
+	cfg.Email = config.EmailConfig{}
 	s.config.Store(&cfg)
 	w := postOptions(t, s, validOptions())
 	if strings.Contains(w.Body.String(), "Request options saved.") || !s.getConfig().IsManualSend() {

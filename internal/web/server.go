@@ -2,39 +2,24 @@ package web
 
 import (
 	"context"
-	"crypto/rand"
-	"embed"
+	"errors"
 	"fmt"
 	"html/template"
-	"io/fs"
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
-	"strconv"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	csrf "filippo.io/csrf/gorilla"
 	"github.com/drumandbytes/delistd/internal/broker"
 	"github.com/drumandbytes/delistd/internal/config"
-	"github.com/drumandbytes/delistd/internal/country"
+	"github.com/drumandbytes/delistd/internal/datadir"
 	"github.com/drumandbytes/delistd/internal/history"
 	"github.com/drumandbytes/delistd/internal/schedule"
-	emaTemplate "github.com/drumandbytes/delistd/internal/template"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	emailtmpl "github.com/drumandbytes/delistd/internal/template"
 )
-
-//go:embed static/*
-var staticFS embed.FS
-
-//go:embed templates/*
-var templatesFS embed.FS
 
 const (
 	defaultRateLimit  = 30
@@ -42,335 +27,156 @@ const (
 	defaultSessionTTL = 30 * time.Minute
 )
 
-// RateLimiter caps requests per key in a sliding window. Keys are a fixed
-// handful of endpoint names, so the map never needs pruning.
-type RateLimiter struct {
-	mu       sync.Mutex
-	requests map[string][]time.Time
-	limit    int
-	window   time.Duration
-}
-
-func NewRateLimiter(limit int, window time.Duration) *RateLimiter {
-	rl := &RateLimiter{
-		requests: make(map[string][]time.Time),
-		limit:    limit,
-		window:   window,
-	}
-	return rl
-}
-
-func (rl *RateLimiter) filterRecent(times []time.Time, windowStart time.Time) []time.Time {
-	n := 0
-	for _, t := range times {
-		if t.After(windowStart) {
-			times[n] = t
-			n++
-		}
-	}
-	return times[:n]
-}
-
-func (rl *RateLimiter) Allow(key string) bool {
-	rl.mu.Lock()
-	defer rl.mu.Unlock()
-
-	now := time.Now()
-	recent := rl.filterRecent(rl.requests[key], now.Add(-rl.window))
-
-	if len(recent) >= rl.limit {
-		rl.requests[key] = recent
-		return false
-	}
-	rl.requests[key] = append(recent, now)
-	return true
-}
-
-// Version is the build version shown in the web UI footer. main sets it from
-// its own -ldflags-injected version at startup; it stays "dev" otherwise.
+// Version is the build version shown in the footer. main sets it from its
+// -ldflags value at startup; it stays "dev" otherwise.
 var Version = "dev"
 
+// Server is the local web UI.
 type Server struct {
-	config     atomic.Pointer[config.Config]
-	configPath string
-	reloadMu   sync.Mutex                            // guards cfgStamp
-	cfgStamp   string                                // version of config.yaml the current config came from
-	brokerDB   atomic.Pointer[broker.BrokerDatabase] // swapped by the "update broker list" action; read via brokers()
-	// BrokerOverride is serve's --brokers flag, so a reload resolves the list
-	// the same way startup did.
-	BrokerOverride string
-	// ListenHost is serve's --listen flag: the interface to bind. Empty means
-	// 127.0.0.1. Only a container should set anything else (see listenAddr).
-	ListenHost string
-	// AllowedHosts is serve's --allowed-hosts flag (or DELISTD_ALLOWED_HOSTS):
-	// hostnames/IPs permitted in Host headers. Wildcard "*" allows any.
-	AllowedHosts    []string
-	brokerUpdateURL string // broker.DefaultUpdateURL; tests point it at a local server
-	historyStore    *history.Store
-	tmplEngine      *emaTemplate.Engine
-	templates       map[string]*template.Template
-	httpServer      *http.Server
-	port            int
-	csrfKey         []byte
-	sessions        *SessionStore
-	rateLimiter     *RateLimiter
-	jobManager      *JobManager
-	dataDir         string // config directory: schedule lock and state
+	// Settings the caller sets after NewServer.
+	BrokerOverride string   // serve's --brokers, so a reload resolves the list as startup did
+	ListenHost     string   // serve's --listen; empty binds 127.0.0.1, anything else is for containers
+	AllowedHosts   []string // serve's --allowed-hosts / DELISTD_ALLOWED_HOSTS; "*" allows any Host
 
-	// In-app scheduler (scheduler.go). The OS hooks are fields so tests
-	// don't touch the real launchd/systemd setup.
-	cycleMu       sync.Mutex
-	cycleRunning  bool
+	// State shared with the handlers. config and brokerDB are swapped whole,
+	// so read them through getConfig and brokers.
+	config       atomic.Pointer[config.Config]
+	brokerDB     atomic.Pointer[broker.BrokerDatabase]
+	configPath   string
+	dataDir      string // the config directory: schedule lock and state live here
+	reloadMu     sync.Mutex
+	cfgStamp     string // version of config.yaml the current config came from (guarded by reloadMu)
+	historyStore *history.Store
+	tmplEngine   *emailtmpl.Engine
+	templates    map[string]*template.Template
+	sessions     *SessionStore
+	rateLimiter  *RateLimiter
+	jobManager   *JobManager
+	port         int
+
+	brokerUpdateURL string // broker.DefaultUpdateURL; tests point it at a local server
+
+	// Lifecycle, guarded by lifeMu.
+	lifeMu        sync.Mutex
+	httpServer    *http.Server
 	stopScheduler context.CancelFunc
-	lifeMu        sync.Mutex // httpServer, stopScheduler, shutDown
 	shutDown      bool
-	osInstalled   func() bool
-	installOS     func(schedule.Job) error
-	removeOS      func() error
+
+	// The in-app scheduler (scheduler.go). The OS hooks are fields so tests
+	// never touch the real launchd or systemd.
+	cycleMu      sync.Mutex
+	cycleRunning bool
+	osInstalled  func() bool
+	installOS    func(schedule.Job) error
+	removeOS     func() error
 }
 
-func NewServer(port int, cfg *config.Config, configPath string, brokerDB *broker.BrokerDatabase, historyStore *history.Store, tmplEngine *emaTemplate.Engine) (*Server, error) {
-	csrfKey := make([]byte, 32)
-	if _, err := rand.Read(csrfKey); err != nil {
-		return nil, fmt.Errorf("failed to generate CSRF key: %w", err)
-	}
-
-	// job file next to the config, like history.DBPathFor; configPath is
-	// "" only in tests
-	dataDir := filepath.Dir(configPath)
-	if configPath == "" {
-		home, _ := os.UserHomeDir()
-		dataDir = filepath.Join(home, ".eraser")
-	}
-
-	s := &Server{
-		configPath:   configPath,
-		historyStore: historyStore,
-		tmplEngine:   tmplEngine,
-		port:         port,
-		csrfKey:      csrfKey,
-		sessions:     NewSessionStore(defaultSessionTTL),
-		rateLimiter:  NewRateLimiter(defaultRateLimit, defaultRateWindow),
-		jobManager:   NewJobManager(),
-		dataDir:      dataDir,
-		osInstalled:  schedule.Installed,
-		installOS:    schedule.Install,
-		removeOS:     schedule.Remove,
-	}
-	s.config.Store(cfg)
-	if configPath != "" {
-		// "none" (no file yet) differs from any real stamp, so a config.yaml
-		// created later by the CLI is picked up.
-		if s.cfgStamp = fileStamp(configPath); s.cfgStamp == "" {
-			s.cfgStamp = "none"
-		}
-	}
-
-	// Paused send jobs used to be saved here for resume-on-restart; that's
-	// gone, so drop any leftovers.
-	if configPath != "" {
-		leftovers, _ := filepath.Glob(filepath.Join(dataDir, "pending_job*.json"))
-		for _, f := range leftovers {
-			_ = os.Remove(f)
-		}
-	}
-
-	tmpl, err := s.parseTemplates()
+// NewServer wires a server around an already loaded config, broker list,
+// history store and template engine. configPath is empty only in tests.
+func NewServer(port int, cfg *config.Config, configPath string, brokerDB *broker.BrokerDatabase, store *history.Store, engine *emailtmpl.Engine) (*Server, error) {
+	pages, err := loadTemplates()
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse templates: %w", err)
 	}
-	s.templates = tmpl
+
+	s := &Server{
+		configPath:      configPath,
+		dataDir:         dataDirFor(configPath),
+		historyStore:    store,
+		tmplEngine:      engine,
+		templates:       pages,
+		sessions:        NewSessionStore(defaultSessionTTL),
+		rateLimiter:     NewRateLimiter(defaultRateLimit, defaultRateWindow),
+		jobManager:      NewJobManager(),
+		port:            port,
+		brokerUpdateURL: broker.DefaultUpdateURL,
+		osInstalled:     schedule.Installed,
+		installOS:       schedule.Install,
+		removeOS:        schedule.Remove,
+	}
+	s.config.Store(cfg)
 	s.brokerDB.Store(brokerDB)
-	s.brokerUpdateURL = broker.DefaultUpdateURL
+
+	if configPath != "" {
+		// "none" (no file yet) differs from every real stamp, so a config.yaml
+		// the CLI creates later is picked up.
+		if s.cfgStamp = fileStamp(configPath); s.cfgStamp == "" {
+			s.cfgStamp = "none"
+		}
+		removeStaleJobFiles(s.dataDir)
+	}
 	return s, nil
 }
 
-// brokers returns the current broker list; see getConfig for why it's atomic.
-func (s *Server) brokers() *broker.BrokerDatabase {
-	return s.brokerDB.Load()
+// dataDirFor is the config's directory, or the default data directory when
+// there is no config path (tests).
+func dataDirFor(configPath string) string {
+	if configPath != "" {
+		return filepath.Dir(configPath)
+	}
+	home, _ := os.UserHomeDir()
+	return datadir.Of(home)
 }
 
-// getConfig returns the current config. It's an atomic.Pointer because
-// settings handlers write it while handlers and send jobs read it; writers
-// load-copy-mutate-store.
-func (s *Server) getConfig() *config.Config {
-	return s.config.Load()
+// removeStaleJobFiles drops the files paused send jobs were once saved to for
+// resuming after a restart; nothing writes or reads them any more.
+func removeStaleJobFiles(dir string) {
+	stale, _ := filepath.Glob(filepath.Join(dir, "pending_job*.json"))
+	for _, f := range stale {
+		_ = os.Remove(f)
+	}
 }
 
-// maxFormBodyBytes caps the size of request bodies read by ParseForm, so a
-// misbehaving or malicious client can't make a form-parsing handler buffer
-// an unbounded body in memory.
-const maxFormBodyBytes = 1 << 20 // 1MB
+// brokers is the current broker list.
+func (s *Server) brokers() *broker.BrokerDatabase { return s.brokerDB.Load() }
 
-// limitFormBody wraps r.Body in a MaxBytesReader before the handler calls
-// r.ParseForm()/r.FormValue(). w is passed through to MaxBytesReader so it
-// can send a 413 response if the client keeps writing past the limit.
-func limitFormBody(w http.ResponseWriter, r *http.Request) {
-	r.Body = http.MaxBytesReader(w, r.Body, maxFormBodyBytes)
-}
+// getConfig is the current config. Settings handlers write it while other
+// handlers and the send job read it, so writers load, copy, mutate and store.
+func (s *Server) getConfig() *config.Config { return s.config.Load() }
 
-// parseTemplates loads and parses all HTML templates
-// Each page gets its own template set to avoid "content" block conflicts
-func (s *Server) parseTemplates() (map[string]*template.Template, error) {
-	funcs := template.FuncMap{
-		"pipelineLabel": pipelineLabel,
-		"formatTime": func(t time.Time) string {
-			return t.Format("Jan 2, 2006 3:04 PM")
-		},
-		"formatDate": func(t time.Time) string {
-			return t.Format("Jan 2, 2006")
-		},
-		"providerName": config.ProviderName,
-		"countries":    country.All,
-		"countryCode": func(s string) string {
-			c, _ := country.Code(s)
-			return c
-		},
-		"add": func(a, b int) int {
-			return a + b
-		},
-		// percent formats a 0..1 confidence score as a whole-number percentage.
-		"percent": func(f float64) string {
-			return fmt.Sprintf("%.0f%%", f*100)
-		},
-	}
-
-	layoutContent, err := templatesFS.ReadFile("templates/layout.html")
-	if err != nil {
-		return nil, fmt.Errorf("failed to read layout template: %w", err)
-	}
-
-	// Read all partial templates, keyed by their name relative to templates/
-	// (e.g. "partials/broker-list.html").
-	partialTemplates := make(map[string]string)
-	err = fs.WalkDir(templatesFS, "templates/partials", func(path string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".html") {
-			return err
-		}
-		content, err := templatesFS.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		partialTemplates[path[len("templates/"):]] = string(content)
-		return nil
-	})
-	if err != nil && !strings.Contains(err.Error(), "file does not exist") {
-		return nil, fmt.Errorf("failed to read partials: %w", err)
-	}
-
-	// Map to hold all page templates
-	templates := make(map[string]*template.Template)
-
-	// Walk through all page templates and create separate template sets
-	err = fs.WalkDir(templatesFS, "templates", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() || strings.Contains(path, "/partials/") || path == "templates/layout.html" {
-			return nil
-		}
-		if !strings.HasSuffix(path, ".html") {
-			return nil
-		}
-
-		content, err := templatesFS.ReadFile(path)
-		if err != nil {
-			return fmt.Errorf("failed to read template %s: %w", path, err)
-		}
-
-		name := path[len("templates/"):]
-		pageTmpl := template.New(name).Funcs(funcs)
-
-		_, err = pageTmpl.Parse(string(layoutContent))
-		if err != nil {
-			return fmt.Errorf("failed to parse layout for %s: %w", name, err)
-		}
-
-		// Parse each partial as a named associated template, so a page can invoke
-		// it as {{template "partials/x.html" .}} (or with (dict ...) for multiple
-		// args). See docs/code-patterns.md.
-		for pName, pContent := range partialTemplates {
-			if _, err = pageTmpl.New(pName).Parse(pContent); err != nil {
-				return fmt.Errorf("failed to parse partial %s for %s: %w", pName, name, err)
-			}
-		}
-
-		// Parse the page content (this defines "content" block for this specific page)
-		_, err = pageTmpl.Parse(string(content))
-		if err != nil {
-			return fmt.Errorf("failed to parse template %s: %w", name, err)
-		}
-
-		templates[name] = pageTmpl
-
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	// each partial standalone for HTMX fragments, all associated so one
-	// partial can include another
-	for entry := range partialTemplates {
-		set := template.New("").Funcs(funcs)
-		for pName, pContent := range partialTemplates {
-			if _, err = set.New(pName).Parse(pContent); err != nil {
-				return nil, fmt.Errorf("failed to parse partial %s: %w", pName, err)
-			}
-		}
-		templates[entry] = set.Lookup(entry)
-	}
-
-	return templates, nil
-}
-
-// Start starts the web server and opens the browser
+// Start serves until Shutdown. It returns at once if Shutdown already ran.
 func (s *Server) Start() error {
 	router := s.setupRouter()
 
-	// serve's Ctrl+C handler can call Shutdown before or during this
 	s.lifeMu.Lock()
 	if s.shutDown {
 		s.lifeMu.Unlock()
 		return nil
 	}
-	s.httpServer = &http.Server{
+	srv := &http.Server{
 		Addr:         listenAddr(s.ListenHost, s.port),
 		Handler:      router,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  60 * time.Second,
 	}
-	ctx, cancel := context.WithCancel(context.Background())
-	s.stopScheduler = cancel
-	srv := s.httpServer
+	s.httpServer = srv
+	schedCtx, stopSched := context.WithCancel(context.Background())
+	s.stopScheduler = stopSched
 	s.lifeMu.Unlock()
 
-	// listen first: open the browser only once there's a server to load
+	// Listen before opening the browser, so there is a server to load.
 	ln, err := net.Listen("tcp", srv.Addr)
 	if err != nil {
-		cancel()
+		stopSched()
 		return fmt.Errorf("server error: %w", err)
 	}
 
-	go s.runScheduler(ctx)
-	// a non-loopback bind means a container: there's no browser to open
-	if IsLoopbackListen(s.ListenHost) {
+	go s.runScheduler(schedCtx)
+	if IsLoopbackListen(s.ListenHost) { // a non-loopback bind is a container: no browser there
 		go OpenBrowser(fmt.Sprintf("http://localhost:%d", s.port))
 	}
-
 	fmt.Printf("Starting Delistd web UI at http://localhost:%d\n", s.port)
 	fmt.Println("Press Ctrl+C to stop")
 
-	if err := srv.Serve(ln); err != nil && err != http.ErrServerClosed {
+	if err := srv.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("server error: %w", err)
 	}
-
 	return nil
 }
 
-// Shutdown stops the server; called before Start, Start returns at once.
+// Shutdown stops the scheduler and the server. Called before Start, it makes
+// Start return immediately.
 func (s *Server) Shutdown(ctx context.Context) error {
 	s.lifeMu.Lock()
 	defer s.lifeMu.Unlock()
@@ -382,612 +188,4 @@ func (s *Server) Shutdown(ctx context.Context) error {
 		return nil
 	}
 	return s.httpServer.Shutdown(ctx)
-}
-
-// setupRouter configures all routes
-func (s *Server) setupRouter() *chi.Mux {
-	r := chi.NewRouter()
-
-	// Middleware
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(s.reloadConfigOnChange)
-	r.Use(s.requireUnlock)
-	r.Use(middleware.Compress(5))
-	r.Use(s.requireAllowedHost)
-	r.Use(securityHeaders)
-
-	// filippo.io/csrf checks Sec-Fetch-Site, not tokens (and isn't the
-	// unmaintained gorilla/csrf, CVE-2025-47909). A DNS-rebound hostname still
-	// reads as same-origin, so requireAllowedHost checks Host too.
-	r.Use(csrf.Protect(s.csrfKey))
-
-	// Static files
-	staticSub, _ := fs.Sub(staticFS, "static")
-	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(staticSub))))
-
-	// Routes
-	r.Get("/", s.handleDashboard)
-	r.Get("/brokers", s.handleBrokers)
-	r.Get("/brokers/new", s.handleBrokerNew)
-	r.Post("/brokers/new", s.handleBrokerNew)
-	r.Get("/brokers/{brokerID}/email", s.handleBrokerEmail)
-	r.Get("/history", s.handleHistory)
-	r.Get("/export", s.handleExport)
-	r.Get("/export/drafts.zip", s.handleDraftsZip)
-	r.Get("/unlock", s.handleUnlock)
-	r.Post("/upgrade-notice/dismiss", s.handleDismissUpgradeNotice)
-	r.Post("/whats-new/dismiss", s.handleDismissWhatsNew)
-	r.Post("/renamed/dismiss", s.handleDismissRenamed)
-	r.Post("/unlock", s.handleUnlock)
-	r.Get("/settings", s.handleSettings)
-	r.Post("/settings/passphrase", s.handleSettingsPassphrase)
-	r.Post("/settings/inbox", s.handleSettingsInbox)
-	r.Post("/settings/options", s.handleSettingsOptions)
-	r.Post("/settings/automation", s.handleSettingsAutomation)
-	r.Post("/settings/brokers/update", s.handleSettingsBrokersUpdate)
-	r.Get("/settings/profiles/new", s.handleSettingsProfileNew)
-	r.Post("/settings/profiles/new", s.handleSettingsProfileNew)
-	r.Get("/settings/profiles/{profileID}/edit", s.handleSettingsProfileEdit)
-	r.Post("/settings/profiles/{profileID}/edit", s.handleSettingsProfileEdit)
-	r.Post("/settings/profiles/{profileID}/delete", s.handleSettingsProfileDelete)
-	r.Get("/pipeline", s.handlePipeline)
-	r.Get("/pipeline/responses/{responseID}", s.handleResponseReview)
-	r.Get("/automation", s.handleAutomation)
-	r.Post("/automation/approve", s.handleAutomationApprove)
-	r.Get("/tasks", s.handleTasks)
-	r.Get("/tasks/{taskID}", s.handleTaskDetail)
-	r.Get("/tasks/{taskID}/screenshot", s.handleTaskScreenshot)
-	r.Get("/tasks/{taskID}/helper", s.handleTaskHelper)
-	r.Post("/tasks/{taskID}/complete", s.handleTaskComplete)
-	r.Post("/tasks/{taskID}/skip", s.handleTaskSkip)
-	r.Get("/forms", s.handleForms)
-	r.Post("/forms/{brokerID}/complete", s.handleFormComplete)
-	r.Post("/forms/{brokerID}/skip", s.handleFormSkip)
-
-	r.Post("/oauth/start", s.handleOAuthStart)
-	r.Get("/oauth/status", s.handleOAuthStatus)
-
-	r.Route("/setup", func(r chi.Router) {
-		r.Get("/", s.handleSetupWelcome)
-		r.Get("/profile", s.handleSetupProfile)
-		r.Post("/profile", s.handleSetupProfile)
-		r.Get("/email", s.handleSetupEmail)
-		r.Post("/email", s.handleSetupEmail)
-		r.Get("/test", s.handleSetupTest)
-		r.Post("/test/send", s.handleSetupTestSend)
-		r.Get("/complete", s.handleSetupComplete)
-	})
-
-	// API routes (for HTMX)
-	r.Route("/api", func(r chi.Router) {
-		r.Get("/brokers", s.handleAPIBrokers)
-		r.Get("/brokers/{brokerID}/status", s.handleAPIBrokerStatus)
-		r.Post("/brokers/{brokerID}/exclude", s.handleAPIExcludeBroker)
-		r.Post("/brokers/{brokerID}/include", s.handleAPIIncludeBroker)
-		r.Post("/brokers/{brokerID}/mark-sent", s.handleAPIMarkSent)
-		r.Post("/brokers/{brokerID}/mark-bounced", s.handleAPIMarkBounced)
-		r.Delete("/history/failed", s.handleAPIDeleteFailed)
-		r.Delete("/history", s.handleAPIDeleteAllHistory)
-		r.Post("/send/{brokerID}", s.handleAPISendOne)
-		r.Post("/send-all", s.handleAPISendAll)
-		r.Get("/job/active", s.handleAPIJobActive)
-		r.Get("/job/{jobID}/status", s.handleAPIJobStatus)
-		r.Post("/job/{jobID}/cancel", s.handleAPIJobCancel)
-		r.Get("/pipeline/responses", s.handleAPIResponses)
-		r.Post("/pipeline/responses/{responseID}/reviewed", s.handleAPIResponseReviewed)
-		r.Post("/inbox/scan", s.handleAPIInboxScan)
-		r.Post("/inbox/rescan", s.handleAPIInboxRescan)
-		r.Post("/inbox/reclassify", s.handleAPIReclassify)
-		r.Post("/inbox/bounces", s.handleAPIBounces)
-		r.Post("/inbox/bounces/clear", s.handleAPIBouncesClear)
-		r.Post("/profile", s.handleAPISwitchProfile)
-	})
-
-	return r
-}
-
-// requireAllowedHost rejects Host headers that are not loopback, private IPs (when listening non-loopback),
-// or explicitly allowed (DNS rebinding guard).
-func (s *Server) requireAllowedHost(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !s.hostAllowed(r.Host) {
-			http.Error(w, "Forbidden: this server only accepts requests addressed to localhost or configured allowed hosts", http.StatusForbidden)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
-}
-
-// requireLoopbackHost rejects non-loopback Host headers (DNS rebinding).
-func requireLoopbackHost(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !hostAllowed(r.Host) {
-			http.Error(w, "Forbidden: this server only accepts requests addressed to localhost", http.StatusForbidden)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
-}
-
-// listenAddr is the address Start binds: host (default 127.0.0.1) and port.
-func listenAddr(host string, port int) string {
-	if host == "" {
-		host = "127.0.0.1"
-	}
-	return net.JoinHostPort(host, strconv.Itoa(port))
-}
-
-// IsLoopbackListen reports whether host (serve's --listen) binds loopback only.
-func IsLoopbackListen(host string) bool {
-	if host == "" || strings.EqualFold(host, "localhost") {
-		return true
-	}
-	ip := net.ParseIP(host)
-	return ip != nil && ip.IsLoopback()
-}
-
-// hostAllowed reports whether a Host header names loopback.
-func hostAllowed(host string) bool {
-	return isHostAllowed(host, nil)
-}
-
-// hostAllowed reports whether host is permitted by this server.
-func (s *Server) hostAllowed(host string) bool {
-	return isHostAllowed(host, s.AllowedHosts)
-}
-
-// isHostAllowed checks whether host is loopback or matches allowedHosts.
-// Patterns in allowedHosts may be:
-//   - "*" (allow any Host)
-//   - "lan" or "private" (allow any private RFC 1918/4193/link-local/Tailscale IP)
-//   - "local" (allow names only a local network can resolve: a single label like
-//     "tower", or one under .local, .lan, .home.arpa or .internal)
-//   - an IP address (e.g. "192.168.1.100")
-//   - a CIDR network (e.g. "10.0.0.0/8", "192.168.0.0/16")
-//   - a hostname (e.g. "unraid.local")
-//   - a wildcard domain (e.g. "*.local", "*.lan")
-func isHostAllowed(host string, allowedHosts []string) bool {
-	h := host
-	if hh, _, err := net.SplitHostPort(host); err == nil {
-		h = hh
-	}
-	h = strings.ToLower(strings.Trim(strings.TrimSpace(h), "[]"))
-
-	switch h {
-	case "127.0.0.1", "::1", "localhost":
-		return true
-	}
-	if ip := net.ParseIP(h); ip != nil && ip.IsLoopback() {
-		return true
-	}
-
-	for _, pattern := range allowedHosts {
-		p := strings.ToLower(strings.TrimSpace(pattern))
-		if p == "" {
-			continue
-		}
-		if p == "*" {
-			return true
-		}
-		if p == "lan" || p == "private" {
-			if ip := net.ParseIP(h); ip != nil && isPrivateOrLocalIP(ip) {
-				return true
-			}
-			continue
-		}
-		if p == "local" {
-			if isLocalName(h) {
-				return true
-			}
-			continue
-		}
-		if ph, _, err := net.SplitHostPort(p); err == nil {
-			p = ph
-		}
-		p = strings.Trim(p, "[]")
-		if p == h {
-			return true
-		}
-		if strings.HasPrefix(p, "*.") {
-			suffix := strings.TrimPrefix(p, "*")
-			if strings.HasSuffix(h, suffix) {
-				return true
-			}
-		}
-		if _, cidr, err := net.ParseCIDR(pattern); err == nil {
-			if ip := net.ParseIP(h); ip != nil && cidr.Contains(ip) {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-// isLocalName reports whether h is a name only a local network can resolve: a
-// single label ("tower") or one under a local-only suffix. DNS rebinding needs a
-// public hostname the attacker controls, so none of these can be one.
-func isLocalName(h string) bool {
-	if h == "" || net.ParseIP(h) != nil {
-		return false
-	}
-	if !strings.Contains(h, ".") {
-		return true
-	}
-	for _, suffix := range []string{".local", ".lan", ".home.arpa", ".internal"} {
-		if strings.HasSuffix(h, suffix) {
-			return true
-		}
-	}
-	return false
-}
-
-// isPrivateOrLocalIP reports whether an IP is loopback, RFC 1918 private,
-// link-local, RFC 4193 IPv6 ULA, or RFC 6598 CGNAT / Tailscale (100.64.0.0/10).
-func isPrivateOrLocalIP(ip net.IP) bool {
-	if ip == nil {
-		return false
-	}
-	if ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
-		return true
-	}
-	// Check IPv4 Carrier-Grade NAT (RFC 6598: 100.64.0.0/10), used by Tailscale and CGNAT
-	if ip4 := ip.To4(); ip4 != nil {
-		if ip4[0] == 100 && (ip4[1]&0xc0) == 64 {
-			return true
-		}
-	}
-	return false
-}
-
-// ParseAllowedHosts splits a comma-separated list of host patterns, trimming whitespace.
-func ParseAllowedHosts(raw string) []string {
-	if raw == "" {
-		return nil
-	}
-	parts := strings.Split(raw, ",")
-	var hosts []string
-	for _, p := range parts {
-		p = strings.TrimSpace(p)
-		if p != "" {
-			hosts = append(hosts, p)
-		}
-	}
-	return hosts
-}
-
-// securityHeaders adds security headers to all responses
-func securityHeaders(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Prevent clickjacking
-		w.Header().Set("X-Frame-Options", "DENY")
-
-		// Prevent MIME type sniffing
-		w.Header().Set("X-Content-Type-Options", "nosniff")
-
-		// Control referrer information
-		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
-
-		// CSP: unsafe-inline covers layout.html's <style>, style attributes,
-		// HTMX attributes and small inline scripts. No unsafe-eval; all
-		// assets self-hosted under /static/.
-		csp := "default-src 'self'; " +
-			"script-src 'self' 'unsafe-inline'; " +
-			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-			"img-src 'self' data:; " +
-			"font-src 'self' https://fonts.gstatic.com; " +
-			"connect-src 'self'; " +
-			"object-src 'none'; " +
-			"frame-ancestors 'none'; " +
-			"form-action 'self'; " +
-			"base-uri 'self'"
-		w.Header().Set("Content-Security-Policy", csp)
-
-		// Prevent caching of sensitive pages - credentials should never be cached
-		// Static files are excluded from this via separate cache headers
-		if !strings.HasPrefix(r.URL.Path, "/static/") {
-			w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, private")
-			w.Header().Set("Pragma", "no-cache")
-			w.Header().Set("Expires", "0")
-		}
-
-		w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()")
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-// OpenBrowser opens url in the default browser; tests replace it.
-var OpenBrowser = func(url string) {
-	if cmd, args := browserCommand(runtime.GOOS, url); cmd != "" {
-		_ = exec.Command(cmd, args...).Start()
-	}
-}
-
-// browserCommand is the command that opens url on goos ("" = unsupported).
-func browserCommand(goos, url string) (string, []string) {
-	switch goos {
-	case "darwin":
-		return "open", []string{url}
-	case "linux":
-		return "xdg-open", []string{url}
-	case "windows":
-		return "cmd", []string{"/c", "start", url}
-	}
-	return "", nil
-}
-
-// activeProfileCookie holds the web UI's profile choice. Not HttpOnly/Secure:
-// no secret, and it's validated against the config (bad value = first profile).
-const activeProfileCookie = "eraser_profile"
-
-// activeProfile is the request's profile: the cookie if it names a configured
-// one, else the first. Unlike --profile, never ambiguous. Use this, not
-// s.config.Profile.
-func (s *Server) activeProfile(r *http.Request) config.NamedProfile {
-	cfg := s.getConfig()
-	if cfg == nil {
-		return config.NamedProfile{ID: config.DefaultProfileID}
-	}
-	profiles := cfg.GetProfiles()
-	if cookie, err := r.Cookie(activeProfileCookie); err == nil {
-		for _, p := range profiles {
-			if p.ID == cookie.Value {
-				return p
-			}
-		}
-	}
-	return profiles[0]
-}
-
-// Helper methods
-
-type Stats struct {
-	TotalBrokers int
-	Sent         int
-	Failed       int
-	Pending      int
-}
-
-// BrokerWithStatus combines broker info with history status
-type BrokerWithStatus struct {
-	broker.Broker
-	Status     string // "never", "sent", "failed"
-	LastSent   string // formatted date or empty
-	TotalSent  int
-	Excluded   bool // true if excluded via config.Options.ExcludedBrokers/ExcludedCategories
-	ManualMode bool // config.Options.send_mode == "manual" - row shows "Email" + "Mark sent" instead of "Send"
-	lastSentAt time.Time
-}
-
-// countryHidden counts brokers the profile's country takes out of its list, for
-// the "N hidden" note on the brokers page. Zero when the country is unset.
-func (s *Server) countryHidden(profileID string) (n int, country string) {
-	cfg := s.getConfig()
-	if cfg == nil {
-		return 0, ""
-	}
-	p, err := cfg.GetProfile(profileID)
-	if err != nil || p.Country == "" {
-		return 0, ""
-	}
-	for _, b := range s.brokers().Brokers {
-		if !b.AppliesTo(p.Country) {
-			n++
-		}
-	}
-	return n, p.Country
-}
-
-// getBrokersWithStatus returns brokers with history status. Excluded brokers
-// are dropped unless showExcluded, where they're kept with Excluded set.
-func (s *Server) getBrokersWithStatus(profileID, search, category, region, statusFilter string, includeIDs, excludeIDs []string, missingEmail, showExcluded bool) []BrokerWithStatus {
-	// Get all broker statuses from history, scoped to the active profile
-	var brokerStatuses map[string]history.BrokerStatus
-	if s.historyStore != nil {
-		brokerStatuses, _ = s.historyStore.GetAllBrokerStatuses(profileID)
-	}
-	if brokerStatuses == nil {
-		brokerStatuses = make(map[string]history.BrokerStatus)
-	}
-
-	// same exclusions as broker.Filter; the web UI used to skip them
-	var excludedIDs, excludedNames, excludedCats, configuredRegions map[string]bool
-	var profileCountry string
-	if cfg := s.getConfig(); cfg != nil {
-		if p, err := cfg.GetProfile(profileID); err == nil {
-			profileCountry = p.Country
-		}
-		excludedIDs = make(map[string]bool, len(cfg.Options.ExcludedBrokers))
-		excludedNames = make(map[string]bool, len(cfg.Options.ExcludedBrokers))
-		for _, e := range cfg.Options.ExcludedBrokers {
-			e = strings.ToLower(e)
-			excludedIDs[e] = true
-			excludedNames[e] = true
-		}
-		excludedCats = make(map[string]bool, len(cfg.Options.ExcludedCategories))
-		for _, c := range cfg.Options.ExcludedCategories {
-			excludedCats[strings.ToLower(strings.TrimSpace(c))] = true
-		}
-		configuredRegions = broker.Set(cfg.Options.Regions)
-	}
-
-	search = strings.ToLower(strings.TrimSpace(search))
-	category = strings.ToLower(strings.TrimSpace(category))
-	region = strings.ToLower(strings.TrimSpace(region))
-	statusFilter = strings.ToLower(strings.TrimSpace(statusFilter))
-	includeSet, runExcludeSet := broker.Set(includeIDs), broker.Set(excludeIDs)
-
-	manualMode := false
-	if cfg := s.getConfig(); cfg != nil {
-		manualMode = cfg.IsManualSend()
-	}
-
-	var result []BrokerWithStatus
-	for _, b := range s.brokers().Brokers {
-		id := strings.ToLower(b.ID)
-		if len(includeSet) > 0 && !includeSet[id] {
-			continue
-		}
-		excluded := excludedIDs[id] || excludedNames[strings.ToLower(b.Name)] || excludedCats[strings.ToLower(b.Category)] || runExcludeSet[id]
-		if excluded && !showExcluded {
-			continue
-		}
-
-		// Search filter
-		if search != "" {
-			name := strings.ToLower(b.Name)
-			email := strings.ToLower(b.Email)
-			if !strings.Contains(id, search) && !strings.Contains(name, search) && !strings.Contains(email, search) {
-				continue
-			}
-		}
-
-		// Category filter
-		if category != "" && strings.ToLower(b.Category) != category {
-			continue
-		}
-
-		if !b.AppliesTo(profileCountry) {
-			continue
-		}
-
-		brokerRegion := strings.ToLower(b.Region)
-		if !b.InRegions(configuredRegions) {
-			continue
-		}
-		if region != "" && brokerRegion != region {
-			continue
-		}
-
-		// Missing-email filter - brokers with no contact address on file,
-		// mirrors the CLI's `list-brokers --missing-email`
-		if missingEmail && b.Email != "" {
-			continue
-		}
-
-		bws := BrokerWithStatus{
-			Broker:     b,
-			Status:     "never",
-			Excluded:   excluded,
-			ManualMode: manualMode,
-		}
-
-		if status, ok := brokerStatuses[b.ID]; ok {
-			bws.Status = string(status.Status)
-			bws.TotalSent = status.TotalSent
-			bws.lastSentAt = status.LastSent
-			if !status.LastSent.IsZero() {
-				bws.LastSent = status.LastSent.Format("Jan 2, 2006")
-			}
-		}
-
-		if statusFilter != "" && statusFilter != "all" {
-			if (statusFilter == "pending" || statusFilter == "never") && bws.Status != "never" {
-				continue
-			} else if statusFilter == "sent" && bws.Status != "sent" {
-				continue
-			} else if statusFilter == "failed" && bws.Status != "failed" {
-				continue
-			} else if statusFilter == "eligible" && bws.Status == "sent" && time.Since(bws.lastSentAt) < history.ResendCooldown {
-				continue
-			}
-		}
-
-		result = append(result, bws)
-	}
-
-	return result
-}
-
-func (s *Server) getUniqueValues(getter func(broker.Broker) string) []string {
-	seen := make(map[string]bool)
-	var vals []string
-	for _, b := range s.brokers().Brokers {
-		if v := getter(b); v != "" && !seen[v] {
-			seen[v] = true
-			vals = append(vals, v)
-		}
-	}
-	return vals
-}
-
-func (s *Server) getUniqueCategories() []string {
-	return s.getUniqueValues(func(b broker.Broker) string { return b.Category })
-}
-
-func (s *Server) getUniqueRegions() []string {
-	return s.getUniqueValues(func(b broker.Broker) string { return b.Region })
-}
-
-func (s *Server) getStats(profileID string) Stats {
-	stats := Stats{
-		TotalBrokers: len(s.brokers().Brokers),
-	}
-
-	if s.historyStore != nil {
-		_, sent, failed, err := s.historyStore.GetStats(profileID)
-		if err == nil {
-			stats.Sent = sent
-			stats.Failed = failed
-		}
-	}
-
-	stats.Pending = stats.TotalBrokers - stats.Sent - stats.Failed
-	if stats.Pending < 0 {
-		stats.Pending = 0
-	}
-
-	return stats
-}
-
-func (s *Server) getRecentHistory(profileID string, limit int) []history.Record {
-	if s.historyStore == nil {
-		return nil
-	}
-	records, _ := s.historyStore.GetRecentRequests(profileID, limit)
-	return records
-}
-
-func (s *Server) renderPartial(w http.ResponseWriter, name string, data interface{}) {
-	tmpl, ok := s.templates[name]
-	if !ok {
-		http.Error(w, "Template not found: "+name, http.StatusInternalServerError)
-		return
-	}
-	err := tmpl.Execute(w, data)
-	if err != nil {
-		http.Error(w, "Template error: "+err.Error(), http.StatusInternalServerError)
-	}
-}
-
-func (s *Server) renderWithCSRF(w http.ResponseWriter, r *http.Request, name string, data map[string]interface{}) {
-	// filippo.io/csrf ignores tokens; keep the keys empty so templates
-	// rendering {{.CSRFField}} / {{.CSRFToken}} don't break.
-	data["CSRFToken"] = ""
-	data["CSRFField"] = template.HTML("")
-
-	// Profiles/ActiveProfile always set, even with no config yet (first
-	// /setup): layout.html's len .Profiles failed on a missing key.
-	// The switcher hides itself for a single profile.
-	data["Profiles"] = []config.NamedProfile{}
-	data["ActiveProfile"] = config.NamedProfile{}
-	data["CurrentPath"] = r.URL.Path
-	data["Version"] = Version
-	data["UpgradeNotice"] = s.upgradeNotice()
-	if cfg := s.getConfig(); cfg != nil {
-		data["Profiles"] = cfg.GetProfiles()
-		data["ActiveProfile"] = s.activeProfile(r)
-	}
-
-	tmpl, ok := s.templates[name]
-	if !ok {
-		http.Error(w, "Template not found: "+name, http.StatusInternalServerError)
-		return
-	}
-	err := tmpl.ExecuteTemplate(w, "layout", data)
-	if err != nil {
-		http.Error(w, "Template error: "+err.Error(), http.StatusInternalServerError)
-	}
 }
