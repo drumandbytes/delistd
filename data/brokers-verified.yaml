@@ -24,7 +24,7 @@ brokers:
       opt_out_url: https://www.advancedbackgroundchecks.com/removal
       region: us
       category: background-check
-      notes: 'SWEEP-VERIFY 2026-09-13: No oag.ca.gov historical registration found under this name in a targeted search - kept on the strength of its own current, working privacy contact, not registry provenance.'
+      notes: 'SWEEP-VERIFY 2026-09-13: No oag.ca.gov historical registration found under this name in a targeted search - kept on the strength of its own current, working privacy contact, not registry provenance. 2026-11-26: privacy@advancedbackgroundchecks.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url.'
     - id: alliant-cooperative-data-solutions
       name: Alliant Cooperative Data Solutions LLC
       email: compliance@alliantdata.com
@@ -161,12 +161,12 @@ brokers:
       notes: Intelius LLC also operates ZabaSearch and US Search; their duplicate targets were merged here. Cross-checkable against the California CPPA data-broker registry.
     - id: kbm-group
       name: KBM GROUP LLC
-      email: DoNotMail@wundermanthompson.com
+      email: ""
       website: https://www.kbmg.com/
       opt_out_url: https://www.kbmg.com/about-us/ccpa-privacy-policy/#optout
       region: us
       category: marketing
-      notes: 'john.petrillo@wundermandata.com bounced - Gmail''s own delivery failure confirmed wundermandata.com can''t be found, even though kbmg.com (their actual site) is live. Per their CA data broker registration (oag.ca.gov), current contacts are DoNotMail@wundermanthompson.com and Rachel.glasser@wundermanthompson.com, phone 866-275-4526; opt-out form also on the CCPA privacy policy page above. Updated 2026-08-20. SWEEP-VERIFY 2026-09-13: Registration also independently confirmed at https://oag.ca.gov/data-broker/registration/186617.'
+      notes: 'john.petrillo@wundermandata.com bounced - Gmail''s own delivery failure confirmed wundermandata.com can''t be found, even though kbmg.com (their actual site) is live. Per their CA data broker registration (oag.ca.gov), current contacts are DoNotMail@wundermanthompson.com and Rachel.glasser@wundermanthompson.com, phone 866-275-4526; opt-out form also on the CCPA privacy policy page above. Updated 2026-08-20. SWEEP-VERIFY 2026-09-13: Registration also independently confirmed at https://oag.ca.gov/data-broker/registration/186617. 2026-11-26: DoNotMail@wundermanthompson.com bounced (550 5.1.1, user unknown). Email cleared; no working form on file, phone 866-275-4526 per the CA registration.'
     - id: kochava
       name: KOCHAVA Inc.
       email: legal@kochava.com
@@ -203,10 +203,10 @@ brokers:
       name: MyLife
       email: privacy@mylife.com
       website: https://www.mylife.com
-      opt_out_url: https://www.mylife.com/ccpa/index.pubview
+      opt_out_url: https://www.mylife.com/privacyrequest
       region: us
       category: people-search
-      notes: 'Insightbridge LLC is MyLife.com''s registered owner/operator (same entity for privacy-request purposes) - the separate insightbridge entry was merged into this one. SWEEP-VERIFY 2026-09-13: Confirmed data-broker registration: https://oag.ca.gov/data-broker/registration/539822.'
+      notes: 'Insightbridge LLC is MyLife.com''s registered owner/operator (same entity for privacy-request purposes) - the separate insightbridge entry was merged into this one. SWEEP-VERIFY 2026-09-13: Confirmed data-broker registration: https://oag.ca.gov/data-broker/registration/539822. 2026-11-26: privacy@mylife.com bounced (554 5.4.14, hop count exceeded, possible mail loop, reported twice). Routing fault on their side, email kept; if it keeps failing use opt_out_url. 2026-11-28: Old /ccpa/index.pubview form URL returns 404; replaced with /privacyrequest.'
     - id: neighborwho
       name: NeighborWho
       email: privacy@neighborwho.com
@@ -318,7 +318,7 @@ brokers:
       opt_out_url: https://www.usphonebook.com/opt-out
       region: us
       category: people-search
-      notes: 'SWEEP-VERIFY 2026-09-13: No oag.ca.gov historical registration found under this name in a targeted search - kept on the strength of its own current, working privacy contact, not registry provenance.'
+      notes: 'SWEEP-VERIFY 2026-09-13: No oag.ca.gov historical registration found under this name in a targeted search - kept on the strength of its own current, working privacy contact, not registry provenance. 2026-11-26: info@usphonebook.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url.'
     - id: versium-analytics
       name: Versium Analytics, Inc
       email: optout@versium.com

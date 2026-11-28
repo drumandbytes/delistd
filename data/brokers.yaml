@@ -63,6 +63,7 @@ brokers:
       opt_out_url: https://www.usphonebook.com/opt-out
       region: us
       category: people-search
+      notes: '2026-11-26: info@usphonebook.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url.'
     - id: thatsthem
       name: ThatsThem
       email: support@thatsthem.com
@@ -97,7 +98,7 @@ brokers:
       opt_out_url: https://www.mylife.com/privacyrequest
       region: us
       category: people-search
-      notes: Insightbridge LLC is MyLife.com's registered owner/operator (same entity for privacy-request purposes) - the separate insightbridge entry was merged into this one.
+      notes: 'Insightbridge LLC is MyLife.com''s registered owner/operator (same entity for privacy-request purposes) - the separate insightbridge entry was merged into this one. 2026-11-26: privacy@mylife.com bounced (554 5.4.14, hop count exceeded, possible mail loop, reported twice). Routing fault on their side, email kept; if it keeps failing use opt_out_url.'
     - id: pipl
       name: Pipl
       email: privacy@pipl.com
@@ -133,6 +134,7 @@ brokers:
       opt_out_url: https://www.advancedbackgroundchecks.com/opt-out
       region: us
       category: background-check
+      notes: '2026-11-26: privacy@advancedbackgroundchecks.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url.'
     - id: publicrecords360
       name: PublicRecords360
       email: custserv@publicrecords360.com
@@ -515,7 +517,7 @@ brokers:
       website: https://www.agrgroupinc.com/
       region: us
       category: marketing
-      notes: drieke@executiveenergy.com bounced - Gmail's own delivery failure confirmed the executiveenergy.com domain can't be found (not just a one-off DNS blip). All Global Resources operates as AGR Group under parent Executive Energy Management; agrgroupinc.com is live and privacy@agrgroupinc.com is their officially CA-registered contact per oag.ca.gov. Updated 2026-08-20.
+      notes: 'drieke@executiveenergy.com bounced - Gmail''s own delivery failure confirmed the executiveenergy.com domain can''t be found (not just a one-off DNS blip). All Global Resources operates as AGR Group under parent Executive Energy Management; agrgroupinc.com is live and privacy@agrgroupinc.com is their officially CA-registered contact per oag.ca.gov. Updated 2026-08-20. 2026-11-26: privacy@agrgroupinc.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; no form on file.'
     - id: all-good-media
       name: All Good Media LLC
       email: marwan@attribits.com
@@ -599,7 +601,7 @@ brokers:
       website: https://verinext.com/
       region: us
       category: marketing
-      notes: Anexinet merged into Verinext (2022); anexinet.com contact was dead. Updated 2026-08-20. Opt-out URL https://verinext.com/contact/ now redirects to https://verinext.com/contact-404/ (2026-10-04) - cleared, needs a current form.
+      notes: 'Anexinet merged into Verinext (2022); anexinet.com contact was dead. Updated 2026-08-20. Opt-out URL https://verinext.com/contact/ now redirects to https://verinext.com/contact-404/ (2026-10-04) - cleared, needs a current form. 2026-11-26: dpo@verinext.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; no form on file. 2026-11-28: verinext.com now redirects to arctiq.com, so the company appears to have rebranded again; contact route unverified.'
     - id: anne-lewis-strategies
       name: Anne Lewis Strategies, LLC
       email: info@missionwired.com
@@ -1592,9 +1594,10 @@ brokers:
       name: DIGITAL SEGMENT LLC
       email: info@digitalsegment.com
       website: https://www.digitalsegment.com/
+      opt_out_url: https://www.digitalsegment.com/about/opt-out/
       region: us
       category: marketing
-      notes: Opt-out URL https://www.digitalsegment.com/about/consumer-opt-out/ returns 404 (2026-10-04) - cleared, needs a current form.
+      notes: 'Opt-out URL https://www.digitalsegment.com/about/consumer-opt-out/ returns 404 (2026-10-04) - cleared, needs a current form. 2026-11-26: info@digitalsegment.com bounced (5.7.1, mail policy prohibited delivery). Not confirmed dead, email kept; no form on file. 2026-11-28: Opt-out page moved to /about/opt-out/ and lists info@digitalsegment.com and (610) 228-0906 as contacts; use the form there while email is rejected.'
     - id: digital-viking-media
       name: DIGITAL VIKING MEDIA Inc
       email: optout@digitalvikingmedia.com
@@ -2012,10 +2015,12 @@ brokers:
       category: marketing
     - id: fushia-media
       name: Fushia Media, LLC.
-      email: support@fushiamedia.com
+      email: ""
       website: https://www.fushiamedia.com/
+      opt_out_url: https://www.fushiamedia.com/request/delete
       region: us
       category: marketing
+      notes: '2026-11-26: support@fushiamedia.com bounced (554 5.2.2, mailbox full). Likely transient, email kept; no form on file. 2026-11-28: Privacy policy states deletion and opt-out requests are not accepted by email; use the deletion request form. Email cleared.'
     - id: g2-bankruptcy-risk-solutions
       name: G2 Bankruptcy Risk Solutions, Inc.
       email: ramtin.taheri@g2risksolutions.com
@@ -2452,11 +2457,12 @@ brokers:
       notes: Opt-out URL https://www.intellicorp.net/marketing/Your-California-Privacy-Rights returns 404 (2026-10-04) - cleared, needs a current form.
     - id: intentgine
       name: Intentgine Inc.
-      email: paul@intentgine.com
+      email: ""
       website: https://www.intentgine.com/
       opt_out_url: https://intentgine.com/ccpa-privacy/
       region: us
       category: marketing
+      notes: '2026-11-26: paul@intentgine.com bounced (5.1.3, account does not exist). Email cleared; use the CCPA form at opt_out_url.'
     - id: intent-iq
       name: Intent IQ LLC
       email: ""
@@ -2614,11 +2620,11 @@ brokers:
       researched: "2026-10-25"
     - id: kbm-group
       name: KBM GROUP LLC
-      email: DoNotMail@wundermanthompson.com
+      email: ""
       website: https://www.kbmg.com/
       region: us
       category: marketing
-      notes: john.petrillo@wundermandata.com bounced - Gmail's own delivery failure confirmed wundermandata.com can't be found, even though kbmg.com (their actual site) is live. Per their CA data broker registration (oag.ca.gov), current contacts are DoNotMail@wundermanthompson.com and Rachel.glasser@wundermanthompson.com, phone 866-275-4526; opt-out form also on the CCPA privacy policy page above. Updated 2026-08-20. Opt-out URL https://www.kbmg.com/about-us/ccpa-privacy-policy/#optout domain no longer resolves (2026-10-04) - cleared, needs a current form.
+      notes: 'john.petrillo@wundermandata.com bounced - Gmail''s own delivery failure confirmed wundermandata.com can''t be found, even though kbmg.com (their actual site) is live. Per their CA data broker registration (oag.ca.gov), current contacts are DoNotMail@wundermanthompson.com and Rachel.glasser@wundermanthompson.com, phone 866-275-4526; opt-out form also on the CCPA privacy policy page above. Updated 2026-08-20. Opt-out URL https://www.kbmg.com/about-us/ccpa-privacy-policy/#optout domain no longer resolves (2026-10-04) - cleared, needs a current form. 2026-11-26: DoNotMail@wundermanthompson.com bounced (550 5.1.1, user unknown). Email cleared; no working form on file, phone 866-275-4526 per the CA registration.'
     - id: kb-synergy
       name: KB Synergy Inc
       email: info@kbsynergy.com
@@ -2760,12 +2766,12 @@ brokers:
       notes: delete_mydata@leadpost.com replied with this form as the only submission method (reply received 2026-08-20).
     - id: leadsmarketcom
       name: Leadsmarket.Com LLC
-      email: legal@leadsmarket.com
+      email: ""
       website: https://www.leadsmarket.com/
       opt_out_url: https://www.leadsmarket.com/privacy-policy
       region: us
       category: marketing
-      notes: 'SWEEP 2026-09-12: Leadsmarket.com is a lead-gen/marketing data broker (financial services leads); on-file opt_out_url has a stray trailing period making it a broken link. (source: https://www.leadsmarket.com/)'
+      notes: 'SWEEP 2026-09-12: Leadsmarket.com is a lead-gen/marketing data broker (financial services leads); on-file opt_out_url has a stray trailing period making it a broken link. (source: https://www.leadsmarket.com/) 2026-11-26: legal@leadsmarket.com bounced (550 5.1.1, mailbox does not exist, bounced more than once). Email cleared; use opt_out_url.'
     - id: leadspace
       name: Leadspace, Inc.
       email: privacy_registration@leadspace.com
@@ -2838,12 +2844,12 @@ brokers:
       category: marketing
     - id: list-service-direct
       name: List Service Direct Inc.
-      email: dataremoval@listservicedirect.com
+      email: info@listservicedirect.com
       website: https://www.listservicedirect.com/
       opt_out_url: https://listservicedirect.com/opt-out/
       region: us
       category: marketing
-      notes: dataremoval@listservicedirect.com bounced with "mailbox full" (reply received 2026-08-20) - likely transient, safe to retry; opt_out_url is also on file as a fallback.
+      notes: 'dataremoval@listservicedirect.com bounced with "mailbox full" (reply received 2026-08-20) - likely transient, safe to retry; opt_out_url is also on file as a fallback. 2026-11-26: dataremoval@listservicedirect.com bounced (554 5.2.2, mailbox full). Repeats the August failure; likely transient, email kept, opt_out_url is the fallback. 2026-11-28: dataremoval@ is unmonitored (full twice); the privacy policy lists info@listservicedirect.com, now used instead. Untested.'
     - id: listsonline
       name: Listsonline
       email: privacyofficer@listsonline.com
@@ -3006,10 +3012,10 @@ brokers:
       name: Marketops LLC
       email: privacy@marketops.com
       website: https://www.marketops.com/
-      opt_out_url: https://marketops.com/privacy-options/
+      opt_out_url: https://marketops.com/data-inquiries/
       region: us
       category: marketing
-      notes: 'SWEEP 2026-09-12: Registered CA data broker; their published privacy policy lists privacy@marketops.com as the privacy contact, not the personal address (james@marketops.com) currently on file. (source: https://marketops.com/privacy-policy/)'
+      notes: 'SWEEP 2026-09-12: Registered CA data broker; their published privacy policy lists privacy@marketops.com as the privacy contact, not the personal address (james@marketops.com) currently on file. (source: https://marketops.com/privacy-policy/) 2026-11-26: privacy@marketops.com bounced (5.7.1, delivery loop at ehsan@marketops.com). Routing fault on their side, email kept; if it keeps failing use opt_out_url. 2026-11-28: Their /data-inquiries/ page has a web form; use it while the privacy@ mail loop persists.'
     - id: martin-data
       name: Martin Data LLC
       email: aj@usinfosearch.com
@@ -3208,7 +3214,7 @@ brokers:
       opt_out_url: https://modfxlabs.com/privacy
       region: us
       category: marketing
-      notes: 'SWEEP 2026-09-12: CA-registered mobile-location data broker; on-file mandeep@modfxlabs.com is an individual employee address, while the company publishes opt.out@modfxlabs.com as its dedicated privacy opt-out contact. (source: https://oag.ca.gov/data-broker/registration/553004)'
+      notes: 'SWEEP 2026-09-12: CA-registered mobile-location data broker; on-file mandeep@modfxlabs.com is an individual employee address, while the company publishes opt.out@modfxlabs.com as its dedicated privacy opt-out contact. (source: https://oag.ca.gov/data-broker/registration/553004) 2026-11-26: opt.out@modfxlabs.com bounced (550 5.4.1, recipient rejected, access denied). Not confirmed dead, email kept; if it keeps failing use opt_out_url. 2026-11-28: Privacy policy now gives mandeep@modfxlabs.com as the contact for queries; not adopted as the address (individual employee mailbox, see the sweep note).'
     - id: modigie
       name: Modigie Inc.
       email: ""
@@ -3389,12 +3395,12 @@ brokers:
       category: marketing
     - id: nymblr
       name: Nymblr, Inc.
-      email: privacy@nymblr.com
+      email: ""
       website: https://www.nymblr.com/
       opt_out_url: https://www.nymblr.com
       region: us
       category: marketing
-      notes: 'Email support@nimbler.com hard-bounced (2026-08-21) - address/domain invalid. SWEEP 2026-09-12: Registered CA data broker (d/b/a Nimbler); the on-file support@nimbler.com hard-bounced (wrong domain/subsidiary brand), while Nymblr''s own CA registration lists privacy@nymblr.com as its contact and the on-file opt-out URL already matches their footer opt-out flow. (source: https://oag.ca.gov/data-broker/registration/575475)'
+      notes: 'Email support@nimbler.com hard-bounced (2026-08-21) - address/domain invalid. SWEEP 2026-09-12: Registered CA data broker (d/b/a Nimbler); the on-file support@nimbler.com hard-bounced (wrong domain/subsidiary brand), while Nymblr''s own CA registration lists privacy@nymblr.com as its contact and the on-file opt-out URL already matches their footer opt-out flow. (source: https://oag.ca.gov/data-broker/registration/575475) 2026-11-26: privacy@nymblr.com bounced (550 5.1.1, mailbox does not exist). Email cleared; use the form at opt_out_url.'
     - id: onaudience
       name: Onaudience Ltd
       email: privacy@onaudience.com
